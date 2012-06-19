@@ -1,4 +1,6 @@
+package sc2build.optimizer;
 import java.util.*;
+
 
 /*
  * Created on 11.06.2012
@@ -12,66 +14,98 @@ import java.util.*;
  */
 public class SC2Planner
 {
-	enum Faction
+	public enum Faction
 	{
 		TERRAN,
 		PROTOS,
-		ZERG
+		ZERG;
+
+		public List<Entity> getEnities()
+		{
+			return EntityLoader.load(this.name());
+		}
 	}
 	
-	class Cost
+	public static class Cost
 	{
-		String entity;
+		String name;
 		int amount;
+		String error;
 	}
 	
-	class Entity
+	public static class NeedEntity
+	{
+		String name;
+		String error;
+	}
+	public static class AtMost
+	{
+		public String name;
+		public int amount;
+		public String error;
+		public String as;
+	}
+	
+	public static class Entity
 	{
 		String name;
 		String section;
-		String kind;
 		Integer start;
 		String style;
 		int[] value;
-		List<Entity> products;
-		List<Entity> need;
+		List<Entity> products = new ArrayList<>();
+		List<NeedEntity> need = new ArrayList<>();
 		
-		Entity adding;
+		String adding;
 		Entity addsto;
-		List<String> conditions;
-		List<Cost> costs;
+		List<String> conditions = new ArrayList<>();
+		List<Cost> costs = new ArrayList<>();
 		
-		String error;
 		String multi;
 		
 		int cap;
+		public boolean autocheck;
+		public int time;
+		public int amount;
+		public String save;
+		public Integer idle;
+		public AtMost atmost = new AtMost();
+		public boolean eventualError;
+		public String currentError;
 	}
 	
 	class Event
 	{
+		protected int time;
+		public String event;
+		public String name;
+		public int actInd;
+		public boolean active;
 	}
-	
-	/*class Value
-	{
-		public List<Integer> value = new ArrayList<Integer>();
-	}*/
-	
 	class Category
 	{
-		public List<Integer> value = new ArrayList<Integer>();
+		public int[] value = new int[50];
 	}
 	
 	SC2Planner sc;
-	List<Event> events;
+	LinkedList<Event> events;
 	int currentTime;
 	private String factionName;
-	private ArrayList<Integer> entities;
-	private ArrayList<Integer> entitiesByKey;
-	private ArrayList<Integer> build;
-	private ArrayList<Integer> delays;
-	private ArrayList<Integer> food;
-	private ArrayList<Integer> eventualError;
+	private Map<String, Entity> entities = new HashMap<String, Entity>();
+	private Map<String, Entity> entitiesByKey = new HashMap<String, Entity>();
+	private List<Entity> build;
+	private List<Integer> delays;
+	private List<String> food;
+	private List<String> eventualError;
 	private int currentPosition;
+	private int stopAtTime;
+	private int chronoboost;
+	private int activeEvents;
+	private ArrayList<String> chronoTarget;
+	private ArrayList<Integer> chronoAmount;
+	private ArrayList<Integer> chronoFinished;
+	private Map<String /*section*/, Category> category = new HashMap<>();
+	private boolean isDelayed;
 	
 	int sum(int[] d)
 	{
@@ -148,29 +182,35 @@ public class SC2Planner
 			throw new IllegalStateException("Error: no faction: ");
 		}
 		this.factionName = faction.name();
-		this.entities = new ArrayList<Integer>();
-		this.entitiesByKey = new ArrayList<Integer>();
-		this.build = new ArrayList<Integer>();
+		//this.entities = new ArrayList<Integer>();
+		//this.entitiesByKey = new ArrayList<Integer>();
+		this.build = new ArrayList<Entity>();
 		this.delays = new ArrayList<Integer>();
-		this.food = new ArrayList<Integer>();
-		this.eventualError = new ArrayList<Integer>();
+		this.food = new ArrayList<String>();
+		this.eventualError = new ArrayList<String>();
 		this.currentPosition = -1;
-		for ( int a = 0; a < faction.values().length; a++)
+		List<Entity> entities = faction.getEnities();
+		for (Entity entity : entities)
 		{
-			entity = faction.entities[a];
-			this.entities[entity.name] = entity;
-			this.entitiesByKey[entity.save] = entity;
+			this.entities.put(entity.name, entity);
+			if (entity.save != null)
+			{
+				this.entitiesByKey.put(entity.save, entity);
+			}
 			this.initEntity(entity);
 		}
 		this.stopAtTime = -1;
-		this.readBuild();
+		//this.readBuild();
 		this.updateCenter(false, false, 0, false);
-		this.updateBuild(false);
+		//this.updateBuild(false);
 	}
 	
+	public String getFactionName() {
+		return factionName;
+	}
 	void reset(Entity a)
 	{
-		a.value = int[] {a.start};
+		a.value = new int[] {a.start};
 		a.idle = a.start;
 	}
 	
@@ -180,32 +220,32 @@ public class SC2Planner
 		{
 			a.start = 0;
 		}
-		if (a.autocheck == null)
-		{
+		//if (a.autocheck == null)
+		//{
 			a.autocheck = false;
-		}
-		if (a.time == null)
-		{
+		//}
+		//if (a.time == null)
+		//{
 			a.time = 0;
-		}
+		//}
 		if (a.products != null)
 		{
-			for ( var b = 0; b < a.products.length; b++)
+			for ( Entity b : a.products)
 			{
-				if (a.products[b].name == null)
+				if (b.name == null)
 				{
-					a.products[b].name = a.name;
+					b.name = a.name;
 				}
-				if (a.products[b].amount == null)
-				{
-					a.products[b].amount = 1;
-				}
+				//if (b.amount == null)
+				//{
+					b.amount = 1;
+				//}
 			}
 		}
 		else
 		{
 			Entity ent = new Entity();
-			ent.name = a.name,;
+			ent.name = a.name;
 			ent.amount = 1;
 			a.products = new ArrayList<Entity>();
 			a.products.add(ent);
@@ -215,13 +255,13 @@ public class SC2Planner
 	
 	public String exportBuild()
 	{
-		str = "";
-		for ( var b = 0; b < this.build.length; b++)
+		String str = "";
+		for (int b = 0; b < this.build.size(); b++)
 		{
-			var a = this.build[b];
-			if (a.style != "nonumber" && this.food[b] != null && this.food[b] != "")
+			Entity a = this.build.get(b);
+			if (a.style != "nonumber" && this.food.get(b) != null && this.food.get(b) != "")
 			{
-				str += this.food[b] + " : " + this.build[b].name + "\n"
+				str += this.food.get(b) + " : " + this.build.get(b).name + "\n";
 			}
 		}
 		return str;
@@ -231,19 +271,43 @@ public class SC2Planner
 	{
 		this.stopAtTime = -1;
 		
-		if (this.currentPosition >= 0
-				&& this.build[this.currentPosition].adding != null
-				&& this.build[this.currentPosition].adding == b.name)
+		if (b.section == "pause")
 		{
-			this.build.splice(this.currentPosition, 1,
-					this.entities[this.build[this.currentPosition].addsto]);
-			this.delays.splice(this.currentPosition, 1, 0);
+			if (this.currentPosition >= 0
+					&& this.build.get(this.currentPosition).section == "pause")
+			{
+				this.delays.set(this.currentPosition, this.delays.get(this.currentPosition) + a);
+			} 
+			else
+			{
+				if (this.currentPosition < (this.build.size() - 1)
+						&& this.build.get(this.currentPosition + 1).section == "pause")
+				{
+					this.delays.set(this.currentPosition, this.delays.get(this.currentPosition + 1) + a);
+				}
+				else
+				{
+					this.currentPosition += 1;
+					this.build.add(this.currentPosition, b);
+					this.delays.add(this.currentPosition, a);
+				}
+			}
 		} 
 		else
 		{
-			this.currentPosition += 1;
-			this.build.splice(this.currentPosition, 0, b);
-			this.delays.splice(this.currentPosition, 0, 0);
+			if (this.currentPosition >= 0
+					&& this.build.get(this.currentPosition).adding != null
+					&& this.build.get(this.currentPosition).adding == b.name)
+			{
+				this.build.set(this.currentPosition, this.entities.get(this.build.get(this.currentPosition).addsto));
+				this.delays.set(this.currentPosition, 0);
+			} 
+			else
+			{
+				this.currentPosition += 1;
+				this.build.add(this.currentPosition, b);
+				this.delays.add(this.currentPosition, 0);
+			}
 		}
 		
 		this.updateCenter(true, false, this.currentPosition, false);
@@ -254,7 +318,7 @@ public class SC2Planner
 	{
 		this.currentPosition = a;
 		this.stopAtTime = -1;
-		this.updateCenter(false, false, 0, true)
+		this.updateCenter(false, false, 0, true);
 	}
 	
 	
@@ -266,122 +330,122 @@ public class SC2Planner
 		}
 		if (entity.conditions != null)
 		{
-			for ( var h in entity.conditions)
+			for (String condition : entity.conditions)
 			{
-				if (max(this.entities[entity.conditions[h]].value) <= 0)
+				if (max(this.entities.get(condition).value) <= 0)
 				{
-					return entity.conditions[h] + " needed.";
+					return condition + " needed.";
 				}
 			}
 		}
-		if (entity.need)
+		if (entity.need != null && entity.need.size() > 0)
 		{
-			for ( var h = 0; h < entity.need.length; h++)
+			for (NeedEntity need : entity.need)
 			{
-				if (this.entities[entity.need[h].name].idle <= 0)
+				if (this.entities.get(need.name).idle <= 0)
 				{
-					return entity.need[h].error;
+					return need.error;
 				}
 			}
 		}
-		var d = (entity.name == "Slow Mineral Patch");
-		var b = (entity.name == "Slow Gold Mineral Patch");
-		var a = (entity.name == "Fast Mineral Patch");
-		var l = (this.entities["Slow Gold Mineral Patch"].idle > 0);
-		var k = (this.entities["Fast Mineral Patch"].idle > 0);
-		var i = (this.entities["Fast Gold Mineral Patch"].idle > 0);
+		boolean d = (entity.name == "Slow Mineral Patch");
+		boolean b = (entity.name == "Slow Gold Mineral Patch");
+		boolean a = (entity.name == "Fast Mineral Patch");
+		boolean l = (this.entities.get("Slow Gold Mineral Patch").idle > 0);
+		boolean k = (this.entities.get("Fast Mineral Patch").idle > 0);
+		boolean i = (this.entities.get("Fast Gold Mineral Patch").idle > 0);
 		if ((d && (l || k || i)) || (b && (k || i)) || (a && i))
 		{
 			return "Faster patch available.";
 		}
 		if (entity.name == "Slow Gas Patch"
-				&& this.entities["Fast Gas Patch"].idle > 0)
+				&& this.entities.get("Fast Gas Patch").idle > 0)
 		{
 			return "Faster patch available.";
 		}
-		var f = 0;
-		if (entity.costs)
+		int f = 0;
+		if (entity.costs.size() > 0)
 		{
-			for ( var h in entity.costs)
+			for (Cost cost : entity.costs)
 			{
 				if (c)
 				{
-					if (entity.costs[h].name == "Minerals"
-							&& this.entities["Mineral Drone"]
-							&& this.entities["Mineral Drone"].value[0] > 0)
+					if (cost.name == "Minerals"
+							//&& this.entities.get("Mineral Drone")
+							&& this.entities.get("Mineral Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Minerals"
-							&& this.entities["Mineral Probe"]
-							&& this.entities["Mineral Probe"].value[0] > 0)
+					if (cost.name == "Minerals"
+							//&& this.entities["Mineral Probe"]
+							&& this.entities.get("Mineral Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Minerals"
-							&& this.entities["Mineral SCV"]
-							&& this.entities["Mineral SCV"].value[0] > 0)
+					if (cost.name == "Minerals"
+							//&& this.entities["Mineral SCV"]
+							&& this.entities.get("Mineral SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Gas" && this.entities["Gas Drone"]
-							&& this.entities["Gas Drone"].value[0] > 0)
+					if (cost.name == "Gas" //&& this.entities.get("Gas Drone")
+							&& this.entities.get("Gas Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Gas" && this.entities["Gas Probe"]
-							&& this.entities["Gas Probe"].value[0] > 0)
+					if (cost.name == "Gas" //&& this.entities["Gas Probe"]
+							&& this.entities.get("Gas Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Gas" && this.entities["Gas SCV"]
-							&& this.entities["Gas SCV"].value[0] > 0)
+					if (cost.name == "Gas" //&& this.entities["Gas SCV"]
+							&& this.entities.get("Gas SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Larva")
+					if (cost.name == "Larva")
 					{
 						continue;
 					}
-					if (entity.costs[h].name == "Energy"
-							&& this.entities["Energy Spawner"].value[0] > 0)
+					if (cost.name == "Energy"
+							&& this.entities.get("Energy Spawner").value[0] > 0)
 					{
 						continue;
 					}
 				}
-				if (entity.costs[h].name == "Energy" && entity.name == "Chronoboost"
+				if (cost.name == "Energy" && entity.name == "Chronoboost"
 						&& this.chronoboost > 0)
 				{
-					if (max(this.entities.Energy.value) < entity.costs[h].amount
+					if (max(this.entities.get("Energy").value) < cost.amount
 							- this.chronoboost * 11.25 / 1000)
 					{
-						return entity.costs[h].error;
+						return cost.error;
 					}
 				} else
 				{
-					if (max(this.entities[entity.costs[h].name].value) < entity.costs[h].amount)
+					if (max(this.entities.get(cost.name).value) < cost.amount)
 					{
-						return entity.costs[h].error;
+						return cost.error;
 					}
 				}
-				if (entity.atmost && entity.costs[h].name == entity.atmost.name)
+				if (entity.atmost != null && cost.name == entity.atmost.name)
 				{
-					f = entity.costs[h].amount;
+					f = cost.amount;
 				}
 			}
 		}
-		if (entity.atmost)
+		if (entity.atmost != null)
 		{
-			if (entity.atmost.amount)
+			if (entity.atmost.amount > 0)
 			{
-				if (this.entities[entity.atmost.name].value[index] - f > entity.atmost.amount)
+				if (this.entities.get(entity.atmost.name).value[index] - f > entity.atmost.amount)
 				{
 					return entity.atmost.error;
 				}
 			}
-			if (entity.atmost.as)
+			if (entity.atmost.as != null)
 			{
-				if (this.entities[entity.atmost.name].value[index] - f > max(this.entities[entity.atmost.as].value))
+				if (this.entities.get(entity.atmost.name).value[index] - f > max(this.entities.get(entity.atmost.as).value))
 				{
 					return entity.atmost.error;
 				}
@@ -392,28 +456,28 @@ public class SC2Planner
 	
 	void autoCheck (Entity b, int index)
 	{
-		String error = this.errorDoing(b, a, false);
-		if (error)
+		String error = this.errorDoing(b, index, false);
+		if (error != null)
 		{
 			Event event = new Event();
 			event.event = "check";
 			
 			event.name = b.name;
-			event.actInd = a;
+			event.actInd = index;
 			event.active = false;
 			
 			if (b.name == "Larva Spawner")
 			{
-				event.time = parseInt((this.currentTime + 100));
+				event.time = (this.currentTime + 100);
 			}
 			else
 			{
-				event.time = parseInt((this.currentTime + parseInt(3 * b.time / 4))),
+				event.time = this.currentTime + Integer.valueOf(3 * b.time / 4);
 			}
 			this.events.push(event);
-			this.events = this.events.sort(new Comparator<Event>()
+			Collections.sort(this.events, new Comparator<Event>()
 			{
-				public int compare(Event o1, Event o2);
+				public int compare(Event o1, Event o2)
 				{
 					return o1.time - o2.time;
 				}
@@ -421,7 +485,7 @@ public class SC2Planner
 		}
 		else
 		{
-			this.startDoing(b, b.time, a, false)
+			this.startDoing(b, b.time, index, false);
 		}
 	}
 	
@@ -431,16 +495,17 @@ public class SC2Planner
 		{
 			for (Cost f : d.costs)
 			{
-				Entity l = this.entities[f.name];
+				Entity l = this.entities.get(f.name);
 				int a = f.amount;
 				int c = maxIndexOf(l.value);
 				l.value[c] -= a;
 				l.idle -= a;
 				if (a < 0 && l.autocheck)
 				{
+					int g = 0;
 					if (l.multi.equals(d.name))
 					{
-						var g = i;
+						g = actInd;
 						if (l.value[g] != 0)
 						{
 							l.value[g] = 0;
@@ -450,7 +515,7 @@ public class SC2Planner
 					{
 						g = 0;
 					}
-					for ( var k = 0; k < -a; k++)
+					for (int k = 0; k < -a; k++)
 					{
 						this.autoCheck(l, l.value[g] - (-a) + k);
 					}
@@ -459,29 +524,29 @@ public class SC2Planner
 		}
 		if (d.need != null)
 		{
-			for (Entity f : d.need)
+			for (NeedEntity f : d.need)
 			{
-				this.entities[f.name].idle -= 1;
+				this.entities.get(f.name).idle -= 1;
 			}
 		}
 		if (d.name == "Chronoboost")
 		{
 			this.chronoboost += 1000;
 		}
-		if (b)
+		if (isActive)
 		{
 			this.activeEvents += 1;
 		}
 		Event event = new Event();
 		event.event = "execute";
-		event.time = parseInt((this.currentTime + addedTime));
-		event.name = b.name;
-		event.actInd = i;
+		event.time = this.currentTime + addedTime;
+		event.name = d.name;
+		event.actInd = actInd;
 		event.active = isActive;
 		
-		this.events = this.events.sort(new Comparator<Event>()
+		Collections.sort(this.events, new Comparator<Event>()
 		{
-			public int compare(Event o1, Event o2);
+			public int compare(Event o1, Event o2)
 			{
 				return o1.time - o2.time;
 			}
@@ -490,23 +555,24 @@ public class SC2Planner
 	
 	void finishDoing (Entity g, int index, boolean resetActiveEvents)
 	{
-		autocheckNeedError = false;
+		boolean autocheckNeedError = false;
 		if (g.need != null && g.autocheck)
 		{
-			for (Entity a : g.need)
+			for (NeedEntity a : g.need)
 			{
-				if (this.entities[a.name].idle < 0)
+				if (this.entities.get(a.name).idle < 0)
 				{
 					autocheckNeedError = true;
 				}
 			}
 		}
-		if (g.products && !autocheckNeedError)
+		if (g.products != null && !autocheckNeedError)
 		{
 			for (Entity a : g.products)
 			{
-				Entity f = this.entities[a.name];
+				Entity f = this.entities.get(a.name);
 				int amount = a.amount;
+				int useIndex = 0;
 				if (f.multi.equals(g.name))
 				{
 					useIndex = index;
@@ -517,28 +583,28 @@ public class SC2Planner
 				}
 				else
 				{
-					useIndex = minIndexOf(f.value)
+					useIndex = minIndexOf(f.value);
 				}
 				if (f.cap != 0 && f.value[useIndex] + amount > f.cap)
 				{
-					amount = f.cap - f.value[useIndex]
+					amount = f.cap - f.value[useIndex];
 				}
 				f.value[useIndex] += amount;
 				f.idle += amount;
 				if (f.autocheck)
 				{
-					for ( var b = 0; b < amount; b++)
+					for (int b = 0; b < amount; b++)
 					{
-						this.autoCheck(f, f.value[useIndex] - amount + b)
+						this.autoCheck(f, f.value[useIndex] - amount + b);
 					}
 				}
 			}
 		}
-		if (g.need)
+		if (g.need != null)
 		{
-			for ( var a in g.need)
+			for (NeedEntity a : g.need)
 			{
-				this.entities[g.need[a].name].idle += 1;
+				this.entities.get(a.name).idle += 1;
 			}
 		}
 		if (resetActiveEvents)
@@ -550,227 +616,225 @@ public class SC2Planner
 			this.autoCheck(g, index);
 		}
 	}
-	void updateCenter (Entity l, boolean notInit, int position, int j)
+	void updateCenter (boolean initError, boolean notInit, int position, boolean j)
 	{
 		if (!notInit)
 		{
-			this.updateCenter(l, true, position, j);
+			this.updateCenter(initError, true, position, j);
 		}
-		if (l)
+		if (initError)
 		{
-			for ( var k = a; k < this.build.length; k++)
+			for (int k = position; k < this.build.size(); k++)
 			{
-				this.eventualError[k] = null;
+				this.eventualError.add(k, null);
 			}
 		}
 		this.currentTime = 100;
 		this.chronoboost = 0;
-		this.chronoTarget = new ArrayList<Integer>();
-		this.chronoAmount = new ArrayList<Integer>();
-		this.chronoFinished = new ArrayList<Integer>();
+		this.chronoTarget = new ArrayList<String>(500);
+		this.chronoAmount = new ArrayList<Integer>(500);
+		this.chronoFinished = new ArrayList<Integer>(500);
 		this.activeEvents = 0;
-		var r = 20000;
+		//int r = 20000;
+		
 		if (!notInit)
 		{
-			this.category = new ArrayList<Category>();
-			this.category.add(new Category());
-			this.category.add(new Category());
-			this.category.add(new Category());
-			this.category.add(new Category());
-			this.category.add(new Category());
-			this.category.add(new Category());
-			
-			/*this.category.pause = new ArrayList<Integer>();
-			this.category.worker = new ArrayList<Integer>();
-			this.category.special = new ArrayList<Integer>();
-			this.category.building = new ArrayList<Integer>();
-			this.category.upgrade = new ArrayList<Integer>();
-			this.category.unit = new ArrayList<Integer>();*/
+			this.category = new HashMap<String, SC2Planner.Category>();
+			this.category.put("pause", new Category());
+			this.category.put("worker", new Category());
+			this.category.put("special", new Category());
+			this.category.put("building", new Category());
+			this.category.put("upgrade", new Category());
+			this.category.put("unit", new Category());
 		}
-		this.events = new ArrayList<Integer>();
-		for (Entity k : this.entities)
+		this.events = new LinkedList<Event>();
+		for (Entity action : this.entities.values())
 		{
-			action = this.entities[k];
 			this.reset(action);
 		}
-		for (Entity k : this.entities)
-		{
-			action = this.entities[k];
+		for (Entity action : this.entities.values())
+		{			
 			if (action.autocheck && action.name != "Fast Mineral Patch"
 					&& action.name != "Slow Mineral Patch")
 			{
-				for ( var q = 0; q < action.value[0]; q++)
+				for (int q = 0; q < action.value[0]; q++)
 				{
 					this.autoCheck(action, 0);
 				}
 			}
 		}
-		for ( var k = 0; k < 16; k++)
+		for (int k = 0; k < 16; k++)
 		{
 			Event event = new Event();
 			event.event = "check";
-			event.time = parseInt(10 + ((k + 1) / 2) * 100);
+			event.time = Integer.valueOf(10 + ((k + 1) / 2) * 100);
 			event.name = "Fast Mineral Patch";
 			event.actInd = 0;
 			this.events.add(event);
 		}
-		for ( var k = 0; k < 8; k++)
+		for (int k = 0; k < 8; k++)
 		{
 			Event event = new Event();
 			event.event = "check";
-			event.time = parseInt(1002 + k * 100);
+			event.time = Integer.valueOf(1002 + k * 100);
 			event.name = "Slow Mineral Patch";
 			event.actInd = 0;
 			this.events.add(event);
 		}
-		this.events = this.events.sort(new Comparator<Event>()
+		Collections.sort(this.events, new Comparator<Event>()
 		{
-			int compare(Event o1, Event o2);
+			public int compare(Event o1, Event o2)
 			{
 				return o1.time - o2.time;
 			}
 		});
-		for ( var k = 0; k < this.build.length; k++)
+		for (int k = 0; k < this.build.size(); k++)
 		{
 			if (notInit
 					&& ((this.stopAtTime != -1 && this.currentTime > this.stopAtTime) || (this.stopAtTime == -1 && k > this.currentPosition)))
 			{
 				break;
 			}
-			action = this.build[k];
-			boolean proceed = true;
+			Entity action = this.build.get(k);
+			String proceedMessage = null;
 			this.isDelayed = false;
-			if (!this.eventualError[k])
+			int actionTime = 0;
+			if (this.eventualError.get(k) != null)
 			{
+				String evError = null;
 				do
 				{
-					if (proceed)
+					if (proceedMessage != null)
 					{
-						e = this.events.pop();
+						Event e = this.events.pop();
 						if (this.stopAtTime != -1)
 						{
 							if (this.currentTime <= this.stopAtTime
 									&& e.time > this.stopAtTime)
 							{
 								this.currentTime = this.stopAtTime;
-								this.updateClock();
-								this.updateAmounts();
+								//this.updateClock();
+								//this.updateAmounts();
 								if (this.currentPosition == -2)
 								{
 									this.currentPosition = k - 1;
-									this.updateBuild(true);
+									//this.updateBuild(true);
 								}
 							}
 						}
 						this.currentTime = e.time;
 						if (e.event == "execute")
 						{
-							this.finishDoing(this.entities[e.name], e.actInd,
+							this.finishDoing(this.entities.get(e.name), e.actInd,
 									e.active);
 						}
 						if (e.event == "check")
 						{
-							this.autoCheck(this.entities[e.name], e.actInd);
+							this.autoCheck(this.entities.get(e.name), e.actInd);
 						}
 						if (e.event == "start")
 						{
-							n = null;
+							proceedMessage = null;
 							break;
 						}
 					}
-					proceed = this.errorDoing(action, maxIndexOf(action.value), false) != null;
-					eventualError = this.errorDoing(action,maxIndexOf(action.value), true);
+					proceedMessage = this.errorDoing(action, maxIndexOf(action.value), false);
+					evError = this.errorDoing(action,maxIndexOf(action.value), true);
 					
-					if (!proceed && k > 0 && this.delays[k - 1] > 0)
+					if (proceedMessage == null && k > 0 && this.delays.get(k - 1) > 0)
 					{
 						if (!this.isDelayed)
 						{
 							Event event = new Event();
 							event.event = "start";
-							event.time = parseInt((this.currentTime + this.delays[k - 1] * 100));
+							event.time = this.currentTime + this.delays.get(k - 1) * 100;
 							event.name = action.name;
 							this.events.add(event);
 							
-							this.events = this.events.sort(new Comparator<Event>()
-									{
-										int compare(Event o1, Event o2);
-										{
-											return o1.time - o2.time;
-										}
-									});
+							Collections.sort(this.events, new Comparator<Event>()
+							{
+								public int compare(Event o1, Event o2)
+								{
+									return o1.time - o2.time;
+								}
+							});
 							this.isDelayed = true;
 						}
-						proceed = true;
+						proceedMessage = "Delaying.";
 					}
-				} while (n && (this.activeEvents > 0 || !eventualError));
+				} while (proceedMessage != null && (this.activeEvents > 0 || evError == null));
 				actionTime = action.time;
-				if (this.chronoboost > 0 && action.name != "Chronoboost"
-						&& action.need && action.need.length > 0)
+				
+				int chronoTargetSize = 0;
+				if (this.chronoboost > 0 && action.name.equals("Chronoboost")
+						&& action.need != null && action.need.size() > 0)
 				{
-					this.chronoAmount[this.chronoTarget.length] = this.chronoboost;
-					this.chronoTarget[this.chronoTarget.length] = action.need[0].name;
+					this.chronoAmount.set(chronoTargetSize, this.chronoboost);
+					this.chronoTarget.add(action.need.get(0).name);
+					chronoTargetSize++;
 					this.chronoboost = 0;
 				}
-				for ( var m in this.chronoTarget)
+				for (int m = 0; m < this.chronoTarget.size(); m++)
 				{
-					if (action.need && action.need.length > 0
-							&& action.need[0].name == this.chronoTarget[m])
+					if (chronoTarget.get(m) == null) continue;
+					
+					if (action.need != null && action.need.size() > 0
+							&& action.need.get(0).name.equals(chronoTarget.get(m)))
 					{
-						if (this.chronoFinished[m]
-								&& this.currentTime < this.chronoFinished[m])
+						if (this.chronoFinished.size() > m && this.chronoFinished.get(m) != null
+								&& this.currentTime < this.chronoFinished.get(m))
 						{
-							continue
+							continue;
 						}
-						if (this.chronoFinished[m])
+						if (this.chronoFinished.size() > m && this.chronoFinished.get(m) != null)
 						{
-							this.chronoAmount[m] = Math
-									.max(
-											this.chronoAmount[m]
-													- (this.currentTime - this.chronoFinished[m])
-													/ 2, 0)
+							this.chronoAmount.set(m, Math.max(
+											this.chronoAmount.get(m)
+													- (this.currentTime - this.chronoFinished.get(m))
+													/ 2, 0));
 						}
-						if (actionTime < this.chronoAmount[m] * 3)
+						if (actionTime < this.chronoAmount.get(m) * 3)
 						{
-							var o = parseInt(actionTime * 1 / 3);
+							int o = Integer.valueOf(actionTime * 1 / 3);
 							actionTime = actionTime - o;
-							this.chronoAmount[m] = this.chronoAmount[m] - o;
-							this.chronoFinished[m] = this.currentTime
-									+ actionTime
+							this.chronoAmount.set(m, this.chronoAmount.get(m) - o);
+							this.chronoFinished.set(m, this.currentTime + actionTime);
 						} else
 						{
-							actionTime = actionTime - this.chronoAmount[m];
-							delete this.chronoTarget[m];
-							delete this.chronoAmount[m];
-							if (this.chronoFinished[m])
+							actionTime = actionTime - this.chronoAmount.get(m);
+							this.chronoTarget.set(m, null);
+							this.chronoAmount.set(m, null);
+							if (this.chronoFinished.get(m) != null)
 							{
-								delete this.chronoFinished[m]
+								this.chronoFinished.set(m, null);
 							}
 						}
-						break
+						break;
 					}
 				}
 				if (!(notInit && ((this.stopAtTime != -1 && this.currentTime > this.stopAtTime) || (this.stopAtTime == -1 && k > this.currentPosition))))
 				{
-					if (!n)
+					if (proceedMessage == null)
 					{
 						if (!notInit)
 						{
-							this.food[k] = this.entities.Food.value[0]
+							this.food.set(k, String.valueOf(this.entities.get("Food").value[0]));
 						}
-						this.startDoing(action, actionTime, action.value[0],
-								true)
-					} else
+						this.startDoing(action, actionTime, action.value[0], true);
+					}
+					else
 					{
-						this.eventualError[k] = n;
-						this.updateCenter(false, false, a, j);
-						this.food[k] = "";
+						this.eventualError.set(k,  proceedMessage);
+						this.updateCenter(false, false, position, j);
+						this.food.set(k, "");
 						return;
 					}
 				}
-			} else
+			}
+			else
 			{
 				actionTime = action.time;
-				n = this.eventualError[k];
+				proceedMessage = this.eventualError.get(k);
 			}
 			/*if (!b && !j && action.name != "Chronoboost")
 			{
@@ -936,29 +1000,29 @@ public class SC2Planner
 		if (!notInit)
 		{
 			while (this.stopAtTime != -1 && this.currentTime <= this.stopAtTime
-					&& this.events.length > 0)
+					&& this.events.size() > 0)
 			{
 				if (this.currentPosition == -2)
 				{
-					this.currentPosition = this.build.length - 1;
-					this.updateBuild(true)
+					this.currentPosition = this.build.size() - 1;
+					//this.updateBuild(true);
 				}
-				e = this.events.pop();
+				Event e = this.events.pop();
 				if (e.time > this.stopAtTime)
 				{
 					this.currentTime = this.stopAtTime;
 					//this.updateClock();
 					//this.updateAmounts();
-					break
+					break;
 				}
 				this.currentTime = e.time;
 				if (e.event == "execute")
 				{
-					this.finishDoing(this.entities[e.name], e.actInd, e.active)
+					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
 				}
 				if (e.event == "check")
 				{
-					this.autoCheck(this.entities[e.name], e.actInd)
+					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
 			}
 		}
@@ -966,29 +1030,28 @@ public class SC2Planner
 		{
 			while (this.activeEvents > 0)
 			{
-				e = this.events.pop();
+				Event e = this.events.pop();
 				this.currentTime = e.time;
 				if (e.event == "execute")
 				{
-					this.finishDoing(this.entities[e.name], e.actInd, e.active)
+					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
 				}
 				if (e.event == "check")
 				{
-					this.autoCheck(this.entities[e.name], e.actInd)
+					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
 			}
-			for ( var k in this.entities)
+			for (Entity g : this.entities.values())
 			{
-				var g = this.entities[k];
-				n = this.errorDoing(g, maxIndexOf(g.value), true);
-				if (n)
+				String n = this.errorDoing(g, maxIndexOf(g.value), true);
+				if (n != null)
 				{
 					g.eventualError = true;
-					g.currentError = n
+					g.currentError = n;
 				} else
 				{
 					g.eventualError = false;
-					g.currentError = ""
+					g.currentError = "";
 				}
 			}
 		}
@@ -1164,23 +1227,27 @@ public class SC2Planner
 		{
 			k = this.currentTime + Math.max(d, 2500);
 		}
-		var a = this.category[g.section].length;
-		var j = this.currentTime - m * 100;
-		for ( var h = 0; h < this.category[g.section].length; h++)
+		Category cat = this.category.get(g.section);
+		int a = cat.value.length;
+		int j = this.currentTime - m * 100;
+		
+		for (int h = 0; h < cat.value.length; h++)
 		{
-			if (j >= this.category[g.section][h])
+			if (j >= cat.value[h])
 			{
-				this.category[g.section][h] = k;
+				cat.value[h] = k;
 				a = h;
 				break;
 			}
 		}
-		if (a == this.category[g.section].length)
+		if (a == cat.value.length)
 		{
-			this.category[g.section].push(k);
+			int[] newArr = new int[cat.value.length + 1];
+			System.arraycopy(cat.value, 0, newArr, 0, cat.value.length);
+			cat.value[cat.value.length - 1] = k;
 		}
-		sectionId = g.section + "_" + a;
-		/*sectionDiv = $("#" + sectionId);
+		/*String sectionId = g.section + "_" + a;
+		sectionDiv = $("#" + sectionId);
 		if (!sectionDiv.length)
 		{
 			sectionDiv = $("<div></div>").addClass("section").attr("id",
@@ -1195,8 +1262,8 @@ public class SC2Planner
 		$("#chrono_" + c.attr("id")).remove();*/
 		if (g.time != d)
 		{
-			var f = k + g.time - d;
-			this.category[g.section][a] = f;
+			int f = k + g.time - d;
+			cat.value[a] = f;
 			/*sectionDiv.append($("<div></div>").css("left",
 					parseInt((k * 0.05) - 1) + "px").css("zIndex", 0).css(
 					"width", parseInt(((g.time - d) * 0.05)) + "px").addClass(
