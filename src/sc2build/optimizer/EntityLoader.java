@@ -107,10 +107,10 @@ public class EntityLoader
 		
 		ent.addsto = obj.getString("addsto");
 		
-		ent.atmost = new SC2Planner.AtMost();
 		JSONObject atMostObj = obj.getJSONObject("atmost");
 		if (atMostObj != null)
 		{
+			ent.atmost = new SC2Planner.AtMost();
 			ent.atmost.amount = atMostObj.getInt("amount"); 
 			ent.atmost.as = atMostObj.getString("as");
 			ent.atmost.error = atMostObj.getString("error");
