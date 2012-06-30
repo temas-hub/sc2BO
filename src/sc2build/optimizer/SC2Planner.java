@@ -14,16 +14,35 @@ import java.util.*;
  */
 public class SC2Planner
 {
+	private static final EntityLoader loader = new EntityLoader();
+	
+	public SC2Planner()
+	{
+		SC2Planner.loader.init();
+	}
+	
 	public enum Faction
 	{
-		TERRAN,
-		PROTOS,
-		ZERG;
-
+		TERRAN("Terran"),
+		PROTOSS("Protoss"),
+		ZERG("Zerg");
+		
 		public List<Entity> getEnities()
 		{
-			return EntityLoader.load(this.name());
+			return SC2Planner.loader.load(this.name);
 		}
+		
+		private final String name;
+		private Faction (String name)
+		{
+			this.name = name;
+		}
+	}
+	
+	public static class Race
+	{
+		String name;
+		List<Entity> entities;
 	}
 	
 	public static class Cost
@@ -57,7 +76,7 @@ public class SC2Planner
 		List<NeedEntity> need = new ArrayList<NeedEntity>();
 		
 		String adding;
-		Entity addsto;
+		String addsto;
 		List<String> conditions = new ArrayList<String>();
 		List<Cost> costs = new ArrayList<Cost>();
 		
@@ -87,7 +106,6 @@ public class SC2Planner
 		public int[] value = new int[50];
 	}
 	
-	SC2Planner sc;
 	LinkedList<Event> events;
 	int currentTime;
 	private String factionName;
@@ -1291,5 +1309,10 @@ public class SC2Planner
 		
 		SC2Planner sc = new SC2Planner();
 		sc.init(Faction.valueOf(args[0]));	
+	}
+	
+	public Entity getEntityByName(String name)
+	{
+		return this.entities.get(name);
 	}
 }

@@ -472,7 +472,16 @@ public class JSONObject {
      *  if the value is not a Boolean or the String "true" or "false".
      */
     public boolean getBoolean(String key) throws JSONException {
-        Object object = this.get(key);
+        Object object;
+		try
+		{
+			object = this.get(key);
+		}
+		catch (JSONException e)
+		{
+			return false;
+		}
+		
         if (object.equals(Boolean.FALSE) ||
                 (object instanceof String &&
                 ((String)object).equalsIgnoreCase("false"))) {
@@ -516,7 +525,16 @@ public class JSONObject {
      *  be converted to an integer.
      */
     public int getInt(String key) throws JSONException {
-        Object object = this.get(key);
+        Object object;
+		try
+		{
+			object = this.get(key);
+		}
+		catch (JSONException e1)
+		{
+			return 0;
+		}
+        	
         try {
             return object instanceof Number
                 ? ((Number)object).intValue()
@@ -537,7 +555,15 @@ public class JSONObject {
      *  if the value is not a JSONArray.
      */
     public JSONArray getJSONArray(String key) throws JSONException {
-        Object object = this.get(key);
+        Object object;
+		try
+		{
+			object = this.get(key);
+		}
+		catch (JSONException e)
+		{
+			return null;
+		}
         if (object instanceof JSONArray) {
             return (JSONArray)object;
         }
@@ -554,8 +580,18 @@ public class JSONObject {
      * @throws      JSONException if the key is not found or
      *  if the value is not a JSONObject.
      */
-    public JSONObject getJSONObject(String key) throws JSONException {
-        Object object = this.get(key);
+    public JSONObject getJSONObject(String key) throws JSONException
+    {
+        Object object;
+		try
+		{
+			object = this.get(key);
+		}
+		catch (JSONException e)
+		{
+			return null;
+		}
+		
         if (object instanceof JSONObject) {
             return (JSONObject)object;
         }
@@ -637,9 +673,18 @@ public class JSONObject {
      * @throws   JSONException if there is no string value for the key.
      */
     public String getString(String key) throws JSONException {
-        Object object = this.get(key);
+        Object object;
+		try
+		{
+			object = this.get(key);
+		}
+		catch (JSONException e)
+		{
+			return "".intern();
+		}
+        
         if (object instanceof String) {
-            return (String)object;
+            return ((String)object).intern();
         }
         throw new JSONException("JSONObject[" + quote(key) +
             "] not a string.");
