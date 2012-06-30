@@ -28,6 +28,7 @@ public class LoadTest
 				Assert.assertTrue(entity.need.size() > 0);
 				Assert.assertTrue(entity.products.size() > 0);
 				Assert.assertTrue(entity.costs.size() > 0);
+				Assert.assertTrue(entity.time > 0);
 			}
 		}
 		Assert.assertTrue(found);

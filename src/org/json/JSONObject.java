@@ -532,7 +532,7 @@ public class JSONObject {
 		}
 		catch (JSONException e1)
 		{
-			return 0;
+			return -1;
 		}
         	
         try {
