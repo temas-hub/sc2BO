@@ -771,16 +771,16 @@ public class SC2Planner
 							}
 						}
 						this.currentTime = e.time;
-						if (e.event == "execute")
+						if (e.event.equals("execute"))
 						{
 							this.finishDoing(this.entities.get(e.name), e.actInd,
 									e.active);
 						}
-						if (e.event == "check")
+						if (e.event.equals("check"))
 						{
 							this.autoCheck(this.entities.get(e.name), e.actInd);
 						}
-						if (e.event == "start")
+						if (e.event.equals("start"))
 						{
 							proceedMessage = null;
 							break;
@@ -1078,11 +1078,11 @@ public class SC2Planner
 					break;
 				}
 				this.currentTime = e.time;
-				if (e.event == "execute")
+				if (e.event.equals("execute"))
 				{
 					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
 				}
-				if (e.event == "check")
+				if (e.event.equals("check"))
 				{
 					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
@@ -1095,11 +1095,11 @@ public class SC2Planner
 			{
 				Event e = this.events.pop();
 				this.currentTime = e.time;
-				if (e.event == "execute")
+				if (e.event.equals("execute"))
 				{
 					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
 				}
-				if (e.event == "check")
+				if (e.event.equals("check"))
 				{
 					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
