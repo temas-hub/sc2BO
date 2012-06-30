@@ -3,8 +3,11 @@ package sc2build.optimizer;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
+import sc2build.optimizer.BuildOptimizer.Node;
 import sc2build.optimizer.SC2Planner.Entity;
 import sc2build.optimizer.SC2Planner.Faction;
 
@@ -25,6 +28,11 @@ public class BuildOptimizerTest
 		BuildOptimizer bo = new BuildOptimizer();
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
 		
-		System.out.println();
+		Node node = bo.getMinNode();
+		Assert.assertEquals("Zealot", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Zealot", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertNull(node.getEntity());
 	}
 }
