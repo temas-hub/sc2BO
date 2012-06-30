@@ -1452,6 +1452,10 @@
 			} ],
 			products :
 			[
+				{
+					name : "Assimilator",
+					amount : 1
+				},
 			{
 				name : "Gas Space",
 				amount : 3
