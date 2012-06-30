@@ -144,7 +144,7 @@ public class SC2Planner
 	private int currentPosition;
 	private int stopAtTime;
 	private int chronoboost;
-	private int activeEvents;
+	public int activeEvents;
 	private ArrayList<String> chronoTarget;
 	private ArrayList<Integer> chronoAmount;
 	private ArrayList<Integer> chronoFinished;
