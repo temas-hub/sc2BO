@@ -25,7 +25,7 @@ public class BuildOptimizerTest
 		req.add(zealot);
 		req.add(zealot);
 		
-		BuildOptimizer bo = new BuildOptimizer();
+		BuildOptimizer bo = new BuildOptimizer(planner);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
 		
 		Node node = bo.getMinNode();

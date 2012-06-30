@@ -109,9 +109,13 @@ public class BuildOptimizer
 		this.planner = planner;
 	}
 
-	private void fillBuild(Node node, Deque<String> build)
+	private void fillBuild(Node node, Deque<Entity> build)
 	{
-		build.addFirst(node.entity == null ? "ROOT" : node.entity.name);
+		if (node.entity == null)
+		{
+			return;
+		}
+		build.addFirst(node.entity);
 		if (node.parent != null)
 		{
 			this.fillBuild(node.parent, build);
@@ -120,12 +124,12 @@ public class BuildOptimizer
 	
 	public void printBuild(Node node)
 	{
-		LinkedList<String> build = new LinkedList<>();
+		LinkedList<Entity> build = new LinkedList<>();
 		this.fillBuild(node, build);
 		
-		for (String item : build)
+		for (Entity item : build)
 		{
-			System.out.print(item);
+			System.out.print(item.name);
 			System.out.print("-");
 		}
 	}
@@ -173,7 +177,6 @@ public class BuildOptimizer
 		if (this.curentLevelNodes.size() == 0) return;
 		if (++this.level > LEVEL_THRESHOLD) return;
 		
-		
 		List<Node> pastLevelNodes = new LinkedList<>(this.curentLevelNodes);
 		this.curentLevelNodes.clear();
 		
@@ -181,7 +184,7 @@ public class BuildOptimizer
 		{
 			for (Entity entity : race.entities)
 			{
-				if (entity.section != Section.resource && this.isAllowedToAdd(race,entity))
+				if (entity.section != Section.resource && this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
 				}
@@ -190,12 +193,19 @@ public class BuildOptimizer
 		this.buildNewLevel(race, requried);
 	}
 
-	private boolean isAllowedToAdd(Race race, Entity entity)
+	private boolean isAllowedToAdd(Node node, Entity entity)
 	{
-		planner.clearBuilds();
-		for(Entity a: race.entities)
-			planner.insertIntoBuild(a);
-		planner.insertIntoBuild(entity);
+		this.planner.clearBuilds();
+		LinkedList<Entity> build = new LinkedList<>();
+		this.fillBuild(node, build);
+		
+		for (Entity item : build)
+		{
+			this.planner.insertIntoBuild(item);
+		}
+		
+		this.planner.insertIntoBuild(entity);
+		
 		return planner.isSuccessfull();
 	}
 	
@@ -203,6 +213,4 @@ public class BuildOptimizer
 	{
 		return this.minNode;
 	}
-	
-	
 }
