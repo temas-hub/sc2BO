@@ -78,13 +78,13 @@ public class SC2Planner
 		Integer start;
 		String style;
 		int[] value;
-		List<Entity> products = new ArrayList<Entity>();
-		List<NeedEntity> need = new ArrayList<NeedEntity>();
+		List<Entity> products = null;
+		List<NeedEntity> need = null;
 		
 		String adding;
 		String addsto;
-		List<String> conditions = new ArrayList<String>();
-		List<Cost> costs = new ArrayList<Cost>();
+		List<String> conditions = null;
+		List<Cost> costs = null;
 		
 		String multi;
 		
@@ -94,7 +94,7 @@ public class SC2Planner
 		public Integer amount;
 		public String save;
 		public Integer idle;
-		public AtMost atmost = new AtMost();
+		public AtMost atmost = null;
 		public boolean eventualError;
 		public String currentError;
 		@Override
@@ -408,7 +408,7 @@ public class SC2Planner
 			return "Faster patch available.";
 		}
 		int f = 0;
-		if (entity.costs.size() > 0)
+		if (entity.costs!=null && entity.costs.size() > 0)
 		{
 			for (Cost cost : entity.costs)
 			{

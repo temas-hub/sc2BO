@@ -121,10 +121,10 @@ public class EntityLoader
 			ent.atmost.name = atMostObj.getString("name");
 		}
 		
-		ent.conditions = new ArrayList<>();
 		JSONArray condArr = obj.getJSONArray("conditions");
 		if (condArr != null)
 		{
+			ent.conditions = new ArrayList<>();
 			for (int i=0; i < condArr.length(); i++)
 			{
 				ent.conditions.add(condArr.getString(i));
@@ -132,10 +132,10 @@ public class EntityLoader
 		}
 		
 			
-		ent.costs = new ArrayList<>();
 		JSONArray costArr = obj.getJSONArray("costs");
 		if (costArr != null)
 		{
+			ent.costs = new ArrayList<>();
 			for (int i=0; i < costArr.length(); i++)
 			{
 				Cost cost = new Cost();
@@ -147,10 +147,10 @@ public class EntityLoader
 			}
 		}
 		
-		ent.need = new ArrayList<>();
 		JSONArray needArr = obj.getJSONArray("need");
 		if (needArr != null)
 		{
+			ent.need = new ArrayList<>();
 			for (int i=0; i < needArr.length(); i++)
 			{
 				NeedEntity needEntity = new NeedEntity();
@@ -161,10 +161,10 @@ public class EntityLoader
 			}
 		}
 		
-		ent.products = new ArrayList<>();
 		JSONArray productArr = obj.getJSONArray("products");
 		if (productArr != null)
 		{
+			ent.products = new ArrayList<>();
 			for (int i=0; i < productArr.length(); i++)
 			{
 				Entity prodEntity = new Entity();
