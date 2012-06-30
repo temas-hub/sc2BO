@@ -38,6 +38,11 @@ public class SC2Planner
 		{
 			this.name = name;
 		}
+		
+		public String getName()
+		{
+			return this.name;
+		}
 	}
 	
 	public static class Race
@@ -1394,11 +1399,21 @@ public class SC2Planner
 		}
 	}
 	
-	private void insertIntoBuild(Entity entity) {
+	public void insertIntoBuild(Entity entity)
+	{
 		this.insertIntoBuild(entity,0);
 	}
 	public Entity getEntityByName(String name)
 	{
 		return this.entities.get(name);
 	}
+	public Map<String, Entity> getEntities()
+	{
+		return entities;
+	}
+	public Race getRace(String name)
+	{
+		return SC2Planner.loader.getRace(name);
+	}
+	
 }
