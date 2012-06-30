@@ -50,6 +50,10 @@ public class EntityLoader
 		Race race = EntityLoader.data.get(name);
 		return race.entities;
 	}
+	public Race getRace(String name)
+	{
+		return EntityLoader.data.get(name);
+	}
 
 	public void init()
 	{
