@@ -144,7 +144,7 @@ public class SC2Planner
 	private int currentPosition;
 	private int stopAtTime;
 	private int chronoboost;
-	private int activeEvents;
+	int activeEvents;
 	private ArrayList<String> chronoTarget;
 	private ArrayList<Integer> chronoAmount;
 	private ArrayList<Integer> chronoFinished;
@@ -382,7 +382,7 @@ public class SC2Planner
 				}
 			}
 		}
-		if (entity.need != null && entity.need.size() > 0)
+		if (entity.need != null)
 		{
 			for (NeedEntity need : entity.need)
 			{
@@ -408,7 +408,7 @@ public class SC2Planner
 			return "Faster patch available.";
 		}
 		int f = 0;
-		if (entity.costs!=null && entity.costs.size() > 0)
+		if (entity.costs!=null)
 		{
 			for (Cost cost : entity.costs)
 			{
@@ -548,7 +548,7 @@ public class SC2Planner
 				if (a < 0 && l.autocheck)
 				{
 					int g = 0;
-					if (l.multi.equals(d.name))
+					if (l.multi==d.name)
 					{
 						g = actInd;
 						if (l.value[g] != 0)
@@ -618,7 +618,7 @@ public class SC2Planner
 				Entity f = this.entities.get(a.name);
 				int amount = a.amount;
 				int useIndex = 0;
-				if (f.multi!=null && f.multi.equals(g.name))
+				if (f.multi== g.name)
 				{
 					useIndex = index;
 					if (f.value[useIndex] != 0)
@@ -771,16 +771,16 @@ public class SC2Planner
 							}
 						}
 						this.currentTime = e.time;
-						if (e.event.equals("execute"))
+						if (e.event==("execute"))
 						{
 							this.finishDoing(this.entities.get(e.name), e.actInd,
 									e.active);
 						}
-						if (e.event.equals("check"))
+						if (e.event==("check"))
 						{
 							this.autoCheck(this.entities.get(e.name), e.actInd);
 						}
-						if (e.event.equals("start"))
+						if (e.event==("start"))
 						{
 							proceedMessage = null;
 							break;
@@ -814,8 +814,8 @@ public class SC2Planner
 				actionTime = action.time;
 				assertEvents();
 				int chronoTargetSize = 0;
-				if (this.chronoboost > 0 && action.name.equals("Chronoboost")
-						&& action.need != null && action.need.size() > 0)
+				if (this.chronoboost > 0 && action.name=="Chronoboost"
+						&& action.need != null)
 				{
 					this.chronoAmount.set(chronoTargetSize, this.chronoboost);
 					this.chronoTarget.add(action.need.get(0).name);
@@ -826,8 +826,8 @@ public class SC2Planner
 				{
 					if (chronoTarget.get(m) == null) continue;
 					
-					if (action.need != null && action.need.size() > 0
-							&& action.need.get(0).name.equals(chronoTarget.get(m)))
+					if (action.need != null 
+							&& action.need.get(0).name==(chronoTarget.get(m)))
 					{
 						if (this.chronoFinished.size() > m && this.chronoFinished.get(m) != null
 								&& this.currentTime < this.chronoFinished.get(m))
@@ -1078,11 +1078,11 @@ public class SC2Planner
 					break;
 				}
 				this.currentTime = e.time;
-				if (e.event.equals("execute"))
+				if (e.event==("execute"))
 				{
 					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
 				}
-				if (e.event.equals("check"))
+				if (e.event==("check"))
 				{
 					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
@@ -1095,11 +1095,11 @@ public class SC2Planner
 			{
 				Event e = this.events.pop();
 				this.currentTime = e.time;
-				if (e.event.equals("execute"))
+				if (e.event==("execute"))
 				{
 					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
 				}
-				if (e.event.equals("check"))
+				if (e.event==("check"))
 				{
 					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
@@ -1379,9 +1379,10 @@ public class SC2Planner
 		sc.insertIntoBuild(sc.entities.get("Stalker"));
 		sc.insertIntoBuild(sc.entities.get("Stalker"));
 		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.updateCenter(false, true, 0, false);
 		dumpState(sc);
 	}
-	private static void dumpState(SC2Planner sc) {
+	public static void dumpState(SC2Planner sc) {
 		sc.assertEvents();
 		System.out.println("delays");
 		for(int i : sc.delays){
