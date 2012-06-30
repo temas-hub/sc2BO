@@ -1440,5 +1440,15 @@ public class SC2Planner
 	{
 		return SC2Planner.loader.getRace(name);
 	}
+	public boolean isSuccessfull() {
+		for(Entity i: entities.values()){
+			if(i.eventualError)return false;
+		}
+		return true;
+	}
+	
+	public void clearBuilds() {
+		//TODO: clear build
+	}
 	
 }

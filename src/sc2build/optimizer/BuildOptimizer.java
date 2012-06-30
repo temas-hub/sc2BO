@@ -92,13 +92,23 @@ public class BuildOptimizer
 		{
 			return this.entity;
 		}
+
+		public void dump() {
+			if(this.parent!=null)this.parent.dump();
+			System.out.println(time+" : "+ this.entity);
+		}
 	}
 
 	private List<Node> curentLevelNodes = new LinkedList<>();
 	private int minTime = Integer.MAX_VALUE;
 	private Node minNode = null;
 	private int level = 0;
+	private SC2Planner planner;
 	
+	public BuildOptimizer(SC2Planner planner) {
+		this.planner = planner;
+	}
+
 	private void fillBuild(Node node, Deque<String> build)
 	{
 		build.addFirst(node.entity == null ? "ROOT" : node.entity.name);
@@ -171,7 +181,7 @@ public class BuildOptimizer
 		{
 			for (Entity entity : race.entities)
 			{
-				if (entity.section != Section.resource && this.isAllowedToAdd(entity))
+				if (entity.section != Section.resource && this.isAllowedToAdd(race,entity))
 				{
 					this.putEntity(node, entity, requried);
 				}
@@ -180,9 +190,13 @@ public class BuildOptimizer
 		this.buildNewLevel(race, requried);
 	}
 
-	private boolean isAllowedToAdd(Entity entity)
+	private boolean isAllowedToAdd(Race race, Entity entity)
 	{
-		return true;
+		planner.clearBuilds();
+		for(Entity a: race.entities)
+			planner.insertIntoBuild(a);
+		planner.insertIntoBuild(entity);
+		return planner.isSuccessfull();
 	}
 	
 	public Node getMinNode()
