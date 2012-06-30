@@ -91,6 +91,19 @@ public class SC2Planner
 		public AtMost atmost = new AtMost();
 		public boolean eventualError;
 		public String currentError;
+		@Override
+		public String toString() {
+			return "Entity [name=" + name + ", section=" + section + ", start="
+					+ start + ", style=" + style + ", value="
+					+ Arrays.toString(value) + ", adding=" + adding + ", addsto="
+					+ addsto +   ", multi=" + multi + ", cap=" + cap
+					+ ", autocheck=" + autocheck + ", time=" + time
+					+ ", amount=" + amount + ", save=" + save + ", idle="
+					+ idle + ", atmost=" + atmost + ", eventualError="
+					+ eventualError + ", currentError=" + currentError + "]";
+		}
+		
+		
 	}
 	
 	class Event
@@ -100,6 +113,13 @@ public class SC2Planner
 		public String name;
 		public int actInd;
 		public boolean active;
+		@Override
+		public String toString() {
+			return "Event [time=" + time + ", event=" + event + ", name="
+					+ name + ", actInd=" + actInd + ", active=" + active + "]";
+		}
+		
+		
 	}
 	class Category
 	{
@@ -389,34 +409,34 @@ public class SC2Planner
 				if (c)
 				{
 					if (cost.name == "Minerals"
-							//&& this.entities.get("Mineral Drone")
+							&& this.entities.get("Mineral Drone")!=null
 							&& this.entities.get("Mineral Drone").value[0] > 0)
 					{
 						continue;
 					}
 					if (cost.name == "Minerals"
-							//&& this.entities["Mineral Probe"]
+							&& this.entities.get("Mineral Probe")!=null
 							&& this.entities.get("Mineral Probe").value[0] > 0)
 					{
 						continue;
 					}
 					if (cost.name == "Minerals"
-							//&& this.entities["Mineral SCV"]
+							&& this.entities.get("Mineral SCV")!=null
 							&& this.entities.get("Mineral SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Gas" //&& this.entities.get("Gas Drone")
+					if (cost.name == "Gas" && this.entities.get("Gas Drone")!=null
 							&& this.entities.get("Gas Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Gas" //&& this.entities["Gas Probe"]
+					if (cost.name == "Gas" && this.entities.get("Gas Probe")!=null
 							&& this.entities.get("Gas Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Gas" //&& this.entities["Gas SCV"]
+					if (cost.name == "Gas" && this.entities.get("Gas SCV")!=null
 							&& this.entities.get("Gas SCV").value[0] > 0)
 					{
 						continue;
@@ -454,16 +474,17 @@ public class SC2Planner
 		}
 		if (entity.atmost != null)
 		{
+			Entity v = this.entities.get(entity.atmost.name);
 			if (entity.atmost.amount > 0)
 			{
-				if (this.entities.get(entity.atmost.name).value[index] - f > entity.atmost.amount)
+				if (v.value[index] - f > entity.atmost.amount)
 				{
 					return entity.atmost.error;
 				}
 			}
-			if (entity.atmost.as != null)
+			if (entity.atmost.as != null && entity.atmost.as!="")
 			{
-				if (this.entities.get(entity.atmost.name).value[index] - f > max(this.entities.get(entity.atmost.as).value))
+				if (v.value[index] - f > max(this.entities.get(entity.atmost.as).value))
 				{
 					return entity.atmost.error;
 				}
@@ -717,7 +738,7 @@ public class SC2Planner
 			String proceedMessage = null;
 			this.isDelayed = false;
 			int actionTime = 0;
-			if (this.eventualError.get(k) != null)
+			if (this.eventualError.size()>k && this.eventualError.get(k) != null)
 			{
 				String evError = null;
 				do
@@ -852,7 +873,7 @@ public class SC2Planner
 			else
 			{
 				actionTime = action.time;
-				proceedMessage = this.eventualError.get(k);
+				proceedMessage = this.eventualError.size()<=k ? null : this.eventualError.get(k);
 			}
 			if (!notInit && !j && action.name != "Chronoboost")
 			{
@@ -1315,12 +1336,39 @@ public class SC2Planner
 			
 	public static void main(String args[])
 	{
-		if (args.length != 1) throw new IllegalArgumentException("Zerg, Terran or Protoss should be defined");
+		//if (args.length != 1) throw new IllegalArgumentException("Zerg, Terran or Protoss should be defined");
 		
 		SC2Planner sc = new SC2Planner();
-		sc.init(Faction.valueOf(args[0]));	
+		//sc.init(Faction.valueOf(args[0]));
+		sc.init(Faction.PROTOSS);
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Pylon"));
+		sc.insertIntoBuild(sc.entities.get("Gateway"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		System.out.println("delays");
+		for(int i : sc.delays){
+			System.out.println(i);
+		}
+		System.out.println("food");
+		for(String i : sc.food){
+			System.out.println(i);
+		}
+		System.out.println("Events");
+		//sc.updateCenter(true, false, 0, false);
+		for(Event i :sc.events){
+			System.out.println(i);
+		}
+		System.out.println("BUILD::");
+		for(Entity i :sc.build){
+			System.out.println(i);
+		}
 	}
 	
+	private void insertIntoBuild(Entity entity) {
+		this.insertIntoBuild(entity,0);
+	}
 	public Entity getEntityByName(String name)
 	{
 		return this.entities.get(name);
