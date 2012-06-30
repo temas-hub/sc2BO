@@ -635,7 +635,7 @@ public class SC2Planner
 					}*/
 					if (f.value.length <= useIndex)
 					{
-						int[] n = new int[useIndex];
+						int[] n = new int[useIndex + 1];
 						System.arraycopy(f.value, 0, n, 0, f.value.length);
 						f.value = n;
  						f.value[useIndex] = 0;

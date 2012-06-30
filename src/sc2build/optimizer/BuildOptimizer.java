@@ -10,8 +10,8 @@ import sc2build.optimizer.SC2Planner.Race;
 
 public class BuildOptimizer
 {
-	private static final int TIME_THRESHOLD =  60 * 2 * 100; // 2 min
-	private static final int LEVEL_THRESHOLD = 4;
+	private static final int TIME_THRESHOLD =  60 * 50 * 100; // 2 min
+	private static final int LEVEL_THRESHOLD = 5;
 	
 	public static class Node
 	{
@@ -98,6 +98,12 @@ public class BuildOptimizer
 			if(this.parent!=null)this.parent.dump();
 			System.out.println(time+" : "+ this.entity);
 		}
+		
+		@Override
+		public String toString()
+		{
+			return this.entity == null ? "Root" : this.entity.name;
+		}
 	}
 
 	private List<Node> curentLevelNodes = new LinkedList<>();
@@ -141,10 +147,10 @@ public class BuildOptimizer
 		
 		Node node = new Node(parent, entity, time);
 		parent.addNode(node);
-		if (node.isBuildDone(requried) || 
-				node.getAccumTime() > TIME_THRESHOLD)
+		boolean buildIsDone = node.isBuildDone(requried);
+		if (node.getAccumTime() > TIME_THRESHOLD || buildIsDone)
 		{
-			if (node.isBuildDone(requried))
+			if (buildIsDone)
 			{
 				this.calcMinTime(node);
 			}
