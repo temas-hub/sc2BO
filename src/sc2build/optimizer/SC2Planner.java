@@ -618,7 +618,7 @@ public class SC2Planner
 				Entity f = this.entities.get(a.name);
 				int amount = a.amount;
 				int useIndex = 0;
-				if (f.multi.equals(g.name))
+				if (f.multi!=null && f.multi.equals(g.name))
 				{
 					useIndex = index;
 					if (f.value[useIndex] != 0)
