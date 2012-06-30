@@ -90,7 +90,7 @@ public class SC2Planner
 		
 		Integer cap;
 		public boolean autocheck;
-		public int time;
+		public Integer time;
 		public Integer amount;
 		public String save;
 		public Integer idle;
@@ -268,9 +268,9 @@ public class SC2Planner
 		//{
 		//	a.autocheck = false;
 		//}
-		if (a.time <0)
+		if (a.time==null)
 		{
-			//a.time = 0;
+			a.time = 0;
 		}
 		if (a.products != null)
 		{
@@ -481,7 +481,7 @@ public class SC2Planner
 		if (entity.atmost != null)
 		{
 			Entity v = this.entities.get(entity.atmost.name);
-			if (entity.atmost.amount > 0)
+			if (entity.atmost.amount!=null && entity.atmost.amount > 0)
 			{
 				if (v.value[index] - f > entity.atmost.amount)
 				{
@@ -630,7 +630,7 @@ public class SC2Planner
 				{
 					useIndex = minIndexOf(f.value);
 				}
-				if (f.cap != 0 && f.value[useIndex] + amount > f.cap)
+				if (f.cap != null && f.cap>0 && f.value[useIndex] + amount > f.cap)
 				{
 					amount = f.cap - f.value[useIndex];
 				}
