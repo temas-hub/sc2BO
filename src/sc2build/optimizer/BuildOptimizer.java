@@ -205,8 +205,9 @@ public class BuildOptimizer
 		}
 		
 		this.planner.insertIntoBuild(entity);
+		return !entity.eventualError; 
 		
-		return planner.isSuccessfull();
+		//return planner.isSuccessfull();
 	}
 	
 	public Node getMinNode()

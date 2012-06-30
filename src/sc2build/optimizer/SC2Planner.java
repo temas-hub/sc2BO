@@ -1444,7 +1444,10 @@ public class SC2Planner
 	{
 		for(Entity i: entities.values())
 		{
-			if(i.eventualError)return false;
+			if(i.eventualError)
+			{
+				return false;
+			}
 		}
 		return true;
 	}
