@@ -92,7 +92,7 @@ public class EntityLoader
 		ent.save =  obj.getString("save");
 		ent.style = obj.getString("style");
 		String sectionStr = obj.getString("section");
-		if (sectionStr != null)
+		if (sectionStr.length() > 0)
 		{
 			ent.section = Section.valueOf(sectionStr);
 		}
