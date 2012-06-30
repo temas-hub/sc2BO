@@ -502,7 +502,7 @@ public class SC2Planner
 	void autoCheck (Entity b, int index)
 	{
 		String error = this.errorDoing(b, index, false);
-		if (error != null)
+		if (error != null && error.length() > 0)
 		{
 			Event event = new Event();
 			event.event = "check";
@@ -789,7 +789,7 @@ public class SC2Planner
 					proceedMessage = this.errorDoing(action, maxIndexOf(action.value), false);
 					evError = this.errorDoing(action,maxIndexOf(action.value), true);
 					
-					if (proceedMessage == null && k > 0 && this.delays.get(k - 1) > 0)
+					if ((proceedMessage == null || proceedMessage.length() == 0) && k > 0 && this.delays.get(k - 1) > 0)
 					{
 						if (!this.isDelayed)
 						{
@@ -810,7 +810,7 @@ public class SC2Planner
 						}
 						proceedMessage = "Delaying.";
 					}
-				} while (proceedMessage != null && (this.activeEvents > 0 || evError == null));
+				} while (proceedMessage != null && proceedMessage.length() > 0 && (this.activeEvents > 0 || evError == null));
 				actionTime = action.time;
 				assertEvents();
 				int chronoTargetSize = 0;
