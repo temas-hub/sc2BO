@@ -168,6 +168,7 @@ public class BuildOptimizer
 	public void buildRaceTree(Race race, List<Entity> requried)
 	{
 		Node root = new Node(null, null, 0);
+		this.curentLevelNodes.clear();
 		this.curentLevelNodes.add(root);
 		this.buildNewLevel(race, requried);
 	}

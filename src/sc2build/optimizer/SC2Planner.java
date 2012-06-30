@@ -1470,13 +1470,13 @@ public class SC2Planner
 	
 	public void clearBuilds()
 	{
-		SC2Planner.loader.init();
+		//SC2Planner.loader.init();
 		this.reset();
-		this.build.clear();
+		/*this.build.clear();
 		this.delays.clear();
 		this.food.clear();
 		
-		this.currentPosition = -1;
+		this.currentPosition = -1;*/
 	}
 	
 	public int getCurrentTime()
