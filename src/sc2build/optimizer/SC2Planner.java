@@ -68,7 +68,7 @@ public class SC2Planner
 	public static class Entity
 	{
 		String name;
-		String section;
+		Section section;
 		Integer start;
 		String style;
 		int[] value;
@@ -122,7 +122,7 @@ public class SC2Planner
 	private ArrayList<String> chronoTarget;
 	private ArrayList<Integer> chronoAmount;
 	private ArrayList<Integer> chronoFinished;
-	private Map<String /*section*/, Category> category = new HashMap<String /*section*/, Category>();
+	private Map<Section, Category> category = new HashMap<Section, Category>();
 	private boolean isDelayed;
 	
 	int sum(int[] d)
@@ -289,17 +289,17 @@ public class SC2Planner
 	{
 		this.stopAtTime = -1;
 		
-		if (b.section == "pause")
+		if (b.section == Section.pause)
 		{
 			if (this.currentPosition >= 0
-					&& this.build.get(this.currentPosition).section == "pause")
+					&& this.build.get(this.currentPosition).section == Section.pause)
 			{
 				this.delays.set(this.currentPosition, this.delays.get(this.currentPosition) + a);
 			} 
 			else
 			{
 				if (this.currentPosition < (this.build.size() - 1)
-						&& this.build.get(this.currentPosition + 1).section == "pause")
+						&& this.build.get(this.currentPosition + 1).section == Section.pause)
 				{
 					this.delays.set(this.currentPosition, this.delays.get(this.currentPosition + 1) + a);
 				}
@@ -657,13 +657,13 @@ public class SC2Planner
 		
 		if (!notInit)
 		{
-			this.category = new HashMap<String, SC2Planner.Category>();
-			this.category.put("pause", new Category());
-			this.category.put("worker", new Category());
-			this.category.put("special", new Category());
-			this.category.put("building", new Category());
-			this.category.put("upgrade", new Category());
-			this.category.put("unit", new Category());
+			this.category = new HashMap<Section, SC2Planner.Category>();
+			this.category.put(Section.pause, new Category());
+			this.category.put(Section.worker, new Category());
+			this.category.put(Section.special, new Category());
+			this.category.put(Section.building, new Category());
+			this.category.put(Section.upgrade, new Category());
+			this.category.put(Section.unit, new Category());
 		}
 		this.events = new LinkedList<Event>();
 		for (Entity action : this.entities.values())
@@ -854,6 +854,16 @@ public class SC2Planner
 				actionTime = action.time;
 				proceedMessage = this.eventualError.get(k);
 			}
+			if (!notInit && !j && action.name != "Chronoboost")
+			{
+				int h = 0;
+				if (k > 0 && delays.get(k-1) > 0)
+				{
+					h = delays.get(k-1);
+				}
+				this.insertAction(action, h, actionTime);	
+			}
+
 			/*if (!b && !j && action.name != "Chronoboost")
 			{
 				$("#action_" + k).remove();
@@ -1238,7 +1248,7 @@ public class SC2Planner
 			}
 		}
 	};*/
-	void insertAction (Entity g, String c, int m, String b, int d)
+	void insertAction (Entity g, int m, int d)
 	{
 		int k = this.currentTime + d;
 		if (g.style == "action" || g.style == "instant")
