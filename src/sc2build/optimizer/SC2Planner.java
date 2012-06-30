@@ -280,9 +280,9 @@ public class SC2Planner
 				{
 					b.name = a.name;
 				}
-				if (b.amount<=0)
+				if (b.amount==null)
 				{
-					//b.amount = 1;
+					b.amount = 1;
 				}
 			}
 		}
@@ -733,6 +733,7 @@ public class SC2Planner
 				return o1.time - o2.time;
 			}
 		});
+		assertEvents();
 		//dumpState(this);
 		for (int k = 0; k < this.build.size(); k++)
 		{
@@ -753,6 +754,7 @@ public class SC2Planner
 					if (proceedMessage != null)
 					{
 						Event e = this.events.pop();
+						//System.out.println(action+" waits for "+e);
 						if (this.stopAtTime != -1)
 						{
 							if (this.currentTime <= this.stopAtTime
@@ -810,7 +812,7 @@ public class SC2Planner
 					}
 				} while (proceedMessage != null && (this.activeEvents > 0 || evError == null));
 				actionTime = action.time;
-				
+				assertEvents();
 				int chronoTargetSize = 0;
 				if (this.chronoboost > 0 && action.name.equals("Chronoboost")
 						&& action.need != null && action.need.size() > 0)
@@ -1058,6 +1060,7 @@ public class SC2Planner
 		//dumpState(this);
 		if (!notInit)
 		{
+			assertEvents();
 			while (this.stopAtTime != -1 && this.currentTime <= this.stopAtTime
 					&& this.events.size() > 0)
 			{
@@ -1087,6 +1090,7 @@ public class SC2Planner
 		}
 		else
 		{
+			assertEvents();
 			while (this.activeEvents > 0)
 			{
 				Event e = this.events.pop();
@@ -1100,6 +1104,7 @@ public class SC2Planner
 					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
 			}
+			assertEvents();
 			for (Entity g : this.entities.values())
 			{
 				String n = this.errorDoing(g, maxIndexOf(g.value), true);
@@ -1113,6 +1118,7 @@ public class SC2Planner
 					g.currentError = "";
 				}
 			}
+			assertEvents();
 		}
 		//dumpState(this);
 	}
@@ -1353,26 +1359,30 @@ public class SC2Planner
 		//sc.init(Faction.valueOf(args[0]));
 		sc.init(Faction.PROTOSS);
 		//sc.stopAtTime = 1000000;
+		sc.insertIntoBuild(sc.entities.get("Assimilator"));
+		sc.insertIntoBuild(sc.entities.get("Gas Probe"));
+		sc.insertIntoBuild(sc.entities.get("Gas Probe"));
+		sc.insertIntoBuild(sc.entities.get("Gas Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
 		sc.insertIntoBuild(sc.entities.get("Probe"));
 		sc.insertIntoBuild(sc.entities.get("Probe"));
 		sc.insertIntoBuild(sc.entities.get("Pylon"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
 		sc.insertIntoBuild(sc.entities.get("Gateway"));
 		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		
 		sc.insertIntoBuild(sc.entities.get("Pylon"));
+		sc.insertIntoBuild(sc.entities.get("Cybernetics Core"));
+		sc.insertIntoBuild(sc.entities.get("Stalker"));
+		sc.insertIntoBuild(sc.entities.get("Stalker"));
 		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.updateCenter(false, true, 0, false);
 		dumpState(sc);
 	}
 	private static void dumpState(SC2Planner sc) {
+		sc.assertEvents();
 		System.out.println("delays");
 		for(int i : sc.delays){
 			System.out.println(i);
@@ -1397,8 +1407,23 @@ public class SC2Planner
 			}
 			System.out.println();
 		}
+		
+		for(Entry<String, Entity> a : sc.entities.entrySet()){
+			if(a.getValue().value!=null && a.getValue().value.length>0 && a.getValue().value[0]!=0){
+				System.out.println(a);
+			}
+		}
 	}
 	
+	private void assertEvents() {
+		int actualActive = 0;
+		for(Event i : events){
+			if(i.active) actualActive++;
+		}
+		if(actualActive!=this.activeEvents){
+			throw new IllegalStateException(" active "+actualActive+" but should be "+activeEvents);
+		}
+	}
 	public void insertIntoBuild(Entity entity)
 	{
 		this.insertIntoBuild(entity,0);
