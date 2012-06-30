@@ -72,7 +72,8 @@ public class BuildOptimizer
 
 		public int getAccumTime()
 		{
-			return (this.parent == null ? 0 : this.parent.getAccumTime()) + this.time;
+			//return (this.parent == null ? 0 : this.parent.getAccumTime()) + this.time;
+			return this.time;
 		}
 		
 		public boolean isBuildDone(List<Entity> requried)
@@ -136,8 +137,7 @@ public class BuildOptimizer
 	
 	private void putEntity(Node parent, Entity entity, List<Entity> requried)
 	{
-		// put to planner and get time
-		int time = entity.time;
+		int time = this.planner.getCurrentTime();
 		
 		Node node = new Node(parent, entity, time);
 		parent.addNode(node);

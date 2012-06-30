@@ -1458,4 +1458,8 @@ public class SC2Planner
 		this.currentPosition = -1;
 	}
 	
+	public int getCurrentTime()
+	{
+		return this.currentTime;
+	}
 }

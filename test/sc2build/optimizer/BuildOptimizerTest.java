@@ -14,7 +14,7 @@ import sc2build.optimizer.SC2Planner.Faction;
 public class BuildOptimizerTest
 {
 	@Test
-	public void test3ZealotsTree()
+	public void test2ZealotsTree()
 	{
 		SC2Planner planner = new SC2Planner();
 		planner.init(Faction.PROTOSS);
