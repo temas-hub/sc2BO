@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import sc2build.optimizer.SC2Planner.Entity;
 import sc2build.optimizer.SC2Planner.Race;
@@ -12,8 +11,9 @@ import sc2build.optimizer.SC2Planner.Race;
 public class BuildOptimizer
 {
 	private static final int TIME_THRESHOLD =  60 * 2 * 100; // 2 min
+	private static final int LEVEL_THRESHOLD = 4;
 	
-	private static class Node
+	public static class Node
 	{
 		private final Entity entity;
 		
@@ -25,7 +25,7 @@ public class BuildOptimizer
 		
 		public Node(Node parent, Entity entity, int time)
 		{
-			this.setParent(this.parent);
+			this.setParent(parent);
 			this.setTime(time);
 			this.entity = entity;
 		}
@@ -65,9 +65,14 @@ public class BuildOptimizer
 			this.leafNode = isFailed;
 		}
 		
+		public boolean isLeafNode()
+		{
+			return leafNode;
+		}
+
 		public int getAccumTime()
 		{
-			return (this.parent == null ? 0 : this.parent.time) + this.time;
+			return (this.parent == null ? 0 : this.parent.getAccumTime()) + this.time;
 		}
 		
 		public boolean isBuildDone(List<Entity> requried)
@@ -78,26 +83,32 @@ public class BuildOptimizer
 			{
 				entitiesToDone.remove(node.entity);
 			}
-			while ((node = node.parent) != null);
+			while ((node = node.parent).entity != null);
 			
 			return entitiesToDone.isEmpty();
+		}
+
+		public Entity getEntity()
+		{
+			return this.entity;
 		}
 	}
 
 	private List<Node> curentLevelNodes = new LinkedList<>();
 	private int minTime = Integer.MAX_VALUE;
 	private Node minNode = null;
+	private int level = 0;
 	
 	private void fillBuild(Node node, Deque<String> build)
 	{
-		build.addFirst(node.entity.name);
+		build.addFirst(node.entity == null ? "ROOT" : node.entity.name);
 		if (node.parent != null)
 		{
 			this.fillBuild(node.parent, build);
 		}
 	}
 	
-	private void printBuild(Node node)
+	public void printBuild(Node node)
 	{
 		LinkedList<String> build = new LinkedList<>();
 		this.fillBuild(node, build);
@@ -116,12 +127,14 @@ public class BuildOptimizer
 		
 		Node node = new Node(parent, entity, time);
 		parent.addNode(node);
-		this.calcMinTime(node);
 		if (node.isBuildDone(requried) || 
 				node.getAccumTime() > TIME_THRESHOLD)
 		{
-			this.calcMinTime(node);
-			node.leafNode = true;
+			if (node.isBuildDone(requried))
+			{
+				this.calcMinTime(node);
+			}
+			node.setLeafNode(true);
 		}
 		else
 		{
@@ -148,6 +161,8 @@ public class BuildOptimizer
 	private void buildNewLevel(Race race, List<Entity> requried)
 	{
 		if (this.curentLevelNodes.size() == 0) return;
+		if (++this.level > LEVEL_THRESHOLD) return;
+		
 		
 		List<Node> pastLevelNodes = new LinkedList<>(this.curentLevelNodes);
 		this.curentLevelNodes.clear();
@@ -156,7 +171,7 @@ public class BuildOptimizer
 		{
 			for (Entity entity : race.entities)
 			{
-				if (this.isAllowedToAdd(entity))
+				if (entity.section != Section.resource && this.isAllowedToAdd(entity))
 				{
 					this.putEntity(node, entity, requried);
 				}
@@ -168,6 +183,11 @@ public class BuildOptimizer
 	private boolean isAllowedToAdd(Entity entity)
 	{
 		return true;
+	}
+	
+	public Node getMinNode()
+	{
+		return this.minNode;
 	}
 	
 	
