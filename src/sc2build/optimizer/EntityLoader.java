@@ -91,7 +91,11 @@ public class EntityLoader
 		ent.multi = obj.getString("multi");
 		ent.save =  obj.getString("save");
 		ent.style = obj.getString("style");
-		ent.section = obj.getString("section");
+		String sectionStr = obj.getString("section");
+		if (sectionStr != null)
+		{
+			ent.section = Section.valueOf(sectionStr);
+		}
 		
 		ent.autocheck = obj.getBoolean("autocheck");
 		ent.time = obj.getInt("time");
