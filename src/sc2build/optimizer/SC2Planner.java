@@ -1,5 +1,6 @@
 package sc2build.optimizer;
 import java.util.*;
+import java.util.Map.Entry;
 
 
 /*
@@ -260,12 +261,12 @@ public class SC2Planner
 		}
 		//if (a.autocheck == null)
 		//{
-			a.autocheck = false;
+		//	a.autocheck = false;
 		//}
-		//if (a.time == null)
-		//{
-			a.time = 0;
-		//}
+		if (a.time <0)
+		{
+			//a.time = 0;
+		}
 		if (a.products != null)
 		{
 			for ( Entity b : a.products)
@@ -274,10 +275,10 @@ public class SC2Planner
 				{
 					b.name = a.name;
 				}
-				//if (b.amount == null)
-				//{
-					b.amount = 1;
-				//}
+				if (b.amount<=0)
+				{
+					//b.amount = 1;
+				}
 			}
 		}
 		else
@@ -513,7 +514,7 @@ public class SC2Planner
 			{
 				event.time = this.currentTime + Integer.valueOf(3 * b.time / 4);
 			}
-			this.events.push(event);
+			this.events.add(event);
 			Collections.sort(this.events, new Comparator<Event>()
 			{
 				public int compare(Event o1, Event o2)
@@ -582,7 +583,7 @@ public class SC2Planner
 		event.name = d.name;
 		event.actInd = actInd;
 		event.active = isActive;
-		
+		this.events.add(event);
 		Collections.sort(this.events, new Comparator<Event>()
 		{
 			public int compare(Event o1, Event o2)
@@ -727,6 +728,7 @@ public class SC2Planner
 				return o1.time - o2.time;
 			}
 		});
+		//dumpState(this);
 		for (int k = 0; k < this.build.size(); k++)
 		{
 			if (notInit
@@ -738,7 +740,7 @@ public class SC2Planner
 			String proceedMessage = null;
 			this.isDelayed = false;
 			int actionTime = 0;
-			if (this.eventualError.size()>k && this.eventualError.get(k) != null)
+			if (!(this.eventualError.size()>k && this.eventualError.get(k) != null))
 			{
 				String evError = null;
 				do
@@ -857,7 +859,11 @@ public class SC2Planner
 					{
 						if (!notInit)
 						{
-							this.food.set(k, String.valueOf(this.entities.get("Food").value[0]));
+							String f = String.valueOf(this.entities.get("Food").value[0]);
+							if(k==this.food.size()) 
+								this.food.add(f); 
+							else
+								this.food.set(k, f);
 						}
 						this.startDoing(action, actionTime, action.value[0], true);
 					}
@@ -865,6 +871,7 @@ public class SC2Planner
 					{
 						this.eventualError.set(k,  proceedMessage);
 						this.updateCenter(false, false, position, j);
+						if(this.food.size()<=k)this.food.add(k, ""); else
 						this.food.set(k, "");
 						return;
 					}
@@ -875,30 +882,23 @@ public class SC2Planner
 				actionTime = action.time;
 				proceedMessage = this.eventualError.size()<=k ? null : this.eventualError.get(k);
 			}
-			if (!notInit && !j && action.name != "Chronoboost")
-			{
-				int h = 0;
-				if (k > 0 && delays.get(k-1) > 0)
-				{
-					h = delays.get(k-1);
-				}
-				this.insertAction(action, h, actionTime);	
-			}
+			
+			final boolean b = notInit;
 
-			/*if (!b && !j && action.name != "Chronoboost")
+			if (!b && !j && action.name != "Chronoboost")
 			{
-				$("#action_" + k).remove();
-				actionDiv = $("<div></div>");
-				actionDiv.attr("id", "action_" + k);
-				actionDiv.css("left", parseInt((this.currentTime * 0.05))
-						+ "px");
+				//$("#action_" + k).remove();
+				//actionDiv = $("<div></div>");
+				//actionDiv.attr("id", "action_" + k);
+				//actionDiv.css("left", parseInt((this.currentTime * 0.05))
+				//		+ "px");
 				if (action.style == "instant" || action.style == "action")
 				{
-					actionDiv.css("width", "150px");
-					actionDiv.addClass("action_event")
+					//actionDiv.css("width", "150px");
+					//actionDiv.addClass("action_event")
 				} else
 				{
-					if (action.section == "pause")
+					/*if (action.section == "pause")
 					{
 						actionDiv.css("width",
 								(parseInt(this.delays[k] * 100 * 0.05) - 1)
@@ -909,9 +909,9 @@ public class SC2Planner
 						actionDiv.css("width",
 								(parseInt(actionTime * 0.05) - 1) + "px");
 						actionDiv.addClass("action")
-					}
+					}*/
 				}
-				if (action.section != "pause")
+				/*if (action.section != Section.pause)
 				{
 					actionDiv.append($("<img></img>").attr("id",
 							"actionImage_" + k).attr("src",
@@ -926,20 +926,24 @@ public class SC2Planner
 						actionText.html("")
 					}
 					actionDiv.append(actionText)
-				}
-				var h = 0;
-				var d = null;
-				if (k > 0 && this.delays[k - 1] > 0)
+				}*/
+
+					{
+					}
+
+				int h = 0;
+				//var d = null;
+				if (k > 0 && delays.get(k-1) > 0)
 				{
-					h = this.delays[k - 1];
-					d = $("#action_" + (k - 1));
-					pauseHighlight = $("#actionHighlight_" + (k - 1));
-					pauseHighlight.attr("startTime", this.currentTime - 100
-							* this.delays[k - 1]);
-					pauseHighlight.attr("endTime", this.currentTime)
+					h = delays.get(k-1);
+					//d = $("#action_" + (k - 1));
+					//pauseHighlight = $("#actionHighlight_" + (k - 1));
+					//pauseHighlight.attr("startTime", this.currentTime - 100
+					//		* this.delays[k - 1]);
+					//pauseHighlight.attr("endTime", this.currentTime)
 				}
-				this.insertAction(action, actionDiv, h, d, actionTime);
-				highlightDiv = $("<div></div>").addClass("highlight").attr(
+				this.insertAction(action, h, actionTime);	
+				/*highlightDiv = $("<div></div>").addClass("highlight").attr(
 						"id", "actionHighlight_" + k).attr("positionId", k)
 						.bind(
 								"click",
@@ -963,8 +967,8 @@ public class SC2Planner
 					highlightDiv.attr("endTime", this.currentTime
 							+ this.delays[k] * 100)
 				}
-				actionDiv.append(highlightDiv);
-				if (n)
+				actionDiv.append(highlightDiv);*/
+				/*if (n)
 				{
 					highlightDiv.addClass("disabled");
 					highlightDiv.removeClass("highlight");
@@ -974,19 +978,19 @@ public class SC2Planner
 					highlightDiv.addClass("highlight");
 					highlightDiv.removeClass("disabled");
 					highlightDiv.attr("error", "")
-				}
+				}*/
 			}
-			r = Math.max(r, this.currentTime + action.time, this.stopAtTime);
+			//r = Math.max(r, this.currentTime + action.time, this.stopAtTime);
 			if (!b && !j && action.name == "Chronoboost")
 			{
-				$("#action_" + k).remove();
-				$("#chrono_action_" + k).remove()
+				//$("#action_" + k).remove();
+				//$("#chrono_action_" + k).remove()
 			}
 			if (!b && this.stopAtTime == -1 && k == this.currentPosition)
 			{
 				this.updateClock();
-				this.updateAmounts()
-			}*/
+				this.updateAmounts();;
+			}
 		}
 		/*if (!b && !j)
 		{
@@ -1024,11 +1028,11 @@ public class SC2Planner
 			}
 			totalHeight = Math.max(totalHeight, 680);
 			$("#timeLine").css("height", totalHeight + "px")
-		}
-		if (!b)
+		}*/
+		/*if (!b)
 		{
 			r = Math.max(r, this.currentTime, this.stopAtTime);
-			$(".section").css("width", (parseInt(r * 0.05) + 300) + "px");
+			//$(".section").css("width", (parseInt(r * 0.05) + 300) + "px");
 			timeSteps = Math.max((r / 2000) + 2, 7);
 			for ( var k = 0; k < timeSteps; k++)
 			{
@@ -1046,6 +1050,7 @@ public class SC2Planner
 				}
 			}
 		}*/
+		//dumpState(this);
 		if (!notInit)
 		{
 			while (this.stopAtTime != -1 && this.currentTime <= this.stopAtTime
@@ -1060,8 +1065,8 @@ public class SC2Planner
 				if (e.time > this.stopAtTime)
 				{
 					this.currentTime = this.stopAtTime;
-					//this.updateClock();
-					//this.updateAmounts();
+					this.updateClock();
+					this.updateAmounts();
 					break;
 				}
 				this.currentTime = e.time;
@@ -1104,6 +1109,7 @@ public class SC2Planner
 				}
 			}
 		}
+		//dumpState(this);
 	}
 	/*this.highlight = function(c, b)
 	{
@@ -1179,9 +1185,9 @@ public class SC2Planner
 		}
 		this.hideInfo()
 	};*/
-	/*void updateClock()
+	void updateClock()
 	{
-		var b = addZeros((parseInt(this.currentTime / 100) % 60), 2);
+		/*var b = addZeros((parseInt(this.currentTime / 100) % 60), 2);
 		var a = addZeros(parseInt((this.currentTime / 100) / 60), 2);
 		$("#clock").html(a + ":" + b);
 		$("#timeLine").css("left", parseInt(this.currentTime * 0.05) + "px");
@@ -1195,11 +1201,11 @@ public class SC2Planner
 		if (centerDiv.scrollLeft() > maximum)
 		{
 			centerDiv.scrollLeft(maximum)
-		}
-	}*/
-	/*void updateAmounts()
+		}*/
+	}
+	void updateAmounts()
 	{
-		for ( var c in this.entities)
+		/*for ( var c in this.entities)
 		{
 			var a = this.entities[c];
 			if (a.kind != "hidden")
@@ -1267,8 +1273,8 @@ public class SC2Planner
 					}
 				}
 			}
-		}
-	};*/
+		}*/
+	};
 	void insertAction (Entity g, int m, int d)
 	{
 		int k = this.currentTime + d;
@@ -1341,12 +1347,27 @@ public class SC2Planner
 		SC2Planner sc = new SC2Planner();
 		//sc.init(Faction.valueOf(args[0]));
 		sc.init(Faction.PROTOSS);
+		//sc.stopAtTime = 1000000;
 		sc.insertIntoBuild(sc.entities.get("Probe"));
 		sc.insertIntoBuild(sc.entities.get("Probe"));
 		sc.insertIntoBuild(sc.entities.get("Pylon"));
 		sc.insertIntoBuild(sc.entities.get("Gateway"));
 		sc.insertIntoBuild(sc.entities.get("Zealot"));
 		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Probe"));
+		sc.insertIntoBuild(sc.entities.get("Pylon"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.updateCenter(false, true, 0, false);
+		dumpState(sc);
+	}
+	private static void dumpState(SC2Planner sc) {
 		System.out.println("delays");
 		for(int i : sc.delays){
 			System.out.println(i);
@@ -1363,6 +1384,13 @@ public class SC2Planner
 		System.out.println("BUILD::");
 		for(Entity i :sc.build){
 			System.out.println(i);
+		}
+		for(Entry<Section, Category> i:sc.category.entrySet()){
+			System.out.println("cat:"+i.getKey());
+			for(int j : i.getValue().value){
+				System.out.print(" "+j);
+			}
+			System.out.println();
 		}
 	}
 	
