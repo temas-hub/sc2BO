@@ -184,7 +184,7 @@ public class BuildOptimizer
 		{
 			for (Entity entity : race.entities)
 			{
-				if (entity.section != Section.resource && this.isAllowedToAdd(node, entity))
+				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
 				}
@@ -205,6 +205,7 @@ public class BuildOptimizer
 		}
 		
 		this.planner.insertIntoBuild(entity);
+		this.planner.updateCenter(false, true, 0, false);
 		return !entity.eventualError; 
 		
 		//return planner.isSuccessfull();

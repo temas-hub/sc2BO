@@ -219,6 +219,11 @@ public class SC2Planner
 		return a.replace("[ :]", "");
 	}
 	
+	void reset()
+	{
+		this.init(Faction.valueOf(this.factionName));
+	}
+	
 	void init (Faction faction)
 	{
 		if (faction == null)
@@ -368,7 +373,7 @@ public class SC2Planner
 	
 	String errorDoing (Entity entity, int index, boolean c)
 	{
-		if (entity.style == "single" && entity.value[index] > 0)
+		if (entity.style.equals("single") && entity.value[index] > 0)
 		{
 			return "Already researched / built.";
 		}
@@ -392,9 +397,9 @@ public class SC2Planner
 				}
 			}
 		}
-		boolean d = (entity.name == "Slow Mineral Patch");
-		boolean b = (entity.name == "Slow Gold Mineral Patch");
-		boolean a = (entity.name == "Fast Mineral Patch");
+		boolean d = (entity.name.equals("Slow Mineral Patch"));
+		boolean b = (entity.name.equals("Slow Gold Mineral Patch"));
+		boolean a = (entity.name.equals("Fast Mineral Patch"));
 		boolean l = (this.entities.get("Slow Gold Mineral Patch").idle > 0);
 		boolean k = (this.entities.get("Fast Mineral Patch").idle > 0);
 		boolean i = (this.entities.get("Fast Gold Mineral Patch").idle > 0);
@@ -402,7 +407,7 @@ public class SC2Planner
 		{
 			return "Faster patch available.";
 		}
-		if (entity.name == "Slow Gas Patch"
+		if (entity.name.equals("Slow Gas Patch")
 				&& this.entities.get("Fast Gas Patch").idle > 0)
 		{
 			return "Faster patch available.";
@@ -414,50 +419,50 @@ public class SC2Planner
 			{
 				if (c)
 				{
-					if (cost.name == "Minerals"
+					if (cost.name.equals("Minerals")
 							&& this.entities.get("Mineral Drone")!=null
 							&& this.entities.get("Mineral Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Minerals"
+					if (cost.name.equals("Minerals")
 							&& this.entities.get("Mineral Probe")!=null
 							&& this.entities.get("Mineral Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Minerals"
+					if (cost.name.equals("Minerals")
 							&& this.entities.get("Mineral SCV")!=null
 							&& this.entities.get("Mineral SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Gas" && this.entities.get("Gas Drone")!=null
+					if (cost.name.equals("Gas") && this.entities.get("Gas Drone")!=null
 							&& this.entities.get("Gas Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Gas" && this.entities.get("Gas Probe")!=null
+					if (cost.name.equals("Gas") && this.entities.get("Gas Probe")!=null
 							&& this.entities.get("Gas Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Gas" && this.entities.get("Gas SCV")!=null
+					if (cost.name.equals("Gas") && this.entities.get("Gas SCV")!=null
 							&& this.entities.get("Gas SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name == "Larva")
+					if (cost.name.equals("Larva"))
 					{
 						continue;
 					}
-					if (cost.name == "Energy"
+					if (cost.name.equals("Energy")
 							&& this.entities.get("Energy Spawner").value[0] > 0)
 					{
 						continue;
 					}
 				}
-				if (cost.name == "Energy" && entity.name == "Chronoboost"
+				if (cost.name.equals("Energy") && entity.name.equals("Chronoboost")
 						&& this.chronoboost > 0)
 				{
 					if (max(this.entities.get("Energy").value) < cost.amount
@@ -483,14 +488,14 @@ public class SC2Planner
 			Entity v = this.entities.get(entity.atmost.name);
 			if (entity.atmost.amount!=null && entity.atmost.amount > 0)
 			{
-				if (v.value[index] - f > entity.atmost.amount)
+				if (v.value.length>index && (v.value[index] - f > entity.atmost.amount))
 				{
 					return entity.atmost.error;
 				}
 			}
 			if (entity.atmost.as != null && entity.atmost.as!="")
 			{
-				if (v.value[index] - f > max(this.entities.get(entity.atmost.as).value))
+				if (v.value.length>index && (v.value[index] - f > max(this.entities.get(entity.atmost.as).value)))
 				{
 					return entity.atmost.error;
 				}
@@ -551,9 +556,12 @@ public class SC2Planner
 					if (l.multi.equals(d.name))
 					{
 						g = actInd;
-						if (l.value[g] != 0)
+						if (l.value.length<=g)
 						{
-							l.value[g] = 0;
+							int [] n = new int[g+1];
+							n[g] = 0;
+							System.arraycopy(l.value, 0, n, 0, l.value.length);
+							l.value = n;
 						}
 					}
 					else
@@ -621,9 +629,16 @@ public class SC2Planner
 				if (f.multi!=null && f.multi.equals(g.name))
 				{
 					useIndex = index;
-					if (f.value[useIndex] != 0)
+					/*if (f.value[useIndex] != 0)
 					{
 						f.value[useIndex] = 0;
+					}*/
+					if (f.value.length <= useIndex)
+					{
+						int[] n = new int[useIndex];
+						System.arraycopy(f.value, 0, n, 0, f.value.length);
+						f.value = n;
+ 						f.value[useIndex] = 0;
 					}
 				}
 				else
@@ -699,8 +714,8 @@ public class SC2Planner
 		}
 		for (Entity action : this.entities.values())
 		{			
-			if (action.autocheck && action.name != "Fast Mineral Patch"
-					&& action.name != "Slow Mineral Patch")
+			if (action.autocheck && !action.name.equals("Fast Mineral Patch")
+					&& !action.name.equals("Slow Mineral Patch"))
 			{
 				for (int q = 0; q < action.value[0]; q++)
 				{
@@ -892,14 +907,14 @@ public class SC2Planner
 			
 			final boolean b = notInit;
 
-			if (!b && !j && action.name != "Chronoboost")
+			if (!b && !j && !action.name.equals("Chronoboost"))
 			{
 				//$("#action_" + k).remove();
 				//actionDiv = $("<div></div>");
 				//actionDiv.attr("id", "action_" + k);
 				//actionDiv.css("left", parseInt((this.currentTime * 0.05))
 				//		+ "px");
-				if (action.style == "instant" || action.style == "action")
+				if (action.style.equals("instant") || action.style.equals("action"))
 				{
 					//actionDiv.css("width", "150px");
 					//actionDiv.addClass("action_event")
@@ -988,7 +1003,7 @@ public class SC2Planner
 				}*/
 			}
 			//r = Math.max(r, this.currentTime + action.time, this.stopAtTime);
-			if (!b && !j && action.name == "Chronoboost")
+			if (!b && !j && action.name.equals("Chronoboost"))
 			{
 				//$("#action_" + k).remove();
 				//$("#chrono_action_" + k).remove()
@@ -1289,7 +1304,7 @@ public class SC2Planner
 	void insertAction (Entity g, int m, int d)
 	{
 		int k = this.currentTime + d;
-		if (g.style == "action" || g.style == "instant")
+		if (g.style.equals("action") || g.style.equals("instant"))
 		{
 			k = this.currentTime + Math.max(d, 2500);
 		}
@@ -1454,6 +1469,8 @@ public class SC2Planner
 	
 	public void clearBuilds()
 	{
+		SC2Planner.loader.init();
+		this.reset();
 		this.build.clear();
 		this.delays.clear();
 		this.food.clear();
