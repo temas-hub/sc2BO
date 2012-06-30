@@ -524,7 +524,7 @@ public class JSONObject {
      * @throws   JSONException if the key is not found or if the value cannot
      *  be converted to an integer.
      */
-    public int getInt(String key) throws JSONException {
+    public Integer getInt(String key) throws JSONException {
         Object object;
 		try
 		{
@@ -532,7 +532,7 @@ public class JSONObject {
 		}
 		catch (JSONException e1)
 		{
-			return -1;
+			return null;
 		}
         	
         try {

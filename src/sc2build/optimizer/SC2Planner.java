@@ -54,7 +54,7 @@ public class SC2Planner
 	public static class Cost
 	{
 		String name;
-		int amount;
+		Integer amount;
 		String error;
 	}
 	
@@ -66,7 +66,7 @@ public class SC2Planner
 	public static class AtMost
 	{
 		public String name;
-		public int amount;
+		public Integer amount;
 		public String error;
 		public String as;
 	}
@@ -88,10 +88,10 @@ public class SC2Planner
 		
 		String multi;
 		
-		int cap;
+		Integer cap;
 		public boolean autocheck;
 		public int time;
-		public int amount;
+		public Integer amount;
 		public String save;
 		public Integer idle;
 		public AtMost atmost = new AtMost();
