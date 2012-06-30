@@ -17,9 +17,13 @@ public class SC2Planner
 {
 	private static final EntityLoader loader = new EntityLoader();
 	
+	static{
+		SC2Planner.loader.init();
+	}
+	
 	public SC2Planner()
 	{
-		SC2Planner.loader.init();
+		
 	}
 	
 	public enum Faction
@@ -635,7 +639,7 @@ public class SC2Planner
 					}*/
 					if (f.value.length <= useIndex)
 					{
-						int[] n = new int[useIndex];
+						int[] n = new int[useIndex+1];
 						System.arraycopy(f.value, 0, n, 0, f.value.length);
 						f.value = n;
  						f.value[useIndex] = 0;
@@ -748,7 +752,7 @@ public class SC2Planner
 				return o1.time - o2.time;
 			}
 		});
-		assertEvents();
+		//assertEvents();
 		//dumpState(this);
 		for (int k = 0; k < this.build.size(); k++)
 		{
@@ -827,7 +831,7 @@ public class SC2Planner
 					}
 				} while (proceedMessage != null && proceedMessage.length() > 0 && (this.activeEvents > 0 || evError == null));
 				actionTime = action.time;
-				assertEvents();
+				//assertEvents();
 				int chronoTargetSize = 0;
 				if (this.chronoboost > 0 && action.name=="Chronoboost"
 						&& action.need != null)
@@ -893,8 +897,10 @@ public class SC2Planner
 					{
 						this.eventualError.set(k,  proceedMessage);
 						this.updateCenter(false, false, position, j);
-						if(this.food.size()<=k)this.food.add(k, ""); else
-						this.food.set(k, "");
+						if(this.food.size()==k)
+							this.food.add(k, ""); 
+						else
+							this.food.set(k, "");
 						return;
 					}
 				}
@@ -1075,7 +1081,7 @@ public class SC2Planner
 		//dumpState(this);
 		if (!notInit)
 		{
-			assertEvents();
+			//assertEvents();
 			while (this.stopAtTime != -1 && this.currentTime <= this.stopAtTime
 					&& this.events.size() > 0)
 			{
@@ -1105,7 +1111,7 @@ public class SC2Planner
 		}
 		else
 		{
-			assertEvents();
+			//assertEvents();
 			while (this.activeEvents > 0)
 			{
 				Event e = this.events.pop();
@@ -1119,7 +1125,7 @@ public class SC2Planner
 					this.autoCheck(this.entities.get(e.name), e.actInd);
 				}
 			}
-			assertEvents();
+			//assertEvents();
 			for (Entity g : this.entities.values())
 			{
 				String n = this.errorDoing(g, maxIndexOf(g.value), true);
@@ -1133,7 +1139,7 @@ public class SC2Planner
 					g.currentError = "";
 				}
 			}
-			assertEvents();
+			//assertEvents();
 		}
 		//dumpState(this);
 	}
@@ -1374,28 +1380,85 @@ public class SC2Planner
 		//sc.init(Faction.valueOf(args[0]));
 		sc.init(Faction.PROTOSS);
 		//sc.stopAtTime = 1000000;
-		sc.insertIntoBuild(sc.entities.get("Assimilator"));
-		sc.insertIntoBuild(sc.entities.get("Gas Probe"));
-		sc.insertIntoBuild(sc.entities.get("Gas Probe"));
-		sc.insertIntoBuild(sc.entities.get("Gas Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Pylon"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Probe"));
-		sc.insertIntoBuild(sc.entities.get("Gateway"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		sc.setBuild(Arrays.asList(sc.entities.get("Assimilator")
+		,sc.entities.get("Gas Probe")
+		,sc.entities.get("Gas Probe")
+		,sc.entities.get("Gas Probe")
+		,sc.entities.get("Probe")
+		,sc.entities.get("Probe")
+		,sc.entities.get("Probe")
+		,sc.entities.get("Pylon")
+		,sc.entities.get("Probe")
+		,sc.entities.get("Probe")
+		,sc.entities.get("Probe")
+		,sc.entities.get("Gateway")
+		,sc.entities.get("Zealot")
+		,sc.entities.get("Zealot")
 		
-		sc.insertIntoBuild(sc.entities.get("Pylon"));
-		sc.insertIntoBuild(sc.entities.get("Cybernetics Core"));
-		sc.insertIntoBuild(sc.entities.get("Stalker"));
-		sc.insertIntoBuild(sc.entities.get("Stalker"));
-		sc.insertIntoBuild(sc.entities.get("Zealot"));
+		,sc.entities.get("Pylon")
+		,sc.entities.get("Cybernetics Core")
+		,sc.entities.get("Stalker")
+		,sc.entities.get("Stalker")
+		,sc.entities.get("Zealot")));
 		sc.updateCenter(false, true, 0, false);
 		dumpState(sc);
+	}
+	private void setBuildS(Collection<Entity>a){
+		for(Entity i:a){
+			insertIntoBuild(i);
+		}
+	}
+	public void setBuild(Collection<Entity>a) {
+		clearBuilds();
+		for(Entity i:a){
+			this.stopAtTime = -1;
+			
+			if (i.section == Section.pause)
+			{
+				if (this.currentPosition >= 0
+						&& this.build.get(this.currentPosition).section == Section.pause)
+				{
+					this.delays.set(this.currentPosition, this.delays.get(this.currentPosition) + 0);
+				} 
+				else
+				{
+					if (this.currentPosition < (this.build.size() - 1)
+							&& this.build.get(this.currentPosition + 1).section == Section.pause)
+					{
+						this.delays.set(this.currentPosition, this.delays.get(this.currentPosition + 1) + 0);
+					}
+					else
+					{
+						this.currentPosition += 1;
+						this.build.add(this.currentPosition, i);
+						this.delays.add(this.currentPosition, 0);
+						this.food.add(this.currentPosition,"");
+						this.eventualError.add(this.currentPosition,null);
+					}
+				}
+			} 
+			else
+			{
+				if (this.currentPosition >= 0
+						&& this.build.get(this.currentPosition).adding != null
+						&& this.build.get(this.currentPosition).adding == i.name)
+				{
+					this.build.set(this.currentPosition, this.entities.get(this.build.get(this.currentPosition).addsto));
+					this.delays.set(this.currentPosition, 0);
+				} 
+				else
+				{
+					this.currentPosition += 1;
+					this.build.add(this.currentPosition, i);
+					this.delays.add(this.currentPosition, 0);
+					this.food.add(this.currentPosition,"");
+					this.eventualError.add(this.currentPosition,null);
+				}
+			}
+			//this.updateCenter(true, false, this.currentPosition, false);
+			//this.updateBuild(true)
+		}
+		this.updateCenter(true, false, this.currentPosition, false);
 	}
 	public static void dumpState(SC2Planner sc) {
 		sc.assertEvents();
@@ -1416,7 +1479,7 @@ public class SC2Planner
 		for(Entity i :sc.build){
 			System.out.println(i);
 		}
-		for(Entry<Section, Category> i:sc.category.entrySet()){
+		for(Entry<Section, Category> i:new TreeMap<Section, Category>(sc.category).entrySet()){
 			System.out.println("cat:"+i.getKey());
 			for(int j : i.getValue().value){
 				System.out.print(" "+j);
@@ -1424,7 +1487,7 @@ public class SC2Planner
 			System.out.println();
 		}
 		
-		for(Entry<String, Entity> a : sc.entities.entrySet()){
+		for(Entry<String, Entity> a : new TreeMap<String, Entity>(sc.entities).entrySet()){
 			if(a.getValue().value!=null && a.getValue().value.length>0 && a.getValue().value[0]!=0){
 				System.out.println(a);
 			}
@@ -1432,6 +1495,7 @@ public class SC2Planner
 	}
 	
 	private void assertEvents() {
+		
 		int actualActive = 0;
 		for(Event i : events){
 			if(i.active) actualActive++;

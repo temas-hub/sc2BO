@@ -10,8 +10,8 @@ import sc2build.optimizer.SC2Planner.Race;
 
 public class BuildOptimizer
 {
-	private static final int TIME_THRESHOLD =  60 * 2 * 100; // 2 min
-	private static final int LEVEL_THRESHOLD = 4;
+	private static final int TIME_THRESHOLD =  60 * 10 * 100; // 2 min
+	private static final int LEVEL_THRESHOLD = 10;
 	
 	public static class Node
 	{
@@ -94,6 +94,12 @@ public class BuildOptimizer
 			return this.entity;
 		}
 
+		public boolean isWith(String e){
+			if(this.entity!=null && this.entity.name==e) return true;
+			if(this.parent!=null) 
+				return this.parent.isWith(e);
+			return false;
+		}
 		public void dump() {
 			if(this.parent!=null)this.parent.dump();
 			System.out.println(time+" : "+ this.entity);
@@ -188,6 +194,10 @@ public class BuildOptimizer
 				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
+					/*if(node.isWith("Gateway") || node.isWith("Zealot")){
+						System.out.println("possible:");
+						node.dump();
+					}*/
 				}
 			}
 		}
@@ -196,20 +206,13 @@ public class BuildOptimizer
 
 	private boolean isAllowedToAdd(Node node, Entity entity)
 	{
-		this.planner.clearBuilds();
+		//this.planner.clearBuilds();
 		LinkedList<Entity> build = new LinkedList<>();
 		this.fillBuild(node, build);
-		
-		for (Entity item : build)
-		{
-			this.planner.insertIntoBuild(item);
-		}
-		
-		this.planner.insertIntoBuild(entity);
+		build.add(entity);
+		this.planner.setBuild(build);
 		this.planner.updateCenter(false, true, 0, false);
 		return !entity.eventualError; 
-		
-		//return planner.isSuccessfull();
 	}
 	
 	public Node getMinNode()
