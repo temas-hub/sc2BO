@@ -53,13 +53,13 @@ public class SC2Planner
 		Integer start;
 		String style;
 		int[] value;
-		List<Entity> products = new ArrayList<>();
-		List<NeedEntity> need = new ArrayList<>();
+		List<Entity> products = new ArrayList<Entity>();
+		List<NeedEntity> need = new ArrayList<NeedEntity>();
 		
 		String adding;
 		Entity addsto;
-		List<String> conditions = new ArrayList<>();
-		List<Cost> costs = new ArrayList<>();
+		List<String> conditions = new ArrayList<String>();
+		List<Cost> costs = new ArrayList<Cost>();
 		
 		String multi;
 		
@@ -104,7 +104,7 @@ public class SC2Planner
 	private ArrayList<String> chronoTarget;
 	private ArrayList<Integer> chronoAmount;
 	private ArrayList<Integer> chronoFinished;
-	private Map<String /*section*/, Category> category = new HashMap<>();
+	private Map<String /*section*/, Category> category = new HashMap<String /*section*/, Category>();
 	private boolean isDelayed;
 	
 	int sum(int[] d)
