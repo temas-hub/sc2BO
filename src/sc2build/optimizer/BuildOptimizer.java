@@ -11,7 +11,7 @@ import sc2build.optimizer.SC2Planner.Race;
 
 public class BuildOptimizer
 {
-	private static final int TIME_THRESHOLD =  60 * 5 * 100; // 5 min
+	private static final int TIME_THRESHOLD =  60 * 2 * 100; // 2 min
 	
 	private static class Node
 	{
@@ -78,7 +78,7 @@ public class BuildOptimizer
 			{
 				entitiesToDone.remove(node.entity);
 			}
-			while ((node = this.parent) != null);
+			while ((node = node.parent) != null);
 			
 			return entitiesToDone.isEmpty();
 		}
