@@ -471,7 +471,7 @@ public class JSONObject {
      * @throws      JSONException
      *  if the value is not a Boolean or the String "true" or "false".
      */
-    public boolean getBoolean(String key) throws JSONException {
+    public Boolean getBoolean(String key) throws JSONException {
         Object object;
 		try
 		{
@@ -479,7 +479,7 @@ public class JSONObject {
 		}
 		catch (JSONException e)
 		{
-			return false;
+			return null;
 		}
 		
         if (object.equals(Boolean.FALSE) ||
@@ -680,7 +680,7 @@ public class JSONObject {
 		}
 		catch (JSONException e)
 		{
-			return "".intern();
+			return null;
 		}
         
         if (object instanceof String) {
