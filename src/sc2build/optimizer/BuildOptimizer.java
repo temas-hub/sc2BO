@@ -154,7 +154,9 @@ public class BuildOptimizer
 		Node node = new Node(parent, entity, time);
 		parent.addNode(node);
 		boolean buildIsDone = node.isBuildDone(requried);
-		if (node.getAccumTime() > TIME_THRESHOLD || buildIsDone)
+		if (node.getAccumTime() > TIME_THRESHOLD || 
+				(this.minNode != null && node.getAccumTime() > this.minTime) ||  
+				buildIsDone)
 		{
 			if (buildIsDone)
 			{
