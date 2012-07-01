@@ -100,9 +100,15 @@ public class BuildOptimizer
 				return this.parent.isWith(e);
 			return false;
 		}
-		public void dump() {
+		public void dump()
+		{
 			if(this.parent!=null)this.parent.dump();
 			System.out.println(time+" : "+ this.entity);
+		}
+		
+		public String store()
+		{
+			return "[Name="+ (this.entity == null ? "Root" : this.entity.name) + ";time=" + this.time + ";leaf=" + this.isLeafNode() +"]"; 
 		}
 		
 		@Override
@@ -134,6 +140,35 @@ public class BuildOptimizer
 		{
 			this.fillBuild(node.parent, build);
 		}
+	}
+	
+	private void fillNodes(Node node, Deque<Node> nodes)
+	{
+		if (node.entity == null)
+		{
+			return;
+		}
+		nodes.addFirst(node);
+		if (node.parent != null)
+		{
+			this.fillNodes(node.parent, nodes);
+		}
+	}
+	
+	private String dump(Node node)
+	{
+		LinkedList<Node> nodes = new LinkedList<>();
+		this.fillNodes(node, nodes);
+		
+		StringBuilder sb = new StringBuilder();
+		for (Node item : nodes)
+		{
+			sb.append(item.store());
+			sb.append("/");
+		}
+		sb.setLength(sb.length() - 1);
+		
+		return sb.toString();
 	}
 	
 	public void printBuild(Node node)
@@ -261,6 +296,7 @@ public class BuildOptimizer
 				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
+					node.dump();
 				}
 			}
 		}
