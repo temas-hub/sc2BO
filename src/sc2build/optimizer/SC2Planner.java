@@ -154,6 +154,19 @@ public class SC2Planner
 	private ArrayList<Integer> chronoFinished;
 	private Map<Section, Category> category = new HashMap<Section, Category>();
 	private boolean isDelayed;
+	private Entity entitiy_Energy;
+	private Entity entitiy_Energy_Spawner;
+	private Entity entitiy_Gas_SCV;
+	private Entity entitiy_Gas_Probe;
+	private Entity entitiy_Gas_Drone;
+	private Entity entitiy_Mineral_SCV;
+	private Entity entitiy_Mineral_Probe;
+	private Entity entitiy_Mineral_Drone;
+	private Entity entitiy_Slow_Gold_Mineral_Patch;
+	private Entity entitiy_Fast_Mineral_Patch;
+	private Entity entitiy_Fast_Gold_Mineral_Patch;
+	private Entity entitiy_Fast_Gas_Patch;
+	private Entity entitiy_Food;
 	
 	static int sum(final int[] d)
 	{
@@ -253,6 +266,20 @@ public class SC2Planner
 			}
 			this.initEntity(entity);
 		}
+		entitiy_Energy = this.entities.get("Energy");
+		entitiy_Energy_Spawner = this.entities.get("Energy Spawner");
+		entitiy_Gas_SCV = this.entities.get("Gas SCV");
+		entitiy_Gas_Probe = this.entities.get("Gas Probe");
+		entitiy_Gas_Drone = this.entities.get("Gas Drone");
+		entitiy_Mineral_SCV = this.entities.get("Mineral SCV");
+		entitiy_Mineral_Probe = this.entities.get("Mineral Probe");
+		entitiy_Mineral_Drone = this.entities.get("Mineral Drone");
+		entitiy_Slow_Gold_Mineral_Patch = this.entities.get("Slow Gold Mineral Patch");
+		entitiy_Fast_Mineral_Patch = this.entities.get("Fast Mineral Patch");
+		entitiy_Fast_Gold_Mineral_Patch = this.entities.get("Fast Gold Mineral Patch");
+		entitiy_Fast_Gas_Patch = this.entities.get("Fast Gas Patch");
+		entitiy_Food = this.entities.get("Food");
+		
 		this.stopAtTime = -1;
 		//this.readBuild();
 		this.updateCenter(false, false, 0, false);
@@ -405,15 +432,15 @@ public class SC2Planner
 		boolean d = (entity.name==("Slow Mineral Patch"));
 		boolean b = (entity.name==("Slow Gold Mineral Patch"));
 		boolean a = (entity.name==("Fast Mineral Patch"));
-		boolean l = (this.entities.get("Slow Gold Mineral Patch").idle > 0);
-		boolean k = (this.entities.get("Fast Mineral Patch").idle > 0);
-		boolean i = (this.entities.get("Fast Gold Mineral Patch").idle > 0);
+		boolean l = (this.entitiy_Slow_Gold_Mineral_Patch.idle > 0);
+		boolean k = (this.entitiy_Fast_Mineral_Patch.idle > 0);
+		boolean i = (this.entitiy_Fast_Gold_Mineral_Patch.idle > 0);
 		if ((d && (l || k || i)) || (b && (k || i)) || (a && i))
 		{
 			return "Faster patch available.";
 		}
 		if (entity.name==("Slow Gas Patch")
-				&& this.entities.get("Fast Gas Patch").idle > 0)
+				&& this.entitiy_Fast_Gas_Patch.idle > 0)
 		{
 			return "Faster patch available.";
 		}
@@ -425,35 +452,35 @@ public class SC2Planner
 				if (c)
 				{
 					if (cost.name==("Minerals")
-							&& this.entities.get("Mineral Drone")!=null
-							&& this.entities.get("Mineral Drone").value[0] > 0)
+							&& this.entitiy_Mineral_Drone!=null
+							&& this.entitiy_Mineral_Drone.value[0] > 0)
 					{
 						continue;
 					}
 					if (cost.name==("Minerals")
-							&& this.entities.get("Mineral Probe")!=null
-							&& this.entities.get("Mineral Probe").value[0] > 0)
+							&& this.entitiy_Mineral_Probe!=null
+							&& this.entitiy_Mineral_Probe.value[0] > 0)
 					{
 						continue;
 					}
 					if (cost.name==("Minerals")
-							&& this.entities.get("Mineral SCV")!=null
-							&& this.entities.get("Mineral SCV").value[0] > 0)
+							&& this.entitiy_Mineral_SCV!=null
+							&& this.entitiy_Mineral_SCV.value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name==("Gas") && this.entities.get("Gas Drone")!=null
-							&& this.entities.get("Gas Drone").value[0] > 0)
+					if (cost.name==("Gas") && this.entitiy_Gas_Drone!=null
+							&& this.entitiy_Gas_Drone.value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name==("Gas") && this.entities.get("Gas Probe")!=null
-							&& this.entities.get("Gas Probe").value[0] > 0)
+					if (cost.name==("Gas") && this.entitiy_Gas_Probe!=null
+							&& this.entitiy_Gas_Probe.value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name==("Gas") && this.entities.get("Gas SCV")!=null
-							&& this.entities.get("Gas SCV").value[0] > 0)
+					if (cost.name==("Gas") && this.entitiy_Gas_SCV!=null
+							&& this.entitiy_Gas_SCV.value[0] > 0)
 					{
 						continue;
 					}
@@ -462,7 +489,7 @@ public class SC2Planner
 						continue;
 					}
 					if (cost.name==("Energy")
-							&& this.entities.get("Energy Spawner").value[0] > 0)
+							&& this.entitiy_Energy_Spawner.value[0] > 0)
 					{
 						continue;
 					}
@@ -470,7 +497,7 @@ public class SC2Planner
 				if (cost.name==("Energy") && entity.name==("Chronoboost")
 						&& this.chronoboost > 0)
 				{
-					if (max(this.entities.get("Energy").value) < cost.amount
+					if (max(this.entitiy_Energy.value) < cost.amount
 							- this.chronoboost * 11.25 / 1000)
 					{
 						return cost.error;
@@ -886,7 +913,7 @@ public class SC2Planner
 					{
 						if (!notInit)
 						{
-							String f = String.valueOf(this.entities.get("Food").value[0]);
+							String f = String.valueOf(this.entitiy_Food.value[0]);
 							if(k==this.food.size()) 
 								this.food.add(f); 
 							else
