@@ -20,7 +20,7 @@ import sc2build.optimizer.SC2Planner.Race;
 public class BuildOptimizer
 {
 	private static final int TIME_THRESHOLD =  60 * 50 * 100; // 2 min
-	private static final int LEVEL_THRESHOLD = 4;
+	private static final int LEVEL_THRESHOLD = 7;
 	
 	public static class Node
 	{
@@ -449,9 +449,9 @@ public class BuildOptimizer
 			parentNodeSize--;
 			for (Entity entity : race.entities)
 			{
-				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") &&
-						!entity.name.equals("Go out with Probe") &&
-						!entity.name.equals("Return Probe") &&
+				if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
+						entity.name!=("Go out with Probe") &&
+						entity.name!=("Return Probe") &&
 						(requried.contains(entity) || entity.section == Section.worker || 
 						entity.section == Section.special) && 
 						this.isAllowedToAdd(node, entity))
@@ -463,7 +463,7 @@ public class BuildOptimizer
 		this.buildNewLevel(race, requried);
 	}
 
-	private void storeInFile()
+	public void storeInFile()
 	{
 		String fileName = "c:/temp/" + this.level + "_" + System.currentTimeMillis() + ".txt";
 		File parent = (new File(fileName)).getParentFile();

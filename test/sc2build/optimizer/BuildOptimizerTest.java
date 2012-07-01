@@ -35,8 +35,9 @@ public class BuildOptimizerTest
 		
 		BuildOptimizer bo = new BuildOptimizer(planner, 10);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
-		
+		bo.storeInFile();
 		Node node = bo.getMinNode();
+		Assert.assertNotNull(node);
 		Assert.assertEquals("Zealot", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertEquals("Zealot", node.getEntity().name);
@@ -65,7 +66,7 @@ public class BuildOptimizerTest
 		
 		BuildOptimizer bo = new BuildOptimizer(planner, 9);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
-		
+		Assert.assertNotNull(bo.getMinNode());
 		bo.getMinNode().dump();
 	}
 	

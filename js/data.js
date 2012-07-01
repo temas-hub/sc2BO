@@ -4018,6 +4018,11 @@
 			costs :
 			[
 			{
+					name : "Gas Geyser",
+					amount : 1,
+					error : "No gas Geyser available."
+			},
+			{
 				name : "Minerals",
 				amount : 75,
 				error : "Not enough minerals."
@@ -7091,6 +7096,9 @@
 			} ],
 			products :
 			[
+			 {
+				name: "Extractor" 
+			 },
 			{
 				name : "Gas Space",
 				amount : 3
