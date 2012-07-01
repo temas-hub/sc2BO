@@ -116,7 +116,7 @@ public class SC2Planner
 		
 	}
 	
-	class Event
+	public static class Event
 	{
 		protected int time;
 		public String event;
@@ -129,6 +129,17 @@ public class SC2Planner
 					+ name + ", actInd=" + actInd + ", active=" + active + "]";
 		}
 		
+		public Event() {
+			// TODO Auto-generated constructor stub
+		}
+
+		public Event(int time) {
+			super();
+			this.time = time;
+		}
+		
+		
+		
 		
 	}
 	class Category
@@ -136,7 +147,7 @@ public class SC2Planner
 		public int[] value = new int[50];
 	}
 	
-	LinkedList<Event> events;
+	EventQueue events;
 	int currentTime;
 	private String factionName;
 	private Map<String, Entity> entities = new HashMap<String, Entity>();
@@ -557,13 +568,13 @@ public class SC2Planner
 				event.time = this.currentTime + (int)(3 * b.time / 4);
 			}
 			this.events.add(event);
-			Collections.sort(this.events, new Comparator<Event>()
+			/*Collections.sort(this.events, new Comparator<Event>()
 			{
 				public int compare(Event o1, Event o2)
 				{
 					return o1.time - o2.time;
 				}
-			});
+			});*/
 		}
 		else
 		{
@@ -629,13 +640,13 @@ public class SC2Planner
 		event.actInd = actInd;
 		event.active = isActive;
 		this.events.add(event);
-		Collections.sort(this.events, new Comparator<Event>()
+		/*Collections.sort(this.events, new Comparator<Event>()
 		{
 			public int compare(Event o1, Event o2)
 			{
 				return o1.time - o2.time;
 			}
-		});
+		});*/
 	}
 	
 	void finishDoing (Entity g, int index, boolean resetActiveEvents)
@@ -739,7 +750,7 @@ public class SC2Planner
 			this.category.put(Section.upgrade, new Category());
 			this.category.put(Section.unit, new Category());
 		}
-		this.events = new LinkedList<Event>();
+		this.events = new EventQueue();
 		for (Entity action : this.entities.values())
 		{
 			this.reset(action);
@@ -773,13 +784,13 @@ public class SC2Planner
 			event.actInd = 0;
 			this.events.add(event);
 		}
-		Collections.sort(this.events, new Comparator<Event>()
+		/*Collections.sort(this.events, new Comparator<Event>()
 		{
 			public int compare(Event o1, Event o2)
 			{
 				return o1.time - o2.time;
 			}
-		});
+		});*/
 		//assertEvents();
 		//dumpState(this);
 		for (int k = 0; k < this.build.size(); k++)
@@ -846,13 +857,13 @@ public class SC2Planner
 							event.name = action.name;
 							this.events.add(event);
 							
-							Collections.sort(this.events, new Comparator<Event>()
+							/*Collections.sort(this.events, new Comparator<Event>()
 							{
 								public int compare(Event o1, Event o2)
 								{
 									return o1.time - o2.time;
 								}
-							});
+							});*/
 							this.isDelayed = true;
 						}
 						proceedMessage = "Delaying.";
@@ -1111,7 +1122,7 @@ public class SC2Planner
 		{
 			//assertEvents();
 			while (this.stopAtTime != -1 && this.currentTime <= this.stopAtTime
-					&& this.events.size() > 0)
+					&& !this.events.isEmpty())
 			{
 				if (this.currentPosition == -2)
 				{
@@ -1500,7 +1511,7 @@ public class SC2Planner
 		}
 		System.out.println("Events");
 		//sc.updateCenter(true, false, 0, false);
-		for(Event i :sc.events){
+		for(Object i :sc.events.toArray()){
 			System.out.println(i);
 		}
 		System.out.println("BUILD::");
@@ -1525,8 +1536,8 @@ public class SC2Planner
 	private void assertEvents() {
 		
 		int actualActive = 0;
-		for(Event i : events){
-			if(i.active) actualActive++;
+		for(Object i : events.toArray()){
+			if(((Event)i).active) actualActive++;
 		}
 		if(actualActive!=this.activeEvents){
 			throw new IllegalStateException(" active "+actualActive+" but should be "+activeEvents);
