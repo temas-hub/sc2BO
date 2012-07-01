@@ -282,6 +282,7 @@ public class SC2Planner
 		this.food = new ArrayList<String>();
 		this.eventualError = new ArrayList<String>();
 		this.currentPosition = -1;
+		if(this.entities.isEmpty()){
 		List<Entity> entities = faction.getEnities();
 		for (Entity entity : entities)
 		{
@@ -313,7 +314,11 @@ public class SC2Planner
 		entitiy_Fast_Gas_Patch = this.entities.get("Fast Gas Patch");
 		entitiy_Food = this.entities.get("Food");
 		entitiy_Slow_Mineral_Patch = this.entities.get("Slow Mineral Patch");
-		
+		} else {
+			for (Entity entity : this.entities.values()){
+				reset(entity);
+			}
+		}
 		this.stopAtTime = -1;
 		//this.readBuild();
 		this.updateCenter(false, false, 0, false);
