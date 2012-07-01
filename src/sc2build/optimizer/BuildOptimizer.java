@@ -118,7 +118,8 @@ public class BuildOptimizer
 	private int level = 0;
 	private SC2Planner planner;
 	
-	public BuildOptimizer(SC2Planner planner) {
+	public BuildOptimizer(SC2Planner planner)
+	{
 		this.planner = planner;
 	}
 
@@ -187,25 +188,79 @@ public class BuildOptimizer
 		this.buildNewLevel(race, requried);
 	}
 	
+	
+	/*private List<ThreadWork> shareWork(Race race, List<Node> curentLevelNodes, List<Entity> required, int count)
+	{
+		List<Node> pastLevelNodes = new ArrayList<>(BuildOptimizer.this.curentLevelNodes);
+		this.curentLevelNodes.clear();
+		
+		int shareSize = curentLevelNodes.size() / count;
+		List<ThreadWork> result = new LinkedList<>();
+		int index = 0;
+		for (int i = 0; i < count; i++)
+		{
+			ThreadWork work = new ThreadWork(race, index, index + shareSize, pastLevelNodes, required);
+			result.add(work);
+			index = index + shareSize + 1;
+		}
+		return result;
+	}
+	
+	private class ThreadWork extends Thread
+	{
+		private final int beginIndex;
+		private final int endIndex;
+		private final Race race;
+		private final List<Node> pastLevelNodes;
+		private final List<Entity> required;
+		
+		public ThreadWork (Race race, int beginIndex, int endIndex, List<Node> pastLevelNodes, List<Entity> required)
+		{
+			this.beginIndex = beginIndex;
+			this.endIndex = endIndex;
+			this.race = race;
+			this.pastLevelNodes = pastLevelNodes;
+			this.required = required;
+		}
+		
+		@Override
+		public void run()
+		{
+			int parentNodeSize = this.pastLevelNodes.size();
+			
+			for (int i = this.beginIndex; i <= this.endIndex && i < parentNodeSize; i++)
+			{
+				Node node = pastLevelNodes.get(i);
+				//parentNodeSize--;
+				for (Entity entity : race.entities)
+				{
+					if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && BuildOptimizer.this.isAllowedToAdd(node, entity))
+					{
+						BuildOptimizer.this.putEntity(node, entity, this.required);
+					}
+				}
+			}
+			
+		}
+	}*/
+	
 	private void buildNewLevel(Race race, List<Entity> requried)
 	{
 		if (this.curentLevelNodes.size() == 0) return;
-		if (++this.level > LEVEL_THRESHOLD) return;
+		if (++this.level > LEVEL_THRESHOLD) return;	
 		
 		List<Node> pastLevelNodes = new LinkedList<>(this.curentLevelNodes);
 		this.curentLevelNodes.clear();
+		int parentNodeSize = pastLevelNodes.size();
 		
 		for (Node node : pastLevelNodes)
 		{
+			parentNodeSize--;
 			for (Entity entity : race.entities)
 			{
 				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
-					/*if(node.isWith("Gateway") || node.isWith("Zealot")){
-						System.out.println("possible:");
-						node.dump();
-					}*/
 				}
 			}
 		}

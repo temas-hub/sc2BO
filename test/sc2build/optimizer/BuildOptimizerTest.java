@@ -1,7 +1,9 @@
 package sc2build.optimizer;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import junit.framework.Assert;
 
@@ -13,6 +15,11 @@ import sc2build.optimizer.SC2Planner.Faction;
 
 public class BuildOptimizerTest
 {
+	private static class Bean
+	{
+		private int time;
+	}
+	
 	@Test
 	public void test2ZealotsTree()
 	{
@@ -53,5 +60,25 @@ public class BuildOptimizerTest
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
 		
 		bo.getMinNode().dump();
+	}
+	
+	@Test
+	public void treeSetTest()
+	{
+		TreeSet<Bean> set = new TreeSet<>(new Comparator<Bean>() {
+			@Override
+			public int compare(Bean o1, Bean o2) {
+				return o1.time - o2.time;
+			}
+		});
+		
+		Bean bean = new Bean();
+		bean.time = 1;
+		
+		Bean bean2 = new Bean();
+		bean.time = 1;
+		set.add(bean);
+		set.add(bean2);
+		Assert.assertEquals(2, set.size());
 	}
 }
