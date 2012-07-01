@@ -53,6 +53,7 @@ if(bo.getMinNode()!=null){
 				bpLink.append(ne.getEntity().save);
 				%><div class='item item<%=(index%3)%>'><img src="./images/<%=ne.getEntity().icon%>.png">
 									<span><%=ne.getEntity().name%></span>
+									<span class='time'><%=(ne.getTime()-ne.getEntity().time)/100/60%>:<%=((ne.getTime()-ne.getEntity().time)/100)%60%></span>
 									<span class='time'><%=ne.getTime()/100/60%>:<%=(ne.getTime()/100)%60%></span>
 									</div><%
 			}
