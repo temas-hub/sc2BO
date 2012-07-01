@@ -1589,6 +1589,7 @@ public class SC2Planner
 	{
 		//SC2Planner.loader.init();
 		this.reset();
+		this.currentTime = 0;
 		/*this.build.clear();
 		this.delays.clear();
 		this.food.clear();

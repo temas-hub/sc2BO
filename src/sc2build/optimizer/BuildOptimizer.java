@@ -5,9 +5,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import sc2build.optimizer.SC2Planner.Entity;
 import sc2build.optimizer.SC2Planner.Race;
@@ -202,7 +206,7 @@ public class BuildOptimizer
 			buildIsDone = node.isBuildDone(requried);
 		}
 		
-		if (node.getAccumTime() > TIME_THRESHOLD || 
+		if (/*node.getAccumTime() > TIME_THRESHOLD ||*/ 
 				(this.minNode != null && node.getAccumTime() > this.minTime) ||  
 				buildIsDone)
 		{
@@ -218,6 +222,40 @@ public class BuildOptimizer
 		}
 	}
 	
+	private void collectRequiredFor(Race race, Collection<Entity> targets, Set<Entity> comulatedResult)
+	{
+		Set<Entity> currentResult = new HashSet<>();
+		for (Entity target : targets)
+		{
+			if (target.conditions != null)
+			{
+				for (String cond : target.conditions)
+				{
+					currentResult.add(this.planner.getEntityByName(cond));
+				}
+			}
+			/*if (target.need != null)
+			{
+				for (NeedEntity needEnt: target.need)
+				{
+					currentResult.add(this.planner.getEntityByName(needEnt.name));
+				}	
+			}*/
+		}
+		if (currentResult.size() > 0)
+		{
+			comulatedResult.addAll(currentResult);
+			this.collectRequiredFor(race, currentResult, comulatedResult);
+		}
+	}
+	
+	private Collection<Entity> collectRequired(Race race, Entity target)
+	{
+		Set<Entity> result = new HashSet<>();	
+		this.collectRequiredFor(race, Collections.singleton(target), result);
+		return result;
+	}
+	
 	private void calcMinTime(Node node)
 	{
 		if (node.getAccumTime() < this.minTime)
@@ -227,12 +265,18 @@ public class BuildOptimizer
 		}
 	}
 
-	public void buildRaceTree(Race race, List<Entity> requried)
+	public void buildRaceTree(Race race, List<Entity> requriedTargets)
 	{
 		Node root = new Node(null, null, 0);
 		this.curentLevelNodes.clear();
 		this.curentLevelNodes.add(root);
-		this.buildNewLevel(race, requried);
+		List<Entity> required = new LinkedList<>(); 
+		for (Entity reqEnt : new HashSet<>(requriedTargets))
+		{
+			required.addAll(this.collectRequired(race, reqEnt));
+		}
+		required.addAll(requriedTargets);
+		this.buildNewLevel(race, required);
 	}
 	
 	
@@ -293,9 +337,12 @@ public class BuildOptimizer
 	
 	private void buildNewLevel(Race race, List<Entity> requried)
 	{
-		this.storeInFile();
+		//this.storeInFile();
 		
-		if (this.curentLevelNodes.size() == 0) return;
+		if (this.curentLevelNodes.size() == 0)
+		{
+			return;
+		}
 		//if (++this.level > LEVEL_THRESHOLD) return;
 		++this.level;
 		
@@ -308,7 +355,12 @@ public class BuildOptimizer
 			parentNodeSize--;
 			for (Entity entity : race.entities)
 			{
-				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && this.isAllowedToAdd(node, entity))
+				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") &&
+						!entity.name.equals("Go out with Probe") &&
+						!entity.name.equals("Return Probe") &&
+						(requried.contains(entity) || entity.section == Section.worker || 
+						entity.section == Section.special) && 
+						this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
 				}
