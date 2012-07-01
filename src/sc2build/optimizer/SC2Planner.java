@@ -377,7 +377,7 @@ public class SC2Planner
 	
 	String errorDoing (Entity entity, int index, boolean c)
 	{
-		if (entity.style.equals("single") && entity.value[index] > 0)
+		if (entity.style=="single" && entity.value[index] > 0)
 		{
 			return "Already researched / built.";
 		}
@@ -401,9 +401,9 @@ public class SC2Planner
 				}
 			}
 		}
-		boolean d = (entity.name.equals("Slow Mineral Patch"));
-		boolean b = (entity.name.equals("Slow Gold Mineral Patch"));
-		boolean a = (entity.name.equals("Fast Mineral Patch"));
+		boolean d = (entity.name==("Slow Mineral Patch"));
+		boolean b = (entity.name==("Slow Gold Mineral Patch"));
+		boolean a = (entity.name==("Fast Mineral Patch"));
 		boolean l = (this.entities.get("Slow Gold Mineral Patch").idle > 0);
 		boolean k = (this.entities.get("Fast Mineral Patch").idle > 0);
 		boolean i = (this.entities.get("Fast Gold Mineral Patch").idle > 0);
@@ -411,7 +411,7 @@ public class SC2Planner
 		{
 			return "Faster patch available.";
 		}
-		if (entity.name.equals("Slow Gas Patch")
+		if (entity.name==("Slow Gas Patch")
 				&& this.entities.get("Fast Gas Patch").idle > 0)
 		{
 			return "Faster patch available.";
@@ -423,50 +423,50 @@ public class SC2Planner
 			{
 				if (c)
 				{
-					if (cost.name.equals("Minerals")
+					if (cost.name==("Minerals")
 							&& this.entities.get("Mineral Drone")!=null
 							&& this.entities.get("Mineral Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name.equals("Minerals")
+					if (cost.name==("Minerals")
 							&& this.entities.get("Mineral Probe")!=null
 							&& this.entities.get("Mineral Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name.equals("Minerals")
+					if (cost.name==("Minerals")
 							&& this.entities.get("Mineral SCV")!=null
 							&& this.entities.get("Mineral SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name.equals("Gas") && this.entities.get("Gas Drone")!=null
+					if (cost.name==("Gas") && this.entities.get("Gas Drone")!=null
 							&& this.entities.get("Gas Drone").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name.equals("Gas") && this.entities.get("Gas Probe")!=null
+					if (cost.name==("Gas") && this.entities.get("Gas Probe")!=null
 							&& this.entities.get("Gas Probe").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name.equals("Gas") && this.entities.get("Gas SCV")!=null
+					if (cost.name==("Gas") && this.entities.get("Gas SCV")!=null
 							&& this.entities.get("Gas SCV").value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name.equals("Larva"))
+					if (cost.name==("Larva"))
 					{
 						continue;
 					}
-					if (cost.name.equals("Energy")
+					if (cost.name==("Energy")
 							&& this.entities.get("Energy Spawner").value[0] > 0)
 					{
 						continue;
 					}
 				}
-				if (cost.name.equals("Energy") && entity.name.equals("Chronoboost")
+				if (cost.name==("Energy") && entity.name==("Chronoboost")
 						&& this.chronoboost > 0)
 				{
 					if (max(this.entities.get("Energy").value) < cost.amount
@@ -526,7 +526,7 @@ public class SC2Planner
 			}
 			else
 			{
-				event.time = this.currentTime + Integer.valueOf(3 * b.time / 4);
+				event.time = this.currentTime + (int)(3 * b.time / 4);
 			}
 			this.events.add(event);
 			Collections.sort(this.events, new Comparator<Event>()
@@ -718,8 +718,8 @@ public class SC2Planner
 		}
 		for (Entity action : this.entities.values())
 		{			
-			if (action.autocheck && !action.name.equals("Fast Mineral Patch")
-					&& !action.name.equals("Slow Mineral Patch"))
+			if (action.autocheck && action.name!=("Fast Mineral Patch")
+					&& action.name!=("Slow Mineral Patch"))
 			{
 				for (int q = 0; q < action.value[0]; q++)
 				{
@@ -731,7 +731,7 @@ public class SC2Planner
 		{
 			Event event = new Event();
 			event.event = "check";
-			event.time = Integer.valueOf(10 + ((k + 1) / 2) * 100);
+			event.time = (int)(10 + ((k + 1) / 2) * 100);
 			event.name = "Fast Mineral Patch";
 			event.actInd = 0;
 			this.events.add(event);
@@ -740,7 +740,7 @@ public class SC2Planner
 		{
 			Event event = new Event();
 			event.event = "check";
-			event.time = Integer.valueOf(1002 + k * 100);
+			event.time = (int)(1002 + k * 100);
 			event.name = "Slow Mineral Patch";
 			event.actInd = 0;
 			this.events.add(event);
@@ -862,7 +862,7 @@ public class SC2Planner
 						}
 						if (actionTime < this.chronoAmount.get(m) * 3)
 						{
-							int o = Integer.valueOf(actionTime * 1 / 3);
+							int o = (int)(actionTime * 1 / 3);
 							actionTime = actionTime - o;
 							this.chronoAmount.set(m, this.chronoAmount.get(m) - o);
 							this.chronoFinished.set(m, this.currentTime + actionTime);
@@ -913,14 +913,14 @@ public class SC2Planner
 			
 			final boolean b = notInit;
 
-			if (!b && !j && !action.name.equals("Chronoboost"))
+			if (!b && !j && action.name!=("Chronoboost"))
 			{
 				//$("#action_" + k).remove();
 				//actionDiv = $("<div></div>");
 				//actionDiv.attr("id", "action_" + k);
 				//actionDiv.css("left", parseInt((this.currentTime * 0.05))
 				//		+ "px");
-				if (action.style.equals("instant") || action.style.equals("action"))
+				if (action.style==("instant") || action.style==("action"))
 				{
 					//actionDiv.css("width", "150px");
 					//actionDiv.addClass("action_event")
@@ -1009,7 +1009,7 @@ public class SC2Planner
 				}*/
 			}
 			//r = Math.max(r, this.currentTime + action.time, this.stopAtTime);
-			if (!b && !j && action.name.equals("Chronoboost"))
+			if (!b && !j && action.name==("Chronoboost"))
 			{
 				//$("#action_" + k).remove();
 				//$("#chrono_action_" + k).remove()
@@ -1310,7 +1310,7 @@ public class SC2Planner
 	void insertAction (Entity g, int m, int d)
 	{
 		int k = this.currentTime + d;
-		if (g.style.equals("action") || g.style.equals("instant"))
+		if (g.style==("action") || g.style==("instant"))
 		{
 			k = this.currentTime + Math.max(d, 2500);
 		}
