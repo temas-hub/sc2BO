@@ -452,6 +452,10 @@ public class BuildOptimizer
 				if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
 						entity.name!=("Go out with Probe") &&
 						entity.name!=("Return Probe") &&
+						entity.name!=("Go out with SCV") &&
+						entity.name!=("Return SCV") &&
+						entity.name!=("Go out with Drone") &&
+						entity.name!=("Return Drone") &&
 						(requried.contains(entity) || entity.section == Section.worker || 
 						entity.section == Section.special) && 
 						this.isAllowedToAdd(node, entity))
