@@ -17,7 +17,9 @@ import org.json.JSONObject;
 
 import sc2build.optimizer.SC2Planner.Entity;
 import sc2build.optimizer.SC2Planner.Cost;
+import sc2build.optimizer.SC2Planner.EntityRef;
 import sc2build.optimizer.SC2Planner.NeedEntity;
+import sc2build.optimizer.SC2Planner.Product;
 import sc2build.optimizer.SC2Planner.Race;
 
 
@@ -127,7 +129,7 @@ public class EntityLoader
 			ent.conditions = new ArrayList<>();
 			for (int i=0; i < condArr.length(); i++)
 			{
-				ent.conditions.add(condArr.getString(i));
+				ent.conditions.add(new EntityRef(condArr.getString(i)));
 			}
 		}
 		
@@ -167,8 +169,13 @@ public class EntityLoader
 			ent.products = new ArrayList<>();
 			for (int i=0; i < productArr.length(); i++)
 			{
-				Entity prodEntity = new Entity();
-				this.loadEntity(prodEntity, productArr.getJSONObject(i));
+				Product prodEntity = new Product();
+				
+				JSONObject prodObj = productArr.getJSONObject(i);
+				prodEntity.amount = prodObj.getInt("amount");
+				prodEntity.name = prodObj.getString("name");
+				
+				//this.loadEntity(prodEntity, productArr.getJSONObject(i));
 				ent.products.add(prodEntity);
 			}
 		}

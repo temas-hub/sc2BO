@@ -55,24 +55,37 @@ public class SC2Planner
 		List<Entity> entities;
 	}
 	
-	public static class Cost
+	public static class Cost extends EntityRef
 	{
-		String name;
 		Integer amount;
 		String error;
 	}
 	
-	public static class NeedEntity
+	public static class NeedEntity extends EntityRef
 	{
-		String name;
 		String error;
 	}
-	public static class AtMost
+	public static class AtMost extends EntityRef
 	{
-		public String name;
 		public Integer amount;
 		public String error;
 		public String as;
+	}
+	
+	public static class EntityRef{
+		String name;
+		Entity underName;
+		public EntityRef() {
+		}
+		public EntityRef(String name) {
+			super();
+			this.name = name;
+		}
+		
+	}
+	
+	public static class Product extends EntityRef{
+		Integer amount;
 	}
 	
 	public static class Entity
@@ -82,12 +95,12 @@ public class SC2Planner
 		Integer start;
 		String style;
 		int[] value;
-		List<Entity> products = null;
+		List<Product> products = null;
 		List<NeedEntity> need = null;
 		
 		String adding;
 		String addsto;
-		List<String> conditions = null;
+		List<EntityRef> conditions = null;
 		List<Cost> costs = null;
 		
 		String multi;
@@ -279,6 +292,13 @@ public class SC2Planner
 			}
 			this.initEntity(entity);
 		}
+		for (Entity entity : entities){
+			initRef(entity.atmost);
+			initRef(entity.conditions);
+			initRef(entity.costs);
+			initRef(entity.need);
+			initRef(entity.products);
+		}
 		entitiy_Energy = this.entities.get("Energy");
 		entitiy_Energy_Spawner = this.entities.get("Energy Spawner");
 		entitiy_Gas_SCV = this.entities.get("Gas SCV");
@@ -300,6 +320,18 @@ public class SC2Planner
 		//this.updateBuild(false);
 	}
 	
+	private void initRef(List<? extends EntityRef> conditions) {
+		if(conditions!=null){
+			for(EntityRef i:conditions){
+				i.underName = entities.get(i.name);
+			}
+		}
+		
+	}
+	private void initRef(EntityRef atmost) {
+		if(atmost!=null)
+			atmost.underName = entities.get(atmost.name);
+	}
 	public String getFactionName() {
 		return factionName;
 	}
@@ -325,7 +357,7 @@ public class SC2Planner
 		}
 		if (a.products != null)
 		{
-			for ( Entity b : a.products)
+			for ( Product b : a.products)
 			{
 				if (b.name == null)
 				{
@@ -339,10 +371,10 @@ public class SC2Planner
 		}
 		else
 		{
-			Entity ent = new Entity();
+			Product ent = new Product();
 			ent.name = a.name;
 			ent.amount = 1;
-			a.products = new ArrayList<Entity>();
+			a.products = new ArrayList<>();
 			a.products.add(ent);
 		}
 		this.reset(a);
@@ -425,9 +457,10 @@ public class SC2Planner
 		}
 		if (entity.conditions != null)
 		{
-			for (String condition : entity.conditions)
+			for (EntityRef condition : entity.conditions)
 			{
-				if (max(this.entities.get(condition).value) <= 0)
+				//this.entities.get(condition)
+				if (max(condition.underName.value) <= 0)
 				{
 					return condition + " needed.";
 				}
@@ -437,7 +470,8 @@ public class SC2Planner
 		{
 			for (NeedEntity need : entity.need)
 			{
-				if (this.entities.get(need.name).idle <= 0)
+				//this.entities.get(need.name)
+				if (need.underName.idle <= 0)
 				{
 					return need.error;
 				}
@@ -518,7 +552,8 @@ public class SC2Planner
 					}
 				} else
 				{
-					if (max(this.entities.get(cost.name).value) < cost.amount)
+					//this.entities.get(cost.name)
+					if (max(cost.underName.value) < cost.amount)
 					{
 						return cost.error;
 					}
@@ -531,7 +566,7 @@ public class SC2Planner
 		}
 		if (entity.atmost != null)
 		{
-			Entity v = this.entities.get(entity.atmost.name);
+			Entity v = entity.atmost.underName;//this.entities.get(entity.atmost.name);
 			if (entity.atmost.amount!=null && entity.atmost.amount > 0)
 			{
 				if (v.value.length>index && (v.value[index] - f > entity.atmost.amount))
@@ -592,7 +627,7 @@ public class SC2Planner
 		{
 			for (Cost f : d.costs)
 			{
-				Entity l = this.entities.get(f.name);
+				Entity l = f.underName;//this.entities.get(f.name);
 				int a = f.amount;
 				int c = maxIndexOf(l.value);
 				l.value[c] -= a;
@@ -626,7 +661,8 @@ public class SC2Planner
 		{
 			for (NeedEntity f : d.need)
 			{
-				this.entities.get(f.name).idle -= 1;
+				//this.entities.get(f.name)
+				f.underName.idle -= 1;
 			}
 		}
 		if (d.name == "Chronoboost")
@@ -661,7 +697,8 @@ public class SC2Planner
 		{
 			for (NeedEntity a : g.need)
 			{
-				if (this.entities.get(a.name).idle < 0)
+				//this.entities.get(a.name)
+				if (a.underName.idle < 0)
 				{
 					autocheckNeedError = true;
 				}
@@ -669,9 +706,9 @@ public class SC2Planner
 		}
 		if (g.products != null && !autocheckNeedError)
 		{
-			for (Entity a : g.products)
+			for (Product a : g.products)
 			{
-				Entity f = this.entities.get(a.name);
+				Entity f = a.underName;//this.entities.get(a.name);
 				int amount = a.amount;
 				int useIndex = 0;
 				if (f.multi== g.name)
@@ -712,7 +749,8 @@ public class SC2Planner
 		{
 			for (NeedEntity a : g.need)
 			{
-				this.entities.get(a.name).idle += 1;
+				//this.entities.get(a.name)
+				a.underName.idle += 1;
 			}
 		}
 		if (resetActiveEvents)
