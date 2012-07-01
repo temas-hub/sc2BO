@@ -116,7 +116,7 @@ public class SC2Planner
 		
 	}
 	
-	class Event
+	public static class Event
 	{
 		protected int time;
 		public String event;
@@ -129,6 +129,17 @@ public class SC2Planner
 					+ name + ", actInd=" + actInd + ", active=" + active + "]";
 		}
 		
+		public Event() {
+			// TODO Auto-generated constructor stub
+		}
+
+		public Event(int time) {
+			super();
+			this.time = time;
+		}
+		
+		
+		
 		
 	}
 	class Category
@@ -136,7 +147,7 @@ public class SC2Planner
 		public int[] value = new int[50];
 	}
 	
-	LinkedList<Event> events;
+	EventQueue events;
 	int currentTime;
 	private String factionName;
 	private Map<String, Entity> entities = new HashMap<String, Entity>();
@@ -154,8 +165,21 @@ public class SC2Planner
 	private ArrayList<Integer> chronoFinished;
 	private Map<Section, Category> category = new HashMap<Section, Category>();
 	private boolean isDelayed;
+	private Entity entitiy_Energy;
+	private Entity entitiy_Energy_Spawner;
+	private Entity entitiy_Gas_SCV;
+	private Entity entitiy_Gas_Probe;
+	private Entity entitiy_Gas_Drone;
+	private Entity entitiy_Mineral_SCV;
+	private Entity entitiy_Mineral_Probe;
+	private Entity entitiy_Mineral_Drone;
+	private Entity entitiy_Slow_Gold_Mineral_Patch;
+	private Entity entitiy_Fast_Mineral_Patch;
+	private Entity entitiy_Fast_Gold_Mineral_Patch;
+	private Entity entitiy_Fast_Gas_Patch;
+	private Entity entitiy_Food;
 	
-	int sum(int[] d)
+	static int sum(final int[] d)
 	{
 		int b = d[0];
 		for ( int c = 1; c < d.length; c = c + 1)
@@ -164,17 +188,18 @@ public class SC2Planner
 		}
 		return b;
 	}
-	int max(int[] d)
+	static int max(final int[] d)
 	{
 		int b = d[0];
 		for ( int c = 1; c < d.length; c = c + 1)
 		{
-			b = Math.max(b, d[c]);
+			final int dd = d[c];
+			if(dd>b) b = dd;
 		}
 		return b;
 	}
 	
-	int maxIndexOf(int[] b)
+	static int maxIndexOf(final int[] b)
 	{
 		int c = 0;
 		if (b.length == 0)
@@ -191,7 +216,7 @@ public class SC2Planner
 		return c;
 	}
 	
-	int minIndexOf(int[] b)
+	static int minIndexOf(final int[] b)
 	{
 		int c = 0;
 		if (b.length == 0)
@@ -252,6 +277,20 @@ public class SC2Planner
 			}
 			this.initEntity(entity);
 		}
+		entitiy_Energy = this.entities.get("Energy");
+		entitiy_Energy_Spawner = this.entities.get("Energy Spawner");
+		entitiy_Gas_SCV = this.entities.get("Gas SCV");
+		entitiy_Gas_Probe = this.entities.get("Gas Probe");
+		entitiy_Gas_Drone = this.entities.get("Gas Drone");
+		entitiy_Mineral_SCV = this.entities.get("Mineral SCV");
+		entitiy_Mineral_Probe = this.entities.get("Mineral Probe");
+		entitiy_Mineral_Drone = this.entities.get("Mineral Drone");
+		entitiy_Slow_Gold_Mineral_Patch = this.entities.get("Slow Gold Mineral Patch");
+		entitiy_Fast_Mineral_Patch = this.entities.get("Fast Mineral Patch");
+		entitiy_Fast_Gold_Mineral_Patch = this.entities.get("Fast Gold Mineral Patch");
+		entitiy_Fast_Gas_Patch = this.entities.get("Fast Gas Patch");
+		entitiy_Food = this.entities.get("Food");
+		
 		this.stopAtTime = -1;
 		//this.readBuild();
 		this.updateCenter(false, false, 0, false);
@@ -404,15 +443,15 @@ public class SC2Planner
 		boolean d = (entity.name==("Slow Mineral Patch"));
 		boolean b = (entity.name==("Slow Gold Mineral Patch"));
 		boolean a = (entity.name==("Fast Mineral Patch"));
-		boolean l = (this.entities.get("Slow Gold Mineral Patch").idle > 0);
-		boolean k = (this.entities.get("Fast Mineral Patch").idle > 0);
-		boolean i = (this.entities.get("Fast Gold Mineral Patch").idle > 0);
+		boolean l = (this.entitiy_Slow_Gold_Mineral_Patch.idle > 0);
+		boolean k = (this.entitiy_Fast_Mineral_Patch.idle > 0);
+		boolean i = (this.entitiy_Fast_Gold_Mineral_Patch.idle > 0);
 		if ((d && (l || k || i)) || (b && (k || i)) || (a && i))
 		{
 			return "Faster patch available.";
 		}
 		if (entity.name==("Slow Gas Patch")
-				&& this.entities.get("Fast Gas Patch").idle > 0)
+				&& this.entitiy_Fast_Gas_Patch.idle > 0)
 		{
 			return "Faster patch available.";
 		}
@@ -424,35 +463,35 @@ public class SC2Planner
 				if (c)
 				{
 					if (cost.name==("Minerals")
-							&& this.entities.get("Mineral Drone")!=null
-							&& this.entities.get("Mineral Drone").value[0] > 0)
+							&& this.entitiy_Mineral_Drone!=null
+							&& this.entitiy_Mineral_Drone.value[0] > 0)
 					{
 						continue;
 					}
 					if (cost.name==("Minerals")
-							&& this.entities.get("Mineral Probe")!=null
-							&& this.entities.get("Mineral Probe").value[0] > 0)
+							&& this.entitiy_Mineral_Probe!=null
+							&& this.entitiy_Mineral_Probe.value[0] > 0)
 					{
 						continue;
 					}
 					if (cost.name==("Minerals")
-							&& this.entities.get("Mineral SCV")!=null
-							&& this.entities.get("Mineral SCV").value[0] > 0)
+							&& this.entitiy_Mineral_SCV!=null
+							&& this.entitiy_Mineral_SCV.value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name==("Gas") && this.entities.get("Gas Drone")!=null
-							&& this.entities.get("Gas Drone").value[0] > 0)
+					if (cost.name==("Gas") && this.entitiy_Gas_Drone!=null
+							&& this.entitiy_Gas_Drone.value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name==("Gas") && this.entities.get("Gas Probe")!=null
-							&& this.entities.get("Gas Probe").value[0] > 0)
+					if (cost.name==("Gas") && this.entitiy_Gas_Probe!=null
+							&& this.entitiy_Gas_Probe.value[0] > 0)
 					{
 						continue;
 					}
-					if (cost.name==("Gas") && this.entities.get("Gas SCV")!=null
-							&& this.entities.get("Gas SCV").value[0] > 0)
+					if (cost.name==("Gas") && this.entitiy_Gas_SCV!=null
+							&& this.entitiy_Gas_SCV.value[0] > 0)
 					{
 						continue;
 					}
@@ -461,7 +500,7 @@ public class SC2Planner
 						continue;
 					}
 					if (cost.name==("Energy")
-							&& this.entities.get("Energy Spawner").value[0] > 0)
+							&& this.entitiy_Energy_Spawner.value[0] > 0)
 					{
 						continue;
 					}
@@ -469,7 +508,7 @@ public class SC2Planner
 				if (cost.name==("Energy") && entity.name==("Chronoboost")
 						&& this.chronoboost > 0)
 				{
-					if (max(this.entities.get("Energy").value) < cost.amount
+					if (max(this.entitiy_Energy.value) < cost.amount
 							- this.chronoboost * 11.25 / 1000)
 					{
 						return cost.error;
@@ -529,13 +568,13 @@ public class SC2Planner
 				event.time = this.currentTime + (int)(3 * b.time / 4);
 			}
 			this.events.add(event);
-			Collections.sort(this.events, new Comparator<Event>()
+			/*Collections.sort(this.events, new Comparator<Event>()
 			{
 				public int compare(Event o1, Event o2)
 				{
 					return o1.time - o2.time;
 				}
-			});
+			});*/
 		}
 		else
 		{
@@ -601,13 +640,13 @@ public class SC2Planner
 		event.actInd = actInd;
 		event.active = isActive;
 		this.events.add(event);
-		Collections.sort(this.events, new Comparator<Event>()
+		/*Collections.sort(this.events, new Comparator<Event>()
 		{
 			public int compare(Event o1, Event o2)
 			{
 				return o1.time - o2.time;
 			}
-		});
+		});*/
 	}
 	
 	void finishDoing (Entity g, int index, boolean resetActiveEvents)
@@ -711,7 +750,7 @@ public class SC2Planner
 			this.category.put(Section.upgrade, new Category());
 			this.category.put(Section.unit, new Category());
 		}
-		this.events = new LinkedList<Event>();
+		this.events = new EventQueue();
 		for (Entity action : this.entities.values())
 		{
 			this.reset(action);
@@ -745,13 +784,13 @@ public class SC2Planner
 			event.actInd = 0;
 			this.events.add(event);
 		}
-		Collections.sort(this.events, new Comparator<Event>()
+		/*Collections.sort(this.events, new Comparator<Event>()
 		{
 			public int compare(Event o1, Event o2)
 			{
 				return o1.time - o2.time;
 			}
-		});
+		});*/
 		//assertEvents();
 		//dumpState(this);
 		for (int k = 0; k < this.build.size(); k++)
@@ -818,13 +857,13 @@ public class SC2Planner
 							event.name = action.name;
 							this.events.add(event);
 							
-							Collections.sort(this.events, new Comparator<Event>()
+							/*Collections.sort(this.events, new Comparator<Event>()
 							{
 								public int compare(Event o1, Event o2)
 								{
 									return o1.time - o2.time;
 								}
-							});
+							});*/
 							this.isDelayed = true;
 						}
 						proceedMessage = "Delaying.";
@@ -885,7 +924,7 @@ public class SC2Planner
 					{
 						if (!notInit)
 						{
-							String f = String.valueOf(this.entities.get("Food").value[0]);
+							String f = String.valueOf(this.entitiy_Food.value[0]);
 							if(k==this.food.size()) 
 								this.food.add(f); 
 							else
@@ -1083,7 +1122,7 @@ public class SC2Planner
 		{
 			//assertEvents();
 			while (this.stopAtTime != -1 && this.currentTime <= this.stopAtTime
-					&& this.events.size() > 0)
+					&& !this.events.isEmpty())
 			{
 				if (this.currentPosition == -2)
 				{
@@ -1472,7 +1511,7 @@ public class SC2Planner
 		}
 		System.out.println("Events");
 		//sc.updateCenter(true, false, 0, false);
-		for(Event i :sc.events){
+		for(Object i :sc.events.toArray()){
 			System.out.println(i);
 		}
 		System.out.println("BUILD::");
@@ -1497,8 +1536,8 @@ public class SC2Planner
 	private void assertEvents() {
 		
 		int actualActive = 0;
-		for(Event i : events){
-			if(i.active) actualActive++;
+		for(Object i : events.toArray()){
+			if(((Event)i).active) actualActive++;
 		}
 		if(actualActive!=this.activeEvents){
 			throw new IllegalStateException(" active "+actualActive+" but should be "+activeEvents);

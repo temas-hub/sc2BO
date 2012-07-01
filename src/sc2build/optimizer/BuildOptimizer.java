@@ -11,7 +11,7 @@ import sc2build.optimizer.SC2Planner.Race;
 public class BuildOptimizer
 {
 	private static final int TIME_THRESHOLD =  60 * 50 * 100; // 2 min
-	private static final int LEVEL_THRESHOLD = 5;
+	private static final int LEVEL_THRESHOLD = 4;
 	
 	public static class Node
 	{
