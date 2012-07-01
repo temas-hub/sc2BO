@@ -27,10 +27,10 @@ public class EventQueue implements Comparator<Event> {
 		//Event[] orig = eventsArray;
 		//int origStart = start;
 		//int origEnd = end;
-		if(rz==end && end<eventsArray.length) {
+		/*if(rz==end && end<eventsArray.length) {
 			end++;
 			eventsArray[rz] = event;
-		/*}else if(rz==start-1){
+		}else if(rz==start-1){
 			start--;
 			eventsArray[rz] = event;
 			int off = rz;
@@ -39,8 +39,8 @@ public class EventQueue implements Comparator<Event> {
 				eventsArray[off] = eventsArray[off + 1];
 				eventsArray[off + 1] = event;
 				off++;
-			}*/
-		}else 
+			}
+		}else*/ 
 		if (end >= eventsArray.length) {
 			Event[] rzA = new Event[(end-start) * 2];
 			System.arraycopy(eventsArray, start, rzA, 0, rz - start);// 92-75 =
