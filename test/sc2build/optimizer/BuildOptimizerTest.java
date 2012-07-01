@@ -35,13 +35,19 @@ public class BuildOptimizerTest
 		
 		BuildOptimizer bo = new BuildOptimizer(planner);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
-		
+		bo.storeInFile();
 		Node node = bo.getMinNode();
+		Assert.assertNotNull(node);
 		Assert.assertEquals("Zealot", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertEquals("Zealot", node.getEntity().name);
 		node = node.getParent();
-		Assert.assertNull(node.getEntity());
+		Assert.assertEquals("Gateway", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Gateway", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Pylon", node.getEntity().name);
+		Assert.assertNull(node.getParent().getEntity());
 	}
 	
 	@Test
@@ -59,7 +65,7 @@ public class BuildOptimizerTest
 		
 		BuildOptimizer bo = new BuildOptimizer(planner);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
-		
+		Assert.assertNotNull(bo.getMinNode());
 		bo.getMinNode().dump();
 	}
 	
