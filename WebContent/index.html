@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+<head>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<meta name="description" content="The StarCraft II Build Planner" />
+	<meta name="keywords" content="sc2planner, starcraft, build, editor, zerg, protoss, terran, sc, scii, sc2, buildeditor, planner, buildplanner" />
+	<link href="styles.css" rel="stylesheet" type="text/css" media="screen" />
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="sc.js"></script>
+	<title>sc2planner</title>
+	<link rel="shortcut icon" type="image/x-icon" href="http://www.sc2planner.com/favicon.ico" />
+</head>
+<body>
+	<div id="page">
+		<div id="backpage"></div>
+		<div id="page_header">
+			<div id="logo"><p>The StarCraft II Build Planner</p></div>
+			<div id="banner"></div>
+		</div>
+		<div id="header">
+			<div class="menu_button">
+				<div class="faction">
+					<img src="images/terran.png" title="Start over with Terran" alt=""/>
+					<div class="highlight" title="Start over with Terran" onclick = "parent.location.hash = ''; sc.init('Terran');"></div>
+				</div>
+				<div class="faction">
+					<img src="images/zerg.png" title="Start over with Zerg" alt=""/>
+					<div class="highlight" title="Start over with Zerg" onclick = "parent.location.hash = ''; sc.init('Zerg');"></div>
+				</div>
+				<div class="faction">
+					<img src="images/protoss.png" title="Start over with Protoss" alt=""/>
+					<div class="highlight" title="Start over with Protoss" onclick = "parent.location.hash = ''; sc.init('Protoss');"></div>
+				</div>
+			</div>
+			<div class="clock">
+				<img src="images/time.png" title="Current time" alt=""/>
+				<p id="clock">00:00</p>
+			</div>
+		</div>
+		<div id="build_window">
+			<div class="build" id="build">
+			</div>
+		</div>
+		<div id="time_overlay" onmousemove = "sc.setTime(event);" onmousedown = "sc.mouseDown = 1; sc.setTime(event);">
+		</div>
+		<div id="center_window">
+			<div id="action_window">
+				<div id="timeLine">
+				</div>
+				<div class="section" id="time">
+				</div>
+				<div id="pause">
+				</div>
+				<div id="worker">
+				</div>
+				<div id="special">
+				</div>
+				<div id="unit">
+				</div>
+				<div id="building">
+				</div>
+				<div id="upgrade">
+				</div>
+			</div>
+		</div>
+		<div id="panel">
+			<div id="resources" class="subpanel_1">
+			</div>
+			<div id="specials" class="subpanel_1">
+			</div>
+			<div id="units" class="subpanel_4">
+			</div>
+			<div id="buildings" class="subpanel_4">
+			</div>
+			<div id="upgrades" class="subpanel_8">
+			</div>
+		</div>
+		<div id="tooltip_transparent"></div>
+		<div id="tooltip_window">
+			<img id="tooltip_icon" src="images/pause.png" title="" alt=""/>
+			<h2 id="tooltip_header"></h2>
+			<p id="tooltip_cost"></p>
+			<p id="tooltip_error"></p>
+			<p id="tooltip_time"></p>
+		</div>
+	</div>
+	<div id="footer"><p id="credits"><strong>sc2planner &copy; 2011 <a href="mailto:feedback@sc2planner.com?subject=sc2planner">Jonatan Rydh</a></strong></p></div>
+</body>
+</html>

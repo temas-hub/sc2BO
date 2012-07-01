@@ -1,0 +1,106 @@
+/* General page styles */
+* { margin: 0px; padding: 0px; }
+html { height:100% }
+body { color: black; font-family: Monaco, Courier, Arial, Verdana, sans-serif; background: #fff; background-image: url(images/background_gradient.gif); background-repeat: repeat-x; background-attachment: fixed; text-align: center; }
+#backpage{ width:978px; height:872px; background-image: url(images/background_gradient2.png); background-repeat: repeat-x; background-attachment: fixed; opacity:0.2; border-radius: 8px; position:absolute; padding: 10px; left: 0px; top:0px;  }
+#page { text-align:center; position:relative; margin: 5px auto 0px auto; width:978px; height:872px; padding: 10px; }
+
+/* Header */
+div#page_header{ height:80px; width: 978px; position:relative; }
+div#logo{ border: 1px solid #555; height: 78px; width: 518px; background-image: url(images/logo.png); border-radius: 8px;}
+div#logo p{ display:none; }
+div#banner{ border: 1px solid #555; position: absolute; background: #000; left: 530px; top: 0px; height: 78px; width: 446px; border-radius: 8px;}
+
+/* Faction Menu */
+div.menu_button {  position: absolute; margin-left:0px; top: 100px; width:30px;}
+div.faction { position:relative; float:left; height:24px; margin-bottom:2px; left:0px; }
+div.faction img { border-radius: 2px; height:24px; width:24px }
+div.menu_button div.highlight { border-radius: 2px; width:24px; height:24px; }
+
+/* Clock */
+div.clock { border-radius: 5px; position:absolute; width:75px; height:75px; top:100px; left:40px; margin-top:0px;}
+div.clock img { border-radius: 5px; position:absolute; height:75px; left: 0px}
+div.clock p { line-height:18px; right:5px; bottom:5px; z-index: 0; background-color:#000; font-weight: bold; font-family: Arial; position: absolute; padding:1px; color:#fff; font-size:20px; }
+
+/* Build section */
+div#build_window { background: #aaa; overflow: auto; position:absolute; margin:5px; left:117px; top:95px; display:block; border:solid 1px #555; width:583px; height:73px;}
+div.build { width:0px; height:57px; border-bottom: solid 1px #555; position:relative; }
+div.order, div.draggedOrder { text-align:left; background: #888; position:absolute; margin-left:5px; margin-top:5px; width: 48px; height:48px; }
+div.order img, div.draggedOrder img { z-index: 0; position:absolute; width:48px; height:48px; top: 0px; left: 0px;}
+div.order div.highlight { width:48px; height:48px; cursor:move}
+div.draggedOrder{ opacity: 0.4 }
+div.draggedOrder div.highlight { visibility: hidden; }
+div.space { width:11px; position:absolute; height:56px; background:#aaa;}
+div.space:hover, div.dropspace { cursor:text; width: 1px; background:#464; position:absolute; height:46px; border: 6px solid #aaa; }
+div.currentSpace, div.currentSpace:hover { width: 3px; background:#222; position:absolute; height:48px; border: 5px solid #aaa; }
+div.disabled_order{ z-index: 1; position: absolute; background: #aaa; top:0px; width:48px; height:48px; opacity: 0.7; }
+div.disabled_order:hover { cursor:move; }
+div.build p{ z-index: 0; opacity: 0.7; background-color:#333; font-weight: bold; font-family: Arial; position: absolute; padding:1px; line-height:14px; top:3px; right:3px; color:#fff; font-size:14px; }
+
+/* Center window */
+div#center_window { background-image: url(images/background_gradient.gif); background-repeat: repeat-x; background-attachment: fixed; overflow: auto; text-align:center; margin: 0 auto; position:absolute; top: 185px; display:block; border: solid 1px #555; width:695px; height: 695px;}
+div.section { overflow:visible; width: 655px; height:30px; border-bottom: solid 1px #555; position:relative; background-image: url(images/timelines.png); background-repeat: repeat; background-attachment: scroll;}
+#timeLine { z-index: 3; position:absolute; width: 10px; height:600px; border-left:2px solid green;}
+
+/* Time section */
+div.time { text-align:left; border-left: 1px solid black; position:absolute; top: 3px; width: 100px; height:20px; }
+div.time span.time_text { font-family: Monaco, Courier; border: none; font-size: 12px; position:absolute; left: 2px; top:3px; white-space:nowrap;}
+#time { background: #999; overflow: hidden; width: 695px; height:28px;}
+#time_overlay { cursor: crosshair; z-index:5; width: 695px; height:30px; position:absolute; top: 185px; }
+
+/* Action */
+div#action_window{ position:absolute; overflow:visible; }
+div.action, div.pause { z-index: 1; background: #ccf; text-align:left; border:1px solid green; position:absolute; left: 120px; top: 2px; height:24px; }
+div.pause { background: #e0953d; border:1px solid #934b2e; background-image: url(images/lines.png); }
+div#pause { position: absolute; visibility: hidden }
+div#special div.action{ background: #cfc; border:1px solid green;}
+div#worker div.action{ background: #cab; border:1px solid #868;}
+div#worker div.highlight{ background: #dbc; }
+div#unit div.action{ background: #caa; border:1px solid #500;}
+div#unit div.highlight { background: #faa;}
+div#building div.action{ background: #ccf; border:1px solid #88a;}
+div#building div.highlight { background: #ccf;}
+div#upgrade div.action{ background: #feb; border:1px solid #f97;}
+div.action img, div.action_event img { position:absolute; width:30px; height:30px; top: -3px; left: -3px;}
+div.action p, div.action_event p { font-family: Arial; border: 1px; font-size: 11px; position:absolute; left: 29px; top:6px; white-space:nowrap;}
+div.highlight { z-index: 2; background: #afa; position: absolute; top:0px; width:36px; height:36px; opacity: 0; }
+div.green_highlight { z-index: 2; border: 2px solid #afa; background: #0f0; position: absolute; top:-2px; left:-2px; width:36px; height:36px; opacity: 0.2}
+div.highlight:hover, div.green_highlight:hover { cursor:pointer; opacity: 0.2; }
+div.green_highlight:hover { background: #afa; border: 2px solid #fff; }
+div.disabled { z-index: 2; position: absolute; background: #aaa; top:0px; width:36px; height:36px; opacity: 0.7; }
+div.action div.highlight:hover { opacity: 0.4; }
+div.disabled:hover { cursor:pointer; }
+div.action_event { background-image: url(images/event_back.png); background-repeat: repeat-y; text-align:left; border-left:1px solid green; position:absolute; left: 120px; top: 3px; height:23px; }
+div.action_event div.highlight { background: none; background-image: url(images/event_back.png); background-repeat: repeat-y; }
+div.action_event div.disabled { background: none; background-image: url(images/event_back.png); background-repeat: repeat-y; }
+div.chronoboost { background: #ccf; border:1px solid green; position:absolute; top: 3px; height:23px; }
+
+/* Right-hand panel */
+#panel { border-radius: 2px; background: #999; position:absolute; left:715px; top: 95px; margin-top:5px; width:271px; height: 780px; border:solid 1px #555}
+.subpanel_1, .subpanel_1, .subpanel_2, .subpanel_3, .subpanel_4, .subpanel_5, .subpanel_7, .subpanel_8 { background: #aaa; position:relative; margin: 8px; width: 253px; border:solid 1px #555}
+.subpanel_1 { height: 45px; }
+.subpanel_3 { height: 129px; }
+.subpanel_4 { height: 169px; }
+.subpanel_5 { height: 209px; }
+.subpanel_7 { height: 252px; }
+.subpanel_8 { height: 292px; }
+
+div.button { position: relative; background: #888; width:36px; height:36px; margin-left:5px; margin-top:5px; border:solid 0px #000; float:left; }
+img.button { z-index: 0; margin:0px; width:36px; height:36px; }
+div.button p { z-index: 0; background-color:#000; font-weight: bold; font-family: Arial; position: absolute; padding:1px; line-height:10px; bottom:1px; right:1px; color:#fff; font-size:11px;}
+
+/* Tooltip Window */
+#tooltip_transparent { visibility: hidden; border: solid white 1px; border-radius: 15px; z-index: 3; width: 290px; height: 130px; position: absolute; bottom: 55px; right: 20px; background: #333; opacity: 0.8; }
+#tooltip_window { visibility: hidden; font-family: Arial; z-index: 4; width: 290px; height: 100px; position: absolute; bottom: 55px; right: 20px; }
+#tooltip_icon { position: absolute; width: 60px; height: 60px; top: 20px; left: 20px; }
+#tooltip_header { position: absolute; text-shadow: #000 1px 2px; top: 25px; color: white; font-weight: bold; font-size:12px; left: 95px; letter-spacing:1px; }
+#tooltip_cost { position: absolute; top: 55px; color: white; font-size:11px; left: 85px; }
+#tooltip_cost img { margin-right: 4px; margin-left: 10px; margin-bottom: -4px; }
+#tooltip_error { text-shadow: #000 1px 1px; color: #d33; font-weight: bold; text-align: center; font-size: 13px; position: absolute; bottom: -20px; right: 20px; }
+#tooltip_error img { margin-right: 4px; margin-bottom: -2px;}
+#tooltip_time { font-family: Monaco; text-shadow: #000 1px 1px; color: #afa; text-align: center; font-size: 12px; position: absolute; bottom: -20px; right: 20px; }
+
+/* Credits */
+#credits{ font: 66% verdana,tahoma,sans-serif; color: #333; margin-top: 10px; }
+#credits a{ text-decoration: none; color: #a5a }
+#credits a:hover{ text-decoration: underline; color: #b6b }

@@ -1,0 +1,21 @@
+.item{
+	display:inline-block;;
+	border: 1px solid black;
+	margin:4px;
+	padding: 0px;
+	width:24%;
+}
+.item input{
+	width: 50px;
+}
+.item img{
+	/*width: 32px;
+	height: 32px;*/
+}
+.item span{
+	display: inline-block;
+}
+
+.itemsResult item{
+	width: 100%;
+}

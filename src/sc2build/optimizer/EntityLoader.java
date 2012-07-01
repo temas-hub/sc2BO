@@ -23,13 +23,13 @@ import sc2build.optimizer.SC2Planner.Race;
 
 public class EntityLoader
 {
-	private final static Map<String, Race> data = new HashMap<>();
+	private final static Map<String, Race> data = new HashMap<String, Race>();
 	
-	public JSONArray loadData() throws IOException, JSONException
+	public JSONArray loadData(String filePath) throws IOException, JSONException
 	{
 		StringBuilder sb = new StringBuilder();
 		
-		BufferedReader br = new BufferedReader(new FileReader("./js/data.js"));
+		BufferedReader br = new BufferedReader(new FileReader(filePath));
 		
 		String line = null;
 		
@@ -55,16 +55,16 @@ public class EntityLoader
 		return EntityLoader.data.get(name);
 	}
 
-	public void init()
+	public void init(String filePath)
 	{
 		try
 		{
-			JSONArray arr = this.loadData();
+			JSONArray arr = this.loadData(filePath);
 			for (int i = 0; i < arr.length(); i++)
 			{
 				JSONObject raceEntity = arr.getJSONObject(i);
 				Race race = new Race();
-				race.entities = new ArrayList<>();
+				race.entities = new ArrayList<Entity>();
 				String raceName = raceEntity.getString("name");
 				JSONArray entitiesArray = raceEntity.getJSONArray("entities");
 				for (int j = 0; j < entitiesArray.length(); j++)
@@ -95,6 +95,7 @@ public class EntityLoader
 		ent.multi = obj.getString("multi");
 		ent.save =  obj.getString("save");
 		ent.style = obj.getString("style");
+		ent.icon = obj.getString("icon");
 		String sectionStr = obj.getString("section");
 		if (sectionStr!=null && sectionStr.length() > 0)
 		{
@@ -124,7 +125,7 @@ public class EntityLoader
 		JSONArray condArr = obj.getJSONArray("conditions");
 		if (condArr != null)
 		{
-			ent.conditions = new ArrayList<>();
+			ent.conditions = new ArrayList<String>();
 			for (int i=0; i < condArr.length(); i++)
 			{
 				ent.conditions.add(condArr.getString(i));
@@ -135,7 +136,7 @@ public class EntityLoader
 		JSONArray costArr = obj.getJSONArray("costs");
 		if (costArr != null)
 		{
-			ent.costs = new ArrayList<>();
+			ent.costs = new ArrayList<Cost>();
 			for (int i=0; i < costArr.length(); i++)
 			{
 				Cost cost = new Cost();
@@ -150,7 +151,7 @@ public class EntityLoader
 		JSONArray needArr = obj.getJSONArray("need");
 		if (needArr != null)
 		{
-			ent.need = new ArrayList<>();
+			ent.need = new ArrayList<NeedEntity>();
 			for (int i=0; i < needArr.length(); i++)
 			{
 				NeedEntity needEntity = new NeedEntity();
@@ -164,7 +165,7 @@ public class EntityLoader
 		JSONArray productArr = obj.getJSONArray("products");
 		if (productArr != null)
 		{
-			ent.products = new ArrayList<>();
+			ent.products = new ArrayList<Entity>();
 			for (int i=0; i < productArr.length(); i++)
 			{
 				Entity prodEntity = new Entity();

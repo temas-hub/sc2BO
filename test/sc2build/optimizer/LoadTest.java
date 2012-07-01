@@ -14,7 +14,7 @@ public class LoadTest
 	public void testLoad()
 	{
 		EntityLoader loader = new EntityLoader();
-		loader.init();
+		loader.init("./WebContent/js/data.js");
 		
 		List<Entity> entities = loader.load("Protoss");
 		Assert.assertTrue(entities.size() > 0);

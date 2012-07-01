@@ -1,0 +1,117 @@
+delays
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+food
+6
+6
+6
+7
+8
+9
+9
+10
+11
+12
+12
+14
+16
+16
+16
+18
+20
+Events
+Event [time=42719, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=42753, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42772, event=execute, name=Energy Spawner, actInd=0, active=false]
+Event [time=42775, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42814, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42819, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=42875, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42875, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42914, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42914, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42919, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=42959, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=42975, event=check, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43027, event=execute, name=Fast Gas Patch, actInd=0, active=false]
+Event [time=43027, event=execute, name=Fast Gas Patch, actInd=1, active=false]
+Event [time=43050, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43050, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43065, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43131, event=execute, name=Slow Gas Patch, actInd=0, active=false]
+Event [time=43150, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43236, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43342, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43361, event=execute, name=Fast Mineral Patch, actInd=0, active=false]
+Event [time=43468, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=43568, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=43668, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=43768, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+Event [time=43868, event=check, name=Slow Mineral Patch, actInd=0, active=false]
+BUILD::
+Entity [name=Assimilator, section=building, start=0, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=3000, amount=null, save=oB, idle=1, atmost=null, eventualError=false, currentError=]
+Entity [name=3 x Gas Probe, section=special, start=0, style=instant, value=[0], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=100, amount=null, save=c, idle=0, atmost=null, eventualError=true, currentError=No gas space available.]
+Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Entity [name=Pylon, section=building, start=0, style=normal, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=2500, amount=null, save=oC, idle=2, atmost=null, eventualError=false, currentError=]
+Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Entity [name=Gateway, section=building, start=0, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=6500, amount=null, save=oD, idle=1, atmost=null, eventualError=false, currentError=]
+Entity [name=Zealot, section=unit, start=0, style=normal, value=[3], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=3800, amount=null, save=g, idle=3, atmost=sc2build.optimizer.SC2Planner$AtMost@33906773, eventualError=false, currentError=]
+Entity [name=Zealot, section=unit, start=0, style=normal, value=[3], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=3800, amount=null, save=g, idle=3, atmost=sc2build.optimizer.SC2Planner$AtMost@33906773, eventualError=false, currentError=]
+Entity [name=Pylon, section=building, start=0, style=normal, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=2500, amount=null, save=oC, idle=2, atmost=null, eventualError=false, currentError=]
+Entity [name=Cybernetics Core, section=building, start=0, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=5000, amount=null, save=oF, idle=1, atmost=null, eventualError=false, currentError=]
+Entity [name=Stalker, section=unit, start=0, style=normal, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=4200, amount=null, save=j, idle=2, atmost=sc2build.optimizer.SC2Planner$AtMost@4d77c977, eventualError=false, currentError=]
+Entity [name=Stalker, section=unit, start=0, style=normal, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=4200, amount=null, save=j, idle=2, atmost=sc2build.optimizer.SC2Planner$AtMost@4d77c977, eventualError=false, currentError=]
+Entity [name=Zealot, section=unit, start=0, style=normal, value=[3], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=3800, amount=null, save=g, idle=3, atmost=sc2build.optimizer.SC2Planner$AtMost@33906773, eventualError=false, currentError=]
+cat:building
+ 28019 30519 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cat:pause
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cat:special
+ 6424 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cat:unit
+ 42719 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cat:upgrade
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cat:worker
+ 15306 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+Assimilator=Entity [name=Assimilator, section=building, start=0, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=3000, amount=null, save=oB, idle=1, atmost=null, eventualError=false, currentError=]
+Cybernetics Core=Entity [name=Cybernetics Core, section=building, start=0, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=5000, amount=null, save=oF, idle=1, atmost=null, eventualError=false, currentError=]
+Energy=Entity [name=Energy, section=resource, start=0, style=resource, value=[100], adding=null, addsto=null, multi=Energy Spawner, cap=100, autocheck=false, time=0, amount=null, save=null, idle=100, atmost=null, eventualError=false, currentError=]
+Energy Spawner=Entity [name=Energy Spawner, section=resource, start=1, style=hidden, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=true, time=889, amount=null, save=null, idle=1, atmost=sc2build.optimizer.SC2Planner$AtMost@734bcb5c, eventualError=false, currentError=]
+Fast Gas Patch=Entity [name=Fast Gas Patch, section=resource, start=0, style=hidden, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=true, time=545, amount=null, save=null, idle=0, atmost=null, eventualError=true, currentError=No gas probe available.]
+Fast Mineral Patch=Entity [name=Fast Mineral Patch, section=resource, start=16, style=hidden, value=[16], adding=null, addsto=null, multi=null, cap=null, autocheck=true, time=714, amount=null, save=null, idle=7, atmost=null, eventualError=true, currentError=No probe available.]
+Food=Entity [name=Food, section=resource, start=6, style=hidden, value=[22], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=0, amount=null, save=null, idle=22, atmost=null, eventualError=false, currentError=]
+Gas=Entity [name=Gas, section=resource, start=0, style=resource, value=[636], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=0, amount=null, save=null, idle=636, atmost=null, eventualError=false, currentError=]
+Gas Geyser=Entity [name=Gas Geyser, section=resource, start=2, style=hidden, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=0, amount=null, save=null, idle=1, atmost=null, eventualError=false, currentError=]
+Gas Probe=Entity [name=Gas Probe, section=special, start=0, style=instant, value=[3], adding=Gas Probe, addsto=2 x Gas Probe, multi=null, cap=null, autocheck=false, time=100, amount=null, save=iG, idle=0, atmost=null, eventualError=true, currentError=No gas space available.]
+Gate=Entity [name=Gate, section=resource, start=0, style=hidden, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=0, amount=null, save=null, idle=1, atmost=null, eventualError=false, currentError=]
+Gateway=Entity [name=Gateway, section=building, start=0, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=6500, amount=null, save=oD, idle=1, atmost=null, eventualError=false, currentError=]
+Mineral Probe=Entity [name=Mineral Probe, section=special, start=6, style=instant, value=[9], adding=Mineral Probe, addsto=2 x Mineral Probe, multi=null, cap=null, autocheck=false, time=100, amount=null, save=iE, idle=0, atmost=null, eventualError=false, currentError=]
+Minerals=Entity [name=Minerals, section=resource, start=50, style=resource, value=[925], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=0, amount=null, save=null, idle=925, atmost=null, eventualError=false, currentError=]
+Nexus=Entity [name=Nexus, section=building, start=1, style=normal, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=10000, amount=null, save=oA, idle=1, atmost=null, eventualError=false, currentError=]
+Probe=Entity [name=Probe, section=worker, start=6, style=nonumber, value=[12], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=1700, amount=null, save=a, idle=12, atmost=sc2build.optimizer.SC2Planner$AtMost@12402e11, eventualError=false, currentError=]
+Pylon=Entity [name=Pylon, section=building, start=0, style=normal, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=2500, amount=null, save=oC, idle=2, atmost=null, eventualError=false, currentError=]
+Slow Gas Patch=Entity [name=Slow Gas Patch, section=resource, start=0, style=hidden, value=[1], adding=null, addsto=null, multi=null, cap=null, autocheck=true, time=857, amount=null, save=null, idle=0, atmost=null, eventualError=true, currentError=No gas probe available.]
+Slow Mineral Patch=Entity [name=Slow Mineral Patch, section=resource, start=8, style=hidden, value=[8], adding=null, addsto=null, multi=null, cap=null, autocheck=true, time=1666, amount=null, save=null, idle=8, atmost=null, eventualError=true, currentError=No probe available.]
+Stalker=Entity [name=Stalker, section=unit, start=0, style=normal, value=[2], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=4200, amount=null, save=j, idle=2, atmost=sc2build.optimizer.SC2Planner$AtMost@4d77c977, eventualError=false, currentError=]
+Supply=Entity [name=Supply, section=resource, start=10, style=supply, value=[26], adding=null, addsto=null, multi=null, cap=200, autocheck=false, time=0, amount=null, save=null, idle=26, atmost=null, eventualError=false, currentError=]
+Zealot=Entity [name=Zealot, section=unit, start=0, style=normal, value=[3], adding=null, addsto=null, multi=null, cap=null, autocheck=false, time=3800, amount=null, save=g, idle=3, atmost=sc2build.optimizer.SC2Planner$AtMost@33906773, eventualError=false, currentError=]

@@ -15,11 +15,16 @@ import java.util.Map.Entry;
  */
 public class SC2Planner
 {
-	private static final EntityLoader loader = new EntityLoader();
+	private static EntityLoader loader=null;
 	
-	static{
-		SC2Planner.loader.init();
+	
+	public static void initLoader(String filePath){
+		loader = new EntityLoader();
+		loader.init(filePath);
 	}
+	//static{
+	//	SC2Planner.loader.init();
+	//}
 	
 	public SC2Planner()
 	{
@@ -34,7 +39,7 @@ public class SC2Planner
 		
 		public List<Entity> getEnities()
 		{
-			return SC2Planner.loader.load(this.name);
+			return SC2Planner.getLoader().load(this.name);
 		}
 		
 		private final String name;
@@ -77,10 +82,11 @@ public class SC2Planner
 	
 	public static class Entity
 	{
-		String name;
+		public String name;
+		public String icon;
 		Section section;
 		Integer start;
-		String style;
+		public String style;
 		int[] value;
 		List<Entity> products = null;
 		List<NeedEntity> need = null;
@@ -255,7 +261,7 @@ public class SC2Planner
 		this.init(Faction.valueOf(this.factionName));
 	}
 	
-	void init (Faction faction)
+	public void init (Faction faction)
 	{
 		if (faction == null)
 		{
@@ -1571,7 +1577,7 @@ public class SC2Planner
 	}
 	public Race getRace(String name)
 	{
-		return SC2Planner.loader.getRace(name);
+		return SC2Planner.getLoader().getRace(name);
 	}
 	public boolean isSuccessfull()
 	{
@@ -1600,5 +1606,12 @@ public class SC2Planner
 	public int getCurrentTime()
 	{
 		return this.currentTime;
+	}
+	private static EntityLoader getLoader() {
+		if(loader==null){
+			SC2Planner.loader = new EntityLoader();
+			SC2Planner.loader.init("./WebContent/js/data.js");
+		}
+		return loader;
 	}
 }

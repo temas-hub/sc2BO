@@ -29,7 +29,7 @@ public class BuildOptimizerTest
 		
 		Entity zealot = planner.getEntities().get("Zealot");
 		
-		List<Entity> req = new LinkedList<>();
+		List<Entity> req = new LinkedList<Entity>();
 		req.add(zealot);
 		req.add(zealot);
 		
@@ -58,7 +58,7 @@ public class BuildOptimizerTest
 		
 		Entity stalker = planner.getEntities().get("Stalker");
 		
-		List<Entity> req = new LinkedList<>();
+		List<Entity> req = new LinkedList<Entity>();
 		req.add(stalker);
 		req.add(stalker);
 		req.add(stalker);
@@ -72,7 +72,7 @@ public class BuildOptimizerTest
 	@Test
 	public void treeSetTest()
 	{
-		TreeSet<Bean> set = new TreeSet<>(new Comparator<Bean>() {
+		TreeSet<Bean> set = new TreeSet<Bean>(new Comparator<Bean>() {
 			@Override
 			public int compare(Bean o1, Bean o2) {
 				return o1.time - o2.time;

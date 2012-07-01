@@ -27,7 +27,7 @@ public class BuildOptimizer
 		
 		private int time;
 		private Node parent;
-		private List<Node> children = new LinkedList<>();
+		private List<Node> children = new LinkedList<BuildOptimizer.Node>();
 		
 		private boolean leafNode = false; 
 		
@@ -86,7 +86,7 @@ public class BuildOptimizer
 		
 		public boolean isBuildDone(List<Entity> requried)
 		{
-			List<Entity> entitiesToDone = new ArrayList<>(requried);
+			List<Entity> entitiesToDone = new ArrayList<Entity>(requried);
 			Node node = this;
 			do
 			{
@@ -126,7 +126,7 @@ public class BuildOptimizer
 		}
 	}
 
-	private List<Node> curentLevelNodes = new LinkedList<>();
+	private List<Node> curentLevelNodes = new LinkedList<Node>();
 	private int minTime = Integer.MAX_VALUE;
 	private Node minNode = null;
 	private int level = 0;
@@ -165,7 +165,7 @@ public class BuildOptimizer
 	
 	private String dump(Node node)
 	{
-		LinkedList<Node> nodes = new LinkedList<>();
+		LinkedList<Node> nodes = new LinkedList<Node>();
 		this.fillNodes(node, nodes);
 		
 		StringBuilder sb = new StringBuilder();
@@ -184,7 +184,7 @@ public class BuildOptimizer
 	
 	public void printBuild(Node node)
 	{
-		LinkedList<Entity> build = new LinkedList<>();
+		LinkedList<Entity> build = new LinkedList<Entity>();
 		this.fillBuild(node, build);
 		
 		for (Entity item : build)
@@ -224,7 +224,7 @@ public class BuildOptimizer
 	
 	private void collectRequiredFor(Race race, Collection<Entity> targets, Set<Entity> comulatedResult)
 	{
-		Set<Entity> currentResult = new HashSet<>();
+		Set<Entity> currentResult = new HashSet<Entity>();
 		for (Entity target : targets)
 		{
 			if (target.conditions != null)
@@ -251,7 +251,7 @@ public class BuildOptimizer
 	
 	private Collection<Entity> collectRequired(Race race, Entity target)
 	{
-		Set<Entity> result = new HashSet<>();	
+		Set<Entity> result = new HashSet<Entity>();	
 		this.collectRequiredFor(race, Collections.singleton(target), result);
 		return result;
 	}
@@ -270,8 +270,8 @@ public class BuildOptimizer
 		Node root = new Node(null, null, 0);
 		this.curentLevelNodes.clear();
 		this.curentLevelNodes.add(root);
-		List<Entity> required = new LinkedList<>(); 
-		for (Entity reqEnt : new HashSet<>(requriedTargets))
+		List<Entity> required = new LinkedList<Entity>(); 
+		for (Entity reqEnt : new HashSet<Entity>(requriedTargets))
 		{
 			required.addAll(this.collectRequired(race, reqEnt));
 		}
@@ -346,7 +346,7 @@ public class BuildOptimizer
 		//if (++this.level > LEVEL_THRESHOLD) return;
 		++this.level;
 		
-		List<Node> pastLevelNodes = new LinkedList<>(this.curentLevelNodes);
+		List<Node> pastLevelNodes = new LinkedList<Node>(this.curentLevelNodes);
 		this.curentLevelNodes.clear();
 		int parentNodeSize = pastLevelNodes.size();
 		
@@ -398,7 +398,7 @@ public class BuildOptimizer
 	private boolean isAllowedToAdd(Node node, Entity entity)
 	{
 		//this.planner.clearBuilds();
-		LinkedList<Entity> build = new LinkedList<>();
+		LinkedList<Entity> build = new LinkedList<Entity>();
 		this.fillBuild(node, build);
 		build.add(entity);
 		this.planner.setBuild(build);
