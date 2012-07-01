@@ -155,7 +155,7 @@ public class SC2Planner
 	private Map<Section, Category> category = new HashMap<Section, Category>();
 	private boolean isDelayed;
 	
-	int sum(int[] d)
+	static int sum(final int[] d)
 	{
 		int b = d[0];
 		for ( int c = 1; c < d.length; c = c + 1)
@@ -164,17 +164,18 @@ public class SC2Planner
 		}
 		return b;
 	}
-	int max(int[] d)
+	static int max(final int[] d)
 	{
 		int b = d[0];
 		for ( int c = 1; c < d.length; c = c + 1)
 		{
-			b = Math.max(b, d[c]);
+			final int dd = d[c];
+			if(dd>b) b = dd;
 		}
 		return b;
 	}
 	
-	int maxIndexOf(int[] b)
+	static int maxIndexOf(final int[] b)
 	{
 		int c = 0;
 		if (b.length == 0)
@@ -191,7 +192,7 @@ public class SC2Planner
 		return c;
 	}
 	
-	int minIndexOf(int[] b)
+	static int minIndexOf(final int[] b)
 	{
 		int c = 0;
 		if (b.length == 0)
