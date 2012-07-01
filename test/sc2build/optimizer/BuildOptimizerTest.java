@@ -33,13 +33,19 @@ public class BuildOptimizerTest
 		req.add(zealot);
 		req.add(zealot);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner);
+		BuildOptimizer bo = new BuildOptimizer(planner, 10);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
 		
 		Node node = bo.getMinNode();
 		Assert.assertEquals("Zealot", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertEquals("Zealot", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Gateway", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Gateway", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Pylon", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertNull(node.getEntity());
 	}
@@ -57,7 +63,7 @@ public class BuildOptimizerTest
 		req.add(stalker);
 		req.add(stalker);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner);
+		BuildOptimizer bo = new BuildOptimizer(planner, 9);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
 		
 		bo.getMinNode().dump();
@@ -89,7 +95,7 @@ public class BuildOptimizerTest
 		SC2Planner planner = new SC2Planner();
 		planner.init(Faction.PROTOSS);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner);
+		BuildOptimizer bo = new BuildOptimizer(planner, -1);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), Collections.<Entity>emptyList());
 	}
 }

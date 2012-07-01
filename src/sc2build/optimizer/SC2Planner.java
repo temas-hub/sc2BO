@@ -1601,4 +1601,21 @@ public class SC2Planner
 	{
 		return this.currentTime;
 	}
+	
+	public boolean isGayserCosts(Entity entity)
+	{
+		boolean found = false;
+		if (entity.costs != null)
+		{
+			
+			for (Cost cc : entity.costs)
+			{
+				if (cc.name == "Gas Geyser")
+				{
+					found = true;
+				}
+			}
+		}
+		return found;
+	}
 }

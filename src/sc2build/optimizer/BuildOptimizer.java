@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import sc2build.optimizer.SC2Planner.Cost;
 import sc2build.optimizer.SC2Planner.Entity;
 import sc2build.optimizer.SC2Planner.Race;
 
@@ -96,6 +97,45 @@ public class BuildOptimizer
 			
 			return entitiesToDone.isEmpty();
 		}
+		
+		public int getWorkersCount()
+		{
+			int count = 0;
+			Node node = this;
+			do
+			{
+				if (node.entity.section == Section.worker)
+				{
+					count++;
+				}
+			}
+			while ((node = node.parent).entity != null);
+			return count;
+		}
+		
+		public int getFoodAmount()
+		{
+			int count = 0;
+			Node node = this;
+			do
+			{
+				if (node.entity.section == Section.building)
+				{
+					if (node.entity.products != null)
+					{
+						for (Entity prod : node.entity.products)
+						{
+							if (prod.name == "Supply" && prod.amount > 0)
+							{
+								count += prod.amount;
+							}
+						}
+					}
+				}
+			}
+			while ((node = node.parent).entity != null);
+			return count;
+		}
 
 		public Entity getEntity()
 		{
@@ -124,6 +164,21 @@ public class BuildOptimizer
 		{
 			return this.entity == null ? "Root" : this.entity.name;
 		}
+
+		public int getWorkersMovements()
+		{
+			int count = 0;
+			Node node = this;
+			do
+			{
+				if (node.entity.style == "instant")
+				{
+					count++;
+				}
+			}
+			while ((node = node.parent).entity != null);
+			return count;
+		}
 	}
 
 	private List<Node> curentLevelNodes = new LinkedList<>();
@@ -131,10 +186,15 @@ public class BuildOptimizer
 	private Node minNode = null;
 	private int level = 0;
 	private SC2Planner planner;
+	private int workersCount;
+	private int reqFoodAmount;
+	private int workersMovements;
 	
-	public BuildOptimizer(SC2Planner planner)
+	public BuildOptimizer(SC2Planner planner, int workersCount)
 	{
 		this.planner = planner;
+		this.workersCount = workersCount;
+		this.workersMovements = 2;
 	}
 
 	private void fillBuild(Node node, Deque<Entity> build)
@@ -208,6 +268,9 @@ public class BuildOptimizer
 		
 		if (/*node.getAccumTime() > TIME_THRESHOLD ||*/ 
 				(this.minNode != null && node.getAccumTime() > this.minTime) ||  
+				(this.workersCount > 0 && node.getWorkersCount() > this.workersCount) ||
+				(this.workersMovements > 0 && node.getWorkersMovements() > this.workersMovements) ||
+				(this.reqFoodAmount < 0 && (this.reqFoodAmount + node.getFoodAmount()) > 8) ||
 				buildIsDone)
 		{
 			if (buildIsDone)
@@ -234,13 +297,28 @@ public class BuildOptimizer
 					currentResult.add(this.planner.getEntityByName(cond));
 				}
 			}
-			/*if (target.need != null)
+			if (target.costs != null)
 			{
-				for (NeedEntity needEnt: target.need)
+				boolean reqsGas = false;
+				for (Cost cc: target.costs)
 				{
-					currentResult.add(this.planner.getEntityByName(needEnt.name));
+					if (cc.name == "Gas")
+					{
+						reqsGas = true;
+						break;
+					}
 				}	
-			}*/
+				if (reqsGas)
+				{
+					for (Entity ent : race.entities)
+					{
+						if (this.planner.isGayserCosts(ent))
+						{
+							currentResult.add(ent);
+						}
+					}
+				}
+			}
 		}
 		if (currentResult.size() > 0)
 		{
@@ -270,12 +348,28 @@ public class BuildOptimizer
 		Node root = new Node(null, null, 0);
 		this.curentLevelNodes.clear();
 		this.curentLevelNodes.add(root);
-		List<Entity> required = new LinkedList<>(); 
+		List<Entity> required = new LinkedList<>();
+		
+		this.reqFoodAmount = 0;
 		for (Entity reqEnt : new HashSet<>(requriedTargets))
 		{
 			required.addAll(this.collectRequired(race, reqEnt));
 		}
-		required.addAll(requriedTargets);
+		for (Entity requriedTarg : requriedTargets)
+		{
+			if (requriedTarg.costs != null)
+			{
+				for (Cost cc : requriedTarg.costs)
+				{
+					if (cc.name == "Food" && cc.amount < 0)
+					{
+						this.reqFoodAmount += cc.amount;
+					}
+				}
+			}
+			required.add(requriedTarg);
+		}
+		
 		this.buildNewLevel(race, required);
 	}
 	
