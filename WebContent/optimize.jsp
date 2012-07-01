@@ -34,7 +34,7 @@ for(Map.Entry<String,String[]> i : request.getParameterMap().entrySet()){
 	}
 }
 
-BuildOptimizer bo = new BuildOptimizer(planner);
+BuildOptimizer bo = new BuildOptimizer(planner,-1);
 bo.buildRaceTree(planner.getRace(f.getName()), req);
 
 if(bo.getMinNode()!=null){
@@ -46,15 +46,18 @@ if(bo.getMinNode()!=null){
 		n = n.getParent();
 	}
 	int index =0;
+	StringBuilder bpLink = new StringBuilder(""+f.getName().charAt(0));
 	%><div class='items itemsResult'><%
 			for(Node ne : e){
 				index++;
+				bpLink.append(ne.getEntity().save);
 				%><div class='item item<%=(index%3)%>'><img src="./images/<%=ne.getEntity().icon%>.png">
 									<span><%=ne.getEntity().name%></span>
 									<span class='time'><%=ne.getTime()/100/60%>:<%=(ne.getTime()/100)%60%></span>
 									</div><%
 			}
-	%></div><%
+	%></div>
+	<a href="http://www.sc2planner.com/#<%=bpLink%>">View details</a><%
 }
 %>
 </body>
