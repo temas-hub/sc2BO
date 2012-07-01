@@ -120,13 +120,14 @@ public class SC2Planner
 	{
 		protected int time;
 		public String event;
-		public String name;
+		//public String name;
+		public Entity entityUnderName;
 		public int actInd;
 		public boolean active;
 		@Override
 		public String toString() {
 			return "Event [time=" + time + ", event=" + event + ", name="
-					+ name + ", actInd=" + actInd + ", active=" + active + "]";
+					+ entityUnderName.name + ", actInd=" + actInd + ", active=" + active + "]";
 		}
 		
 		public Event() {
@@ -178,6 +179,7 @@ public class SC2Planner
 	private Entity entitiy_Fast_Gold_Mineral_Patch;
 	private Entity entitiy_Fast_Gas_Patch;
 	private Entity entitiy_Food;
+	private Entity entitiy_Slow_Mineral_Patch;
 	
 	static int sum(final int[] d)
 	{
@@ -290,6 +292,7 @@ public class SC2Planner
 		entitiy_Fast_Gold_Mineral_Patch = this.entities.get("Fast Gold Mineral Patch");
 		entitiy_Fast_Gas_Patch = this.entities.get("Fast Gas Patch");
 		entitiy_Food = this.entities.get("Food");
+		entitiy_Slow_Mineral_Patch = this.entities.get("Slow Mineral Patch");
 		
 		this.stopAtTime = -1;
 		//this.readBuild();
@@ -555,7 +558,8 @@ public class SC2Planner
 			Event event = new Event();
 			event.event = "check";
 			
-			event.name = b.name;
+			//event.name = b.name;
+			event.entityUnderName = b;
 			event.actInd = index;
 			event.active = false;
 			
@@ -636,7 +640,8 @@ public class SC2Planner
 		Event event = new Event();
 		event.event = "execute";
 		event.time = this.currentTime + addedTime;
-		event.name = d.name;
+		//event.name = d.name;
+		event.entityUnderName = d;
 		event.actInd = actInd;
 		event.active = isActive;
 		this.events.add(event);
@@ -771,7 +776,8 @@ public class SC2Planner
 			Event event = new Event();
 			event.event = "check";
 			event.time = (int)(10 + ((k + 1) / 2) * 100);
-			event.name = "Fast Mineral Patch";
+			//event.name = "Fast Mineral Patch";
+			event.entityUnderName = entitiy_Fast_Mineral_Patch;
 			event.actInd = 0;
 			this.events.add(event);
 		}
@@ -780,7 +786,8 @@ public class SC2Planner
 			Event event = new Event();
 			event.event = "check";
 			event.time = (int)(1002 + k * 100);
-			event.name = "Slow Mineral Patch";
+			//event.name = "Slow Mineral Patch";
+			event.entityUnderName = entitiy_Slow_Mineral_Patch;
 			event.actInd = 0;
 			this.events.add(event);
 		}
@@ -831,12 +838,14 @@ public class SC2Planner
 						this.currentTime = e.time;
 						if (e.event==("execute"))
 						{
-							this.finishDoing(this.entities.get(e.name), e.actInd,
+							//this.entities.get(e.name)
+							this.finishDoing(e.entityUnderName, e.actInd,
 									e.active);
 						}
 						if (e.event==("check"))
 						{
-							this.autoCheck(this.entities.get(e.name), e.actInd);
+							//this.entities.get(e.name)
+							this.autoCheck(e.entityUnderName, e.actInd);
 						}
 						if (e.event==("start"))
 						{
@@ -854,7 +863,8 @@ public class SC2Planner
 							Event event = new Event();
 							event.event = "start";
 							event.time = this.currentTime + this.delays.get(k - 1) * 100;
-							event.name = action.name;
+							//event.name = action.name;
+							event.entityUnderName = action;
 							this.events.add(event);
 							
 							/*Collections.sort(this.events, new Comparator<Event>()
@@ -1140,11 +1150,13 @@ public class SC2Planner
 				this.currentTime = e.time;
 				if (e.event==("execute"))
 				{
-					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
+					//this.entities.get(e.name)
+					this.finishDoing(e.entityUnderName, e.actInd, e.active);
 				}
 				if (e.event==("check"))
 				{
-					this.autoCheck(this.entities.get(e.name), e.actInd);
+					//this.entities.get(e.name)
+					this.autoCheck(e.entityUnderName, e.actInd);
 				}
 			}
 		}
@@ -1157,11 +1169,13 @@ public class SC2Planner
 				this.currentTime = e.time;
 				if (e.event==("execute"))
 				{
-					this.finishDoing(this.entities.get(e.name), e.actInd, e.active);
+					//this.entities.get(e.name)
+					this.finishDoing(e.entityUnderName, e.actInd, e.active);
 				}
 				if (e.event==("check"))
 				{
-					this.autoCheck(this.entities.get(e.name), e.actInd);
+					//this.entities.get(e.name)
+					this.autoCheck(e.entityUnderName, e.actInd);
 				}
 			}
 			//assertEvents();
