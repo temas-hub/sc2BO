@@ -97,7 +97,7 @@ public class SC2Planner
 		public Integer time;
 		public Integer amount;
 		public String save;
-		public Integer idle;
+		public int idle;
 		public AtMost atmost = null;
 		public boolean eventualError;
 		public String currentError;
@@ -429,7 +429,7 @@ public class SC2Planner
 			{
 				if (max(this.entities.get(condition).value) <= 0)
 				{
-					return condition + " needed.";
+					return condition/* + " needed."*/;
 				}
 			}
 		}
@@ -1589,6 +1589,7 @@ public class SC2Planner
 	{
 		//SC2Planner.loader.init();
 		this.reset();
+		this.currentTime = 0;
 		/*this.build.clear();
 		this.delays.clear();
 		this.food.clear();

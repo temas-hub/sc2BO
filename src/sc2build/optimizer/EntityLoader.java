@@ -107,7 +107,7 @@ public class EntityLoader
 		ent.amount = obj.getInt("amount");
 		ent.cap = obj.getInt("cap");
 		ent.eventualError = obj.getBoolean("eventualError");
-		ent.idle = obj.getInt("idle");
+		//ent.idle = obj.getInt("idle");
 		
 		ent.addsto = obj.getString("addsto");
 		
