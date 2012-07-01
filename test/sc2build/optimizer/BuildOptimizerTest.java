@@ -99,4 +99,31 @@ public class BuildOptimizerTest
 		BuildOptimizer bo = new BuildOptimizer(planner, -1);
 		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), Collections.<Entity>emptyList());
 	}
+	
+	@Test
+	public void test1Marine()
+	{
+		SC2Planner planner = new SC2Planner();
+		planner.init(Faction.TERRAN);
+		
+		Entity zealot = planner.getEntities().get("Marine");
+		
+		List<Entity> req = new LinkedList<Entity>();
+		req.add(zealot);
+		
+		BuildOptimizer bo = new BuildOptimizer(planner, 10);
+		bo.buildRaceTree(planner.getRace(Faction.TERRAN.getName()), req);
+		bo.storeInFile();
+		Node node = bo.getMinNode();
+		Assert.assertNotNull(node);
+		Assert.assertEquals("Marine", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Barracks", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Supply Depot", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertNull(node.getEntity());
+	}
+	
+
 }
