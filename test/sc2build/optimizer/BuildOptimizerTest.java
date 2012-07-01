@@ -1,5 +1,6 @@
 package sc2build.optimizer;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,5 +81,15 @@ public class BuildOptimizerTest
 		set.add(bean);
 		set.add(bean2);
 		Assert.assertEquals(2, set.size());
+	}
+	
+	@Test
+	public void testWrite() throws Exception
+	{
+		SC2Planner planner = new SC2Planner();
+		planner.init(Faction.PROTOSS);
+		
+		BuildOptimizer bo = new BuildOptimizer(planner);
+		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), Collections.<Entity>emptyList());
 	}
 }

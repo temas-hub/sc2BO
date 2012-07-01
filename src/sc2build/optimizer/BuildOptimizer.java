@@ -1,5 +1,9 @@
 package sc2build.optimizer;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -166,7 +170,10 @@ public class BuildOptimizer
 			sb.append(item.store());
 			sb.append("/");
 		}
-		sb.setLength(sb.length() - 1);
+		if (sb.length() > 0)
+		{
+			sb.setLength(sb.length() - 1);
+		}
 		
 		return sb.toString();
 	}
@@ -189,7 +196,12 @@ public class BuildOptimizer
 		
 		Node node = new Node(parent, entity, time);
 		parent.addNode(node);
-		boolean buildIsDone = node.isBuildDone(requried);
+		boolean buildIsDone = false;
+		if (!requried.isEmpty())
+		{
+			buildIsDone = node.isBuildDone(requried);
+		}
+		
 		if (node.getAccumTime() > TIME_THRESHOLD || 
 				(this.minNode != null && node.getAccumTime() > this.minTime) ||  
 				buildIsDone)
@@ -281,8 +293,11 @@ public class BuildOptimizer
 	
 	private void buildNewLevel(Race race, List<Entity> requried)
 	{
+		this.storeInFile();
+		
 		if (this.curentLevelNodes.size() == 0) return;
-		if (++this.level > LEVEL_THRESHOLD) return;	
+		//if (++this.level > LEVEL_THRESHOLD) return;
+		++this.level;
 		
 		List<Node> pastLevelNodes = new LinkedList<>(this.curentLevelNodes);
 		this.curentLevelNodes.clear();
@@ -296,11 +311,36 @@ public class BuildOptimizer
 				if (entity.section != Section.resource && !entity.name.equals("Chronoboost") && this.isAllowedToAdd(node, entity))
 				{
 					this.putEntity(node, entity, requried);
-					node.dump();
 				}
 			}
 		}
 		this.buildNewLevel(race, requried);
+	}
+
+	private void storeInFile()
+	{
+		String fileName = "c:/temp/" + this.level + "_" + System.currentTimeMillis() + ".txt";
+		File parent = (new File(fileName)).getParentFile();
+		if (!parent.exists())
+		{
+			parent.mkdirs();
+		}
+		try
+		{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+			for (Node n : this.curentLevelNodes)
+			{
+				String str = this.dump(n);
+				bw.append(str);
+				bw.newLine();
+			}
+			bw.flush();
+			bw.close();
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	private boolean isAllowedToAdd(Node node, Entity entity)
