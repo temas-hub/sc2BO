@@ -7,11 +7,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import sc2build.data.Cost;
 import sc2build.data.Faction;
@@ -24,7 +34,7 @@ public class BuildOptimizer
 	
 	public static class Node
 	{
-		private final Entity entity;
+		final Entity entity;
 		
 		private int time;
 		private Node parent;
@@ -47,6 +57,19 @@ public class BuildOptimizer
 		public List<Node> getChildren()
 		{
 			return this.children;
+		}
+		
+		public void fillBuild(Deque<Entity> build)
+		{
+			if (this.entity == null)
+			{
+				return;
+			}
+			build.addFirst(this.entity);
+			if (this.parent != null)
+			{
+				this.parent.fillBuild(build);
+			}
 		}
 
 		public Node getParent()
@@ -151,7 +174,8 @@ public class BuildOptimizer
 		public void dump()
 		{
 			if(this.parent!=null)this.parent.dump();
-			System.out.println(time+" : "+ this.entity);
+			if(this.entity!=null)
+				System.out.println(time((time-this.entity.time))+" ... " +time(time)+" : "+ this.entity);
 		}
 		
 		public String store()
@@ -181,35 +205,34 @@ public class BuildOptimizer
 		}
 	}
 
-	private List<Node> curentLevelNodes = new LinkedList<Node>();
-	private int minTime = Integer.MAX_VALUE;
-	private Node minNode = null;
-	private int level = 0;
-	private SC2Planner planner;
-	private int workersCount;
-	private int reqFoodAmount;
-	private int workersMovements;
+	//private List<Node> curentLevelNodes = new LinkedList<Node>();
+	private List<Node> minNode = null;
+	volatile Node currentMinSuspect = null;
+	//int level = 0;
+	int workersCount;
+	int reqFoodAmount;
+	int workersMovements;
+	private Faction faction;
+	ForkJoinPool pool = new ForkJoinPool(4);
 	
-	public BuildOptimizer(SC2Planner planner, int workersCount)
+	public BuildOptimizer(Faction faction, int workersCount)
 	{
-		this.planner = planner;
+		this.faction = faction;
 		this.workersCount = workersCount;
 		this.workersMovements = 2;
 	}
 
-	private void fillBuild(Node node, Deque<Entity> build)
-	{
-		if (node.entity == null)
-		{
-			return;
-		}
-		build.addFirst(node.entity);
-		if (node.parent != null)
-		{
-			this.fillBuild(node.parent, build);
-		}
-	}
 	
+	
+	public static String time(int time) {
+		int minutues = time/60/100;
+		int seconds = (time-minutues*60*100)/100;
+		int ms = time - seconds*100-minutues*60*100;
+		return minutues+":"+(seconds<10 ? ("0"+seconds) : seconds)+"."+ms;
+	}
+
+
+
 	private void fillNodes(Node node, Deque<Node> nodes)
 	{
 		if (node.entity == null)
@@ -245,7 +268,7 @@ public class BuildOptimizer
 	public void printBuild(Node node)
 	{
 		LinkedList<Entity> build = new LinkedList<Entity>();
-		this.fillBuild(node, build);
+		node.fillBuild(build);
 		
 		for (Entity item : build)
 		{
@@ -254,36 +277,7 @@ public class BuildOptimizer
 		}
 	}
 	
-	private void putEntity(Node parent, Entity entity, List<Entity> requried)
-	{
-		int time = this.planner.getCurrentTime();
-		
-		Node node = new Node(parent, entity, time);
-		parent.addNode(node);
-		boolean buildIsDone = false;
-		if (!requried.isEmpty())
-		{
-			buildIsDone = node.isBuildDone(requried);
-		}
-		
-		if (/*node.getAccumTime() > TIME_THRESHOLD ||*/ 
-				(this.minNode != null && node.getAccumTime() > this.minTime) ||  
-				(this.workersCount > 0 && node.getWorkersCount() > this.workersCount) ||
-				(this.workersMovements > 0 && node.getWorkersMovements() > this.workersMovements) ||
-				(this.reqFoodAmount < 0 && (this.reqFoodAmount + node.getFoodAmount()) > 8) ||
-				buildIsDone)
-		{
-			if (buildIsDone)
-			{
-				this.calcMinTime(node);
-			}
-			node.setLeafNode(true);
-		}
-		else
-		{
-			this.curentLevelNodes.add(node);
-		}
-	}
+	
 	
 	private void collectRequiredFor(Faction race, Collection<Entity> targets, Set<Entity> comulatedResult)
 	{
@@ -312,7 +306,7 @@ public class BuildOptimizer
 				{
 					for (Entity ent : race.getEnities())
 					{
-						if (this.planner.isGayserCosts(ent))
+						if (race.isGayserCosts(ent))
 						{
 							currentResult.add(ent);
 						}
@@ -334,20 +328,9 @@ public class BuildOptimizer
 		return result;
 	}
 	
-	private void calcMinTime(Node node)
-	{
-		if (node.getAccumTime() < this.minTime)
-		{
-			this.minTime = node.getAccumTime();
-			this.minNode  = node;
-		}
-	}
-
-	public void buildRaceTree(Faction race, List<Entity> requriedTargets)
+	public void buildRaceTree(Faction race, List<Entity> requriedTargets) throws InterruptedException, ExecutionException
 	{
 		Node root = new Node(null, null, 0);
-		this.curentLevelNodes.clear();
-		this.curentLevelNodes.add(root);
 		List<Entity> required = new LinkedList<Entity>(); 
 		
 		this.reqFoodAmount = 0;
@@ -369,8 +352,34 @@ public class BuildOptimizer
 			}
 			required.add(requriedTarg);
 		}
+
+		for(Entity i:requriedTargets){
+			System.out.println("rq:"+i);
+		}
+		HashSet<Entity> usableObjects = new HashSet<Entity>(required);
+		for(Entity i:usableObjects){
+			System.out.println("use:"+i);
+		}
+		SearchTask searchTask = new SearchTask(this, race, root,requriedTargets,usableObjects);
+		this.minNode =  pool.invoke(searchTask);
+		if(this.minNode!=null)
+		Collections.sort(this.minNode,new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				if(o1.getAccumTime()<o2.getAccumTime())
+					return -1;
+				if(o1.getAccumTime()>o2.getAccumTime())
+					return 1;
+				if(o1.getFoodAmount()<o2.getFoodAmount())
+					return -1;
+				if(o1.getFoodAmount()>o2.getFoodAmount())
+					return -1;
+				return 0;
+			}
+		});
 		
-		this.buildNewLevel(race, required);
+		//
 	}
 	
 	
@@ -429,43 +438,7 @@ public class BuildOptimizer
 		}
 	}*/
 	
-	private void buildNewLevel(Faction race, List<Entity> requried)
-	{
-		//this.storeInFile();
-		
-		if (this.curentLevelNodes.size() == 0)
-		{
-			return;
-		}
-		//if (++this.level > LEVEL_THRESHOLD) return;
-		++this.level;
-		
-		List<Node> pastLevelNodes = new LinkedList<Node>(this.curentLevelNodes);
-		this.curentLevelNodes.clear();
-		int parentNodeSize = pastLevelNodes.size();
-		
-		for (Node node : pastLevelNodes)
-		{
-			parentNodeSize--;
-			for (Entity entity : race.getEnities())
-			{
-				if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
-						entity.name!=("Go out with Probe") &&
-						entity.name!=("Return Probe") &&
-						entity.name!=("Go out with SCV") &&
-						entity.name!=("Return SCV") &&
-						entity.name!=("Go out with Drone") &&
-						entity.name!=("Return Drone") &&
-						(requried.contains(entity) || entity.section == Section.worker || 
-						entity.section == Section.special) && 
-						this.isAllowedToAdd(node, entity))
-				{
-					this.putEntity(node, entity, requried);
-				}
-			}
-		}
-		this.buildNewLevel(race, requried);
-	}
+	/*
 
 	public void storeInFile()
 	{
@@ -491,22 +464,33 @@ public class BuildOptimizer
 		{
 			throw new RuntimeException(e);
 		}
-	}
+	}*/
 
-	private boolean isAllowedToAdd(Node node, Entity entity)
-	{
-		//this.planner.clearBuilds();
-		LinkedList<Entity> build = new LinkedList<Entity>();
-		this.fillBuild(node, build);
-		build.add(entity);
-		this.planner.setBuild(build);
-		this.planner.updateCenter(false, true, 0, false);
-		VolatileEntity ve = this.planner.getVolatile(entity);
-		return !ve.eventualError; 
-	}
 	
-	public Node getMinNode()
+	public List<Node> getMinNode()
 	{
 		return this.minNode;
+	}
+	
+	public Node getBestBuild(){
+		if(this.minNode==null || this.minNode.isEmpty())return null;
+		return this.minNode.get(0);
+	}
+
+
+
+	public int getBestBuildOffset() {
+		//allow for builds with 5 second diference from best one
+		return 500;
+	}
+
+
+
+	public void dump() {
+		for(Node i:this.minNode){
+			System.out.println("Build "+i.getAccumTime());
+			i.dump();
+		}
+		
 	}
 }

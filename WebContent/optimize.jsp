@@ -12,15 +12,17 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<script type="text/javascript" src="./js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.8.21.custom.min.js"></script>
+<link rel="stylesheet" href="./css/ui-lightness/jquery-ui-1.8.21.custom.css">
+<link rel="stylesheet" href="./css/ui.css">
+<title>Found Builds</title>
 </head>
 <body>
 <%
 Faction.initLoader(this.getServletContext().getRealPath("/js/data.js"));
 Faction f = Faction.valueOf(request.getParameter("factionName"));
 
-SC2Planner planner = new SC2Planner();
-planner.init(f);
 List<Entity> req = new LinkedList<Entity>();
 
 for(Map.Entry<String,String[]> i : request.getParameterMap().entrySet()){
@@ -34,32 +36,36 @@ for(Map.Entry<String,String[]> i : request.getParameterMap().entrySet()){
 	}
 }
 
-BuildOptimizer bo = new BuildOptimizer(planner,-1);
+BuildOptimizer bo = new BuildOptimizer(f,-1);
 bo.buildRaceTree(f, req);
 
 if(bo.getMinNode()!=null){
-	Node n = bo.getMinNode();
-	List<Node> e = new LinkedList<Node>();
-	while(n!=null){
-		if(n.getEntity()!=null)
-			e.add(0, n);
-		n = n.getParent();
+	List<Node> builds = bo.getMinNode();
+	for(Node n : builds){
+		List<Node> e = new LinkedList<Node>();
+		while(n!=null){
+			if(n.getEntity()!=null)
+				e.add(0, n);
+			n = n.getParent();
+		}
+		int index =0;
+		StringBuilder bpLink = new StringBuilder(""+f.getName().charAt(0));
+		%><div class='items itemsResult'><%
+				for(Node ne : e){
+					index++;
+					bpLink.append(ne.getEntity().save);
+					%><div class='item item<%=(index%3)%>'><img src="./images/<%=ne.getEntity().icon%>.png"><div>
+										<span><%=ne.getEntity().name%></span>
+										<span class='time'><%=BuildOptimizer.time(ne.getTime()-ne.getEntity().time)%></span> ... 
+										<span class='time'><%=BuildOptimizer.time(ne.getTime())%></span></div>
+										</div><%
+				}
+		%>
+		<a href="http://www.sc2planner.com/#<%=bpLink%>">View details</a>
+		</div>
+		<%
 	}
-	int index =0;
-	StringBuilder bpLink = new StringBuilder(""+f.getName().charAt(0));
-	%><div class='items itemsResult'><%
-			for(Node ne : e){
-				index++;
-				bpLink.append(ne.getEntity().save);
-				%><div class='item item<%=(index%3)%>'><img src="./images/<%=ne.getEntity().icon%>.png">
-									<span><%=ne.getEntity().name%></span>
-									<span class='time'><%=(ne.getTime()-ne.getEntity().time)/100/60%>:<%=((ne.getTime()-ne.getEntity().time)/100)%60%></span>
-									<span class='time'><%=ne.getTime()/100/60%>:<%=(ne.getTime()/100)%60%></span>
-									</div><%
-			}
-	%></div>
-	<a href="http://www.sc2planner.com/#<%=bpLink%>">View details</a><%
-}
+	}
 %>
 </body>
 </html>

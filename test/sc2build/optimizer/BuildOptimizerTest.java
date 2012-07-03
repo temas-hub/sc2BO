@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
 
 import junit.framework.Assert;
 
@@ -21,22 +22,23 @@ public class BuildOptimizerTest
 	}
 	
 	@Test
-	public void test2ZealotsTree()
+	public void test2ZealotsTree() throws InterruptedException, ExecutionException
 	{
-		SC2Planner planner = new SC2Planner();
-		planner.init(Faction.PROTOSS);
+		//SC2Planner planner = new SC2Planner();
+		//planner.init(Faction.PROTOSS);
 		
-		Entity zealot = planner.getEntities().get("Zealot");
+		Entity zealot = Faction.PROTOSS.getEntityByName("Zealot");
 		
 		List<Entity> req = new LinkedList<Entity>();
 		req.add(zealot);
 		req.add(zealot);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner, 10);
-		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
-		bo.storeInFile();
-		Node node = bo.getMinNode();
+		BuildOptimizer bo = new BuildOptimizer(Faction.PROTOSS, 10);
+		bo.buildRaceTree(Faction.PROTOSS, req);
+		//bo.storeInFile();
+		Node node = bo.getBestBuild();
 		Assert.assertNotNull(node);
+		node.dump();
 		Assert.assertEquals("Zealot", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertEquals("Zealot", node.getEntity().name);
@@ -51,22 +53,22 @@ public class BuildOptimizerTest
 	}
 	
 	@Test
-	public void test3StalkerRushTree()
+	public void test3StalkerRushTree() throws InterruptedException, ExecutionException
 	{
-		SC2Planner planner = new SC2Planner();
-		planner.init(Faction.PROTOSS);
+		//SC2Planner planner = new SC2Planner();
+		//planner.init(Faction.PROTOSS);
 		
-		Entity stalker = planner.getEntities().get("Stalker");
+		Entity stalker = Faction.PROTOSS.getEntityByName("Stalker");
 		
 		List<Entity> req = new LinkedList<Entity>();
 		req.add(stalker);
 		req.add(stalker);
 		req.add(stalker);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner, 9);
-		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), req);
+		BuildOptimizer bo = new BuildOptimizer(Faction.PROTOSS, 9);
+		bo.buildRaceTree(Faction.PROTOSS, req);
 		Assert.assertNotNull(bo.getMinNode());
-		bo.getMinNode().dump();
+		bo.dump();
 	}
 	
 	@Test
@@ -92,28 +94,26 @@ public class BuildOptimizerTest
 	@Test
 	public void testWrite() throws Exception
 	{
-		SC2Planner planner = new SC2Planner();
-		planner.init(Faction.PROTOSS);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner, -1);
-		bo.buildRaceTree(planner.getRace(Faction.PROTOSS.getName()), Collections.<Entity>emptyList());
+		BuildOptimizer bo = new BuildOptimizer(Faction.PROTOSS, -1);
+		bo.buildRaceTree(Faction.PROTOSS, Collections.<Entity>emptyList());
 	}
 	
 	@Test
-	public void test1Marine()
+	public void test1Marine() throws InterruptedException, ExecutionException
 	{
-		SC2Planner planner = new SC2Planner();
-		planner.init(Faction.TERRAN);
+		//SC2Planner planner = new SC2Planner();
+		//planner.init(Faction.TERRAN);
 		
-		Entity zealot = planner.getEntities().get("Marine");
+		Entity zealot = Faction.TERRAN.getEntityByName("Marine");
 		
 		List<Entity> req = new LinkedList<Entity>();
 		req.add(zealot);
 		
-		BuildOptimizer bo = new BuildOptimizer(planner, 10);
-		bo.buildRaceTree(planner.getRace(Faction.TERRAN.getName()), req);
-		bo.storeInFile();
-		Node node = bo.getMinNode();
+		BuildOptimizer bo = new BuildOptimizer(Faction.TERRAN, 10);
+		bo.buildRaceTree(Faction.TERRAN, req);
+		//bo.storeInFile();
+		Node node = bo.getBestBuild();
 		Assert.assertNotNull(node);
 		Assert.assertEquals("Marine", node.getEntity().name);
 		node = node.getParent();

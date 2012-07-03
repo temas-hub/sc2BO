@@ -22,7 +22,7 @@ public enum Faction {
 
 	public List<Entity> getEnities() {
 		if (this.entities == null) {
-			this.entities = loader.load(this.name);
+			this.entities = getLoader().load(this.name);
 			this.entityByName = new HashMap<>();
 			for(Entity i:entities){
 				i.init();
@@ -55,5 +55,22 @@ public enum Faction {
 	public Entity getEntityByName(String name) {
 		getEnities();
 		return entityByName.get(name);
+	}
+	
+	public boolean isGayserCosts(Entity entity)
+	{
+		boolean found = false;
+		if (entity.costs != null)
+		{
+			
+			for (Cost cc : entity.costs)
+			{
+				if (cc.name == "Gas Geyser")
+				{
+					found = true;
+				}
+			}
+		}
+		return found;
 	}
 }

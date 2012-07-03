@@ -16,6 +16,14 @@
 	display: inline-block;
 }
 
-.itemsResult item{
-	width: 100%;
+.itemsResult {
+width: 200px;
+display: inline-block;
+border: 1px solid 
+black;
+}
+
+.itemsResult .item{
+	display: block;
+	width: 180px;
 }

@@ -38,7 +38,7 @@ public class SC2Planner
 	
 	EventQueue events;
 	int currentTime;
-	private String factionName;
+	private Faction factionName;
 	private Map<String, VolatileEntity> entities = new HashMap<String, VolatileEntity>();
 	private Map<String, VolatileEntity> entitiesByKey = new HashMap<String, VolatileEntity>();
 	private List<VolatileEntity> build;
@@ -140,7 +140,7 @@ public class SC2Planner
 	
 	void reset()
 	{
-		this.init(Faction.valueOf(this.factionName));
+		this.init(this.factionName);
 	}
 	
 	public void init (Faction faction)
@@ -149,7 +149,7 @@ public class SC2Planner
 		{
 			throw new IllegalStateException("Error: no faction: ");
 		}
-		this.factionName = faction.name();
+		this.factionName = faction;
 		//this.entities = new ArrayList<Integer>();
 		//this.entitiesByKey = new ArrayList<Integer>();
 		this.build = new ArrayList<VolatileEntity>();
@@ -188,7 +188,7 @@ public class SC2Planner
 		//this.updateBuild(false);
 	}
 	
-	public String getFactionName() {
+	public Faction getFactionName() {
 		return factionName;
 	}
 	void reset(VolatileEntity a)
@@ -1447,22 +1447,7 @@ public class SC2Planner
 		return this.currentTime;
 	}
 	
-	public boolean isGayserCosts(Entity entity)
-	{
-		boolean found = false;
-		if (entity.costs != null)
-		{
-			
-			for (Cost cc : entity.costs)
-			{
-				if (cc.name == "Gas Geyser")
-				{
-					found = true;
-				}
-			}
-		}
-		return found;
-	}
+	
 	public void setBuild(LinkedList<Entity> build2) {
 		LinkedList<VolatileEntity> e = new LinkedList<>();
 		for(Entity i: build2){
@@ -1473,7 +1458,9 @@ public class SC2Planner
 	public VolatileEntity getVolatile(Entity entity) {
 		return this.entities.get(entity.name);
 	}
-
+	public VolatileEntity getEntityByName(String name) {
+		return this.entities.get(name);
+	}
 	
 
 }
