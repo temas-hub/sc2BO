@@ -41,7 +41,7 @@ public class CaclulatorThread extends Thread {
 			}
 			if (poll.level > lastSeenLevel) {
 				System.out.println(new Date() + " found level " + poll.level
-						+ " current suspect:" + myLastSuspect);
+						+ " current suspect:" + myLastSuspect+" queue:"+tasks.size());
 				lastSeenLevel = poll.level;
 			}
 			if(myLastSuspect!=null && myLastSuspect.getAccumTime()+bo.getBestBuildOffset()<poll.root.getAccumTime())

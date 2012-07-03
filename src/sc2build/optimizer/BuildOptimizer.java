@@ -352,9 +352,14 @@ public class BuildOptimizer {
 						return -1;
 					if (o1.getAccumTime() > o2.getAccumTime())
 						return 1;
-					if (o1.getFoodAmount() < o2.getFoodAmount())
+					if (o1.getFood() > o2.getFood())
 						return -1;
-					if (o1.getFoodAmount() > o2.getFoodAmount())
+					if (o1.getFood() < o2.getFood())
+						return -1;
+
+					if (o1.getMinerals() < o2.getMinerals())
+						return -1;
+					if (o1.getMinerals() > o2.getMinerals())
 						return -1;
 					return 0;
 				}
