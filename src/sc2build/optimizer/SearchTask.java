@@ -1,33 +1,24 @@
 package sc2build.optimizer;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
-import java.util.concurrent.RecursiveTask;
 
 import sc2build.data.Faction;
 import sc2build.data.Section;
 import sc2build.optimizer.BuildOptimizer.Node;
 
-public class SearchTask extends RecursiveTask<List<Node>> {
+public class SearchTask {
 
-	private static final Collection Node = null;
-	private static final Random r = new Random(); 
-	private Node root;
+	Node root;
 	private List<Entity> requriedTargets;
 	private HashSet<Entity> usableEntities;
 	private Faction race;
-	private SC2Planner planner;
 	BuildOptimizer bo;
-	private int level;
+	int level;
 
-	public SearchTask(BuildOptimizer bo, Faction race, Node root, List<Entity> requriedTargets,HashSet<Entity> usableEntities) {
+	public SearchTask(BuildOptimizer bo,  Faction race, Node root, List<Entity> requriedTargets,HashSet<Entity> usableEntities) {
 		this.bo = bo;
 		this.race = race;
 		this.root = root;
@@ -36,13 +27,7 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 		this.level = 1;
 	}
 
-	@Override
-	protected List<Node> compute() {
-		if(planner==null) {
-			planner = new SC2Planner();
-			planner.init(race);
-		}
-		List<SearchTask> next = new LinkedList<>();
+	public Node compute(SC2Planner planner) {
 		for (Entity entity : race.getEnities())
 		{
 			if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
@@ -54,69 +39,25 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 					entity.name!=("Return Drone") &&
 					(usableEntities.contains(entity) || entity.section == Section.worker || 
 					entity.section == Section.special) && 
-					this.isAllowedToAdd(root, entity))
+					this.isAllowedToAdd(planner, root, entity))
 			{
 				List<Entity> stillRequired = new LinkedList<Entity>(requriedTargets);
 				stillRequired.remove(entity);
-				Node n2 = this.putEntity(root, entity, stillRequired);
+				Node n2 = this.putEntity(planner, root, entity, stillRequired);
 				if(stillRequired.isEmpty()){
-					LinkedList<Node> rz = new LinkedList<Node>();
-					rz.add(n2);
-					return rz; 
+					return n2; 
 				}
 				if(!n2.isLeafNode()){
 					SearchTask st = new SearchTask(bo, race, n2, stillRequired, usableEntities);
 					st.level = level +1;
-					next.add(st);
+					bo.notesToCaclulate.add(st);
 				}
 			}
 		}
-		if(!next.isEmpty()){
-			int ri = r.nextInt(next.size()); 
-			int i=0;
-			for (Iterator<SearchTask> iterator = next.iterator(); iterator
-					.hasNext();) {
-				SearchTask st = iterator.next();
-				if(i==ri){
-					st.planner = this.planner;
-					st.invoke();
-				} else {
-					st.fork();
-				}
-				i++; 
-			}
-		}
-		planner = null;
-		List<Node> minRz = null;
-		Node currentBest=null;
-		for (SearchTask i : next) {
-			List<Node> thatRz = i.join();
-			if (thatRz != null) {
-				
-				for(sc2build.optimizer.BuildOptimizer.Node j: thatRz){
-					if(currentBest==null || currentBest.getAccumTime()>j.getAccumTime()) currentBest = j;
-				}
-				
-				
-				if (minRz == null)
-					minRz = thatRz;
-				else
-					minRz.addAll(thatRz);
-			}
-		}
-		if(minRz!=null){
-			Iterator<sc2build.optimizer.BuildOptimizer.Node> iterator = minRz.iterator();
-			while(iterator.hasNext()){
-				if(iterator.next().getAccumTime()>bo.getBestBuildOffset()+currentBest.getAccumTime()){
-					iterator.remove();
-				}
-			}
-		}
-
-		return minRz;
+		return null;
 	}
 	
-	private boolean isAllowedToAdd(Node node, Entity entity)
+	private boolean isAllowedToAdd(SC2Planner planner,Node node, Entity entity)
 	{
 		//this.planner.clearBuilds();
 		LinkedList<Entity> build = new LinkedList<Entity>();
@@ -124,12 +65,12 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 		build.add(entity);
 		planner.setBuild(build);
 		planner.updateCenter(false, true, 0, false);
-		VolatileEntity ve = planner.getVolatile(entity);
-		return !ve.eventualError; 
+		
+		return !planner.isFailed(); 
 	}
 	
 	
-	private Node putEntity(Node parent, Entity entity, List<Entity> requried)
+	private Node putEntity(SC2Planner planner,Node parent, Entity entity, List<Entity> requried)
 	{
 		int time = planner.getCurrentTime();
 		
@@ -144,14 +85,9 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 				(bo.reqFoodAmount < 0 && (bo.reqFoodAmount + node.getFoodAmount()) > 8) ||
 				buildIsDone)
 		{
-			if (buildIsDone)
-			{
-				if(currentMinNode==null || currentMinNode.getAccumTime()>node.getAccumTime()){
-					bo.currentMinSuspect = node;
-				}
-			}
 			node.setLeafNode(true);
 		}
 		return node;
 	}
+
 }

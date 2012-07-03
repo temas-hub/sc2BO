@@ -1480,4 +1480,12 @@ public class SC2Planner
 	public int getResultFood(){
 		return getResult("Food");
 	}
+	public boolean isFailed() {
+		for(String i : eventualError){
+			if(i!=null) return true;
+		}
+		return false;
+		//VolatileEntity ve = getVolatile(build.get(build.size()-1));
+		//return ve.eventualError;
+	}
 }
