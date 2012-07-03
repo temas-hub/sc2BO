@@ -6,7 +6,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import sc2build.optimizer.SC2Planner.Entity;
+import sc2build.data.EntityLoader;
 
 public class LoadTest
 {

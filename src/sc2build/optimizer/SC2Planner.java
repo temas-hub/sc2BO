@@ -1,6 +1,17 @@
 package sc2build.optimizer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import sc2build.data.Cost;
+import sc2build.data.Faction;
+import sc2build.data.Section;
 
 
 /*
@@ -15,140 +26,11 @@ import java.util.Map.Entry;
  */
 public class SC2Planner
 {
-	private static EntityLoader loader=null;
-	
-	
-	public static void initLoader(String filePath){
-		loader = new EntityLoader();
-		loader.init(filePath);
-	}
-	//static{
-	//	SC2Planner.loader.init();
-	//}
-	
 	public SC2Planner()
 	{
 		
 	}
 	
-	public enum Faction
-	{
-		TERRAN("Terran"),
-		PROTOSS("Protoss"),
-		ZERG("Zerg");
-		
-		public List<Entity> getEnities()
-		{
-			return SC2Planner.getLoader().load(this.name);
-		}
-		
-		private final String name;
-		private Faction (String name)
-		{
-			this.name = name;
-		}
-		
-		public String getName()
-		{
-			return this.name;
-		}
-	}
-	
-	public static class Race
-	{
-		String name;
-		List<Entity> entities;
-	}
-	
-	public static class Cost
-	{
-		String name;
-		Integer amount;
-		String error;
-	}
-	
-	public static class NeedEntity
-	{
-		String name;
-		String error;
-	}
-	public static class AtMost
-	{
-		public String name;
-		public Integer amount;
-		public String error;
-		public String as;
-	}
-	
-	public static class Entity
-	{
-		public String name;
-		public String icon;
-		Section section;
-		Integer start;
-		public String style;
-		int[] value;
-		List<Entity> products = null;
-		List<NeedEntity> need = null;
-		
-		String adding;
-		String addsto;
-		List<String> conditions = null;
-		List<Cost> costs = null;
-		
-		String multi;
-		
-		Integer cap;
-		public boolean autocheck;
-		public Integer time;
-		public Integer amount;
-		public String save;
-		public int idle;
-		public AtMost atmost = null;
-		public boolean eventualError;
-		public String currentError;
-		@Override
-		public String toString() {
-			return "Entity [name=" + name + ", section=" + section + ", start="
-					+ start + ", style=" + style + ", value="
-					+ Arrays.toString(value) + ", adding=" + adding + ", addsto="
-					+ addsto +   ", multi=" + multi + ", cap=" + cap
-					+ ", autocheck=" + autocheck + ", time=" + time
-					+ ", amount=" + amount + ", save=" + save + ", idle="
-					+ idle + ", atmost=" + atmost + ", eventualError="
-					+ eventualError + ", currentError=" + currentError + "]";
-		}
-		
-		
-	}
-	
-	public static class Event
-	{
-		protected int time;
-		public String event;
-		//public String name;
-		public Entity entityUnderName;
-		public int actInd;
-		public boolean active;
-		@Override
-		public String toString() {
-			return "Event [time=" + time + ", event=" + event + ", name="
-					+ entityUnderName.name + ", actInd=" + actInd + ", active=" + active + "]";
-		}
-		
-		public Event() {
-			// TODO Auto-generated constructor stub
-		}
-
-		public Event(int time) {
-			super();
-			this.time = time;
-		}
-		
-		
-		
-		
-	}
 	class Category
 	{
 		public int[] value = new int[50];
@@ -157,9 +39,9 @@ public class SC2Planner
 	EventQueue events;
 	int currentTime;
 	private String factionName;
-	private Map<String, Entity> entities = new HashMap<String, Entity>();
-	private Map<String, Entity> entitiesByKey = new HashMap<String, Entity>();
-	private List<Entity> build;
+	private Map<String, VolatileEntity> entities = new HashMap<String, VolatileEntity>();
+	private Map<String, VolatileEntity> entitiesByKey = new HashMap<String, VolatileEntity>();
+	private List<VolatileEntity> build;
 	private List<Integer> delays;
 	private List<String> food;
 	private List<String> eventualError;
@@ -172,20 +54,20 @@ public class SC2Planner
 	private ArrayList<Integer> chronoFinished;
 	private Map<Section, Category> category = new HashMap<Section, Category>();
 	private boolean isDelayed;
-	private Entity entitiy_Energy;
-	private Entity entitiy_Energy_Spawner;
-	private Entity entitiy_Gas_SCV;
-	private Entity entitiy_Gas_Probe;
-	private Entity entitiy_Gas_Drone;
-	private Entity entitiy_Mineral_SCV;
-	private Entity entitiy_Mineral_Probe;
-	private Entity entitiy_Mineral_Drone;
-	private Entity entitiy_Slow_Gold_Mineral_Patch;
-	private Entity entitiy_Fast_Mineral_Patch;
-	private Entity entitiy_Fast_Gold_Mineral_Patch;
-	private Entity entitiy_Fast_Gas_Patch;
-	private Entity entitiy_Food;
-	private Entity entitiy_Slow_Mineral_Patch;
+	private VolatileEntity entitiy_Energy;
+	private VolatileEntity entitiy_Energy_Spawner;
+	private VolatileEntity entitiy_Gas_SCV;
+	private VolatileEntity entitiy_Gas_Probe;
+	private VolatileEntity entitiy_Gas_Drone;
+	private VolatileEntity entitiy_Mineral_SCV;
+	private VolatileEntity entitiy_Mineral_Probe;
+	private VolatileEntity entitiy_Mineral_Drone;
+	private VolatileEntity entitiy_Slow_Gold_Mineral_Patch;
+	private VolatileEntity entitiy_Fast_Mineral_Patch;
+	private VolatileEntity entitiy_Fast_Gold_Mineral_Patch;
+	private VolatileEntity entitiy_Fast_Gas_Patch;
+	private VolatileEntity entitiy_Food;
+	private VolatileEntity entitiy_Slow_Mineral_Patch;
 	
 	static int sum(final int[] d)
 	{
@@ -270,7 +152,7 @@ public class SC2Planner
 		this.factionName = faction.name();
 		//this.entities = new ArrayList<Integer>();
 		//this.entitiesByKey = new ArrayList<Integer>();
-		this.build = new ArrayList<Entity>();
+		this.build = new ArrayList<VolatileEntity>();
 		this.delays = new ArrayList<Integer>();
 		this.food = new ArrayList<String>();
 		this.eventualError = new ArrayList<String>();
@@ -278,12 +160,12 @@ public class SC2Planner
 		List<Entity> entities = faction.getEnities();
 		for (Entity entity : entities)
 		{
-			this.entities.put(entity.name, entity);
+			VolatileEntity ve = new VolatileEntity(entity);
+			this.entities.put(entity.name, ve);
 			if (entity.save != null)
 			{
-				this.entitiesByKey.put(entity.save, entity);
+				this.entitiesByKey.put(entity.save, ve);
 			}
-			this.initEntity(entity);
 		}
 		entitiy_Energy = this.entities.get("Energy");
 		entitiy_Energy_Spawner = this.entities.get("Energy Spawner");
@@ -309,48 +191,15 @@ public class SC2Planner
 	public String getFactionName() {
 		return factionName;
 	}
-	void reset(Entity a)
+	void reset(VolatileEntity a)
 	{
 		a.value = new int[] {a.start};
 		a.idle = a.start;
 	}
 	
-	void initEntity (Entity a)
+	void initEntity (VolatileEntity a)
 	{
-		if (a.start == null)
-		{
-			a.start = 0;
-		}
-		//if (a.autocheck == null)
-		//{
-		//	a.autocheck = false;
-		//}
-		if (a.time==null)
-		{
-			a.time = 0;
-		}
-		if (a.products != null)
-		{
-			for ( Entity b : a.products)
-			{
-				if (b.name == null)
-				{
-					b.name = a.name;
-				}
-				if (b.amount==null)
-				{
-					b.amount = 1;
-				}
-			}
-		}
-		else
-		{
-			Entity ent = new Entity();
-			ent.name = a.name;
-			ent.amount = 1;
-			a.products = new ArrayList<Entity>();
-			a.products.add(ent);
-		}
+		
 		this.reset(a);
 	}
 	
@@ -368,8 +217,9 @@ public class SC2Planner
 		return str;
 	}
 	
-	public void insertIntoBuild (Entity b, int a)
+	public void insertIntoBuild (Entity be, int a)
 	{
+		VolatileEntity b = this.entities.get(be.name);
 		this.stopAtTime = -1;
 		
 		if (b.section == Section.pause)
@@ -423,7 +273,7 @@ public class SC2Planner
 	}
 	
 	
-	String errorDoing (Entity entity, int index, boolean c)
+	String errorDoing (VolatileEntity entity, int index, boolean c)
 	{
 		if (entity.style=="single" && entity.value[index] > 0)
 		{
@@ -537,7 +387,7 @@ public class SC2Planner
 		}
 		if (entity.atmost != null)
 		{
-			Entity v = this.entities.get(entity.atmost.name);
+			VolatileEntity v = this.entities.get(entity.atmost.name);
 			if (entity.atmost.amount!=null && entity.atmost.amount > 0)
 			{
 				if (v.value.length>index && (v.value[index] - f > entity.atmost.amount))
@@ -556,7 +406,7 @@ public class SC2Planner
 		return null;
 	}
 	
-	void autoCheck (Entity b, int index)
+	void autoCheck (VolatileEntity b, int index)
 	{
 		String error = this.errorDoing(b, index, false);
 		if (error != null && error.length() > 0)
@@ -592,13 +442,13 @@ public class SC2Planner
 		}
 	}
 	
-	void startDoing (Entity d, int addedTime, int actInd, boolean isActive)
+	void startDoing (VolatileEntity d, int addedTime, int actInd, boolean isActive)
 	{
 		if (d.costs != null)
 		{
 			for (Cost f : d.costs)
 			{
-				Entity l = this.entities.get(f.name);
+				VolatileEntity l = this.entities.get(f.name);
 				int a = f.amount;
 				int c = maxIndexOf(l.value);
 				l.value[c] -= a;
@@ -660,7 +510,7 @@ public class SC2Planner
 		});*/
 	}
 	
-	void finishDoing (Entity g, int index, boolean resetActiveEvents)
+	void finishDoing (VolatileEntity g, int index, boolean resetActiveEvents)
 	{
 		boolean autocheckNeedError = false;
 		if (g.need != null && g.autocheck)
@@ -677,7 +527,7 @@ public class SC2Planner
 		{
 			for (Entity a : g.products)
 			{
-				Entity f = this.entities.get(a.name);
+				VolatileEntity f = this.entities.get(a.name);
 				int amount = a.amount;
 				int useIndex = 0;
 				if (f.multi== g.name)
@@ -762,11 +612,11 @@ public class SC2Planner
 			this.category.put(Section.unit, new Category());
 		}
 		this.events = new EventQueue();
-		for (Entity action : this.entities.values())
+		for (VolatileEntity action : this.entities.values())
 		{
 			this.reset(action);
 		}
-		for (Entity action : this.entities.values())
+		for (VolatileEntity action : this.entities.values())
 		{			
 			if (action.autocheck && action.name!=("Fast Mineral Patch")
 					&& action.name!=("Slow Mineral Patch"))
@@ -813,7 +663,7 @@ public class SC2Planner
 			{
 				break;
 			}
-			Entity action = this.build.get(k);
+			VolatileEntity action = this.build.get(k);
 			String proceedMessage = null;
 			this.isDelayed = false;
 			int actionTime = 0;
@@ -1185,7 +1035,7 @@ public class SC2Planner
 				}
 			}
 			//assertEvents();
-			for (Entity g : this.entities.values())
+			for (VolatileEntity g : this.entities.values())
 			{
 				String n = this.errorDoing(g, maxIndexOf(g.value), true);
 				if (n != null)
@@ -1462,14 +1312,14 @@ public class SC2Planner
 		sc.updateCenter(false, true, 0, false);
 		dumpState(sc);
 	}
-	private void setBuildS(Collection<Entity>a){
-		for(Entity i:a){
+	public void setBuildS(Collection<VolatileEntity>a){
+		for(VolatileEntity i:a){
 			insertIntoBuild(i);
 		}
 	}
-	public void setBuild(Collection<Entity>a) {
+	public void setBuild(Collection<VolatileEntity>a) {
 		clearBuilds();
-		for(Entity i:a){
+		for(VolatileEntity i:a){
 			this.stopAtTime = -1;
 			
 			if (i.section == Section.pause)
@@ -1546,7 +1396,7 @@ public class SC2Planner
 			System.out.println();
 		}
 		
-		for(Entry<String, Entity> a : new TreeMap<String, Entity>(sc.entities).entrySet()){
+		for(Entry<String, VolatileEntity> a : new TreeMap<String, VolatileEntity>(sc.entities).entrySet()){
 			if(a.getValue().value!=null && a.getValue().value.length>0 && a.getValue().value[0]!=0){
 				System.out.println(a);
 			}
@@ -1567,21 +1417,10 @@ public class SC2Planner
 	{
 		this.insertIntoBuild(entity,0);
 	}
-	public Entity getEntityByName(String name)
-	{
-		return this.entities.get(name);
-	}
-	public Map<String, Entity> getEntities()
-	{
-		return entities;
-	}
-	public Race getRace(String name)
-	{
-		return SC2Planner.getLoader().getRace(name);
-	}
+	
 	public boolean isSuccessfull()
 	{
-		for(Entity i: entities.values())
+		for(VolatileEntity i: entities.values())
 		{
 			if(i.eventualError)
 			{
@@ -1624,13 +1463,17 @@ public class SC2Planner
 		}
 		return found;
 	}
-
-	private static EntityLoader getLoader() {
-		if(loader==null){
-			SC2Planner.loader = new EntityLoader();
-			SC2Planner.loader.init("./WebContent/js/data.js");
+	public void setBuild(LinkedList<Entity> build2) {
+		LinkedList<VolatileEntity> e = new LinkedList<>();
+		for(Entity i: build2){
+			e.add(this.entities.get(i.name));
 		}
-		return loader;
+		setBuild(e);
 	}
+	public VolatileEntity getVolatile(Entity entity) {
+		return this.entities.get(entity.name);
+	}
+
+	
 
 }

@@ -13,9 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import sc2build.optimizer.SC2Planner.Cost;
-import sc2build.optimizer.SC2Planner.Entity;
-import sc2build.optimizer.SC2Planner.Race;
+import sc2build.data.Cost;
+import sc2build.data.Faction;
+import sc2build.data.Section;
 
 public class BuildOptimizer
 {
@@ -285,7 +285,7 @@ public class BuildOptimizer
 		}
 	}
 	
-	private void collectRequiredFor(Race race, Collection<Entity> targets, Set<Entity> comulatedResult)
+	private void collectRequiredFor(Faction race, Collection<Entity> targets, Set<Entity> comulatedResult)
 	{
 		Set<Entity> currentResult = new HashSet<Entity>();
 		for (Entity target : targets)
@@ -294,7 +294,7 @@ public class BuildOptimizer
 			{
 				for (String cond : target.conditions)
 				{
-					currentResult.add(this.planner.getEntityByName(cond));
+					currentResult.add(race.getEntityByName(cond));
 				}
 			}
 			if (target.costs != null)
@@ -310,7 +310,7 @@ public class BuildOptimizer
 				}	
 				if (reqsGas)
 				{
-					for (Entity ent : race.entities)
+					for (Entity ent : race.getEnities())
 					{
 						if (this.planner.isGayserCosts(ent))
 						{
@@ -327,7 +327,7 @@ public class BuildOptimizer
 		}
 	}
 	
-	private Collection<Entity> collectRequired(Race race, Entity target)
+	private Collection<Entity> collectRequired(Faction race, Entity target)
 	{
 		Set<Entity> result = new HashSet<Entity>();	
 		this.collectRequiredFor(race, Collections.singleton(target), result);
@@ -343,7 +343,7 @@ public class BuildOptimizer
 		}
 	}
 
-	public void buildRaceTree(Race race, List<Entity> requriedTargets)
+	public void buildRaceTree(Faction race, List<Entity> requriedTargets)
 	{
 		Node root = new Node(null, null, 0);
 		this.curentLevelNodes.clear();
@@ -429,7 +429,7 @@ public class BuildOptimizer
 		}
 	}*/
 	
-	private void buildNewLevel(Race race, List<Entity> requried)
+	private void buildNewLevel(Faction race, List<Entity> requried)
 	{
 		//this.storeInFile();
 		
@@ -447,7 +447,7 @@ public class BuildOptimizer
 		for (Node node : pastLevelNodes)
 		{
 			parentNodeSize--;
-			for (Entity entity : race.entities)
+			for (Entity entity : race.getEnities())
 			{
 				if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
 						entity.name!=("Go out with Probe") &&
@@ -501,7 +501,8 @@ public class BuildOptimizer
 		build.add(entity);
 		this.planner.setBuild(build);
 		this.planner.updateCenter(false, true, 0, false);
-		return !entity.eventualError; 
+		VolatileEntity ve = this.planner.getVolatile(entity);
+		return !ve.eventualError; 
 	}
 	
 	public Node getMinNode()

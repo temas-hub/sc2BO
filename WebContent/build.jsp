@@ -1,3 +1,5 @@
+<%@page import="sc2build.optimizer.Entity"%>
+<%@page import="sc2build.data.Faction"%>
 <%@page import="sc2build.optimizer.SC2Planner"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
@@ -14,18 +16,18 @@
 <body>
 <div id='tabs'>
 <ul><% 
-SC2Planner.initLoader(this.getServletContext().getRealPath("/js/data.js"));
-for(SC2Planner.Faction f : SC2Planner.Faction.values()){
+Faction.initLoader(this.getServletContext().getRealPath("/js/data.js"));
+for(Faction f : Faction.values()){
 	%><li><a href="#<%=f%>"><%=f%></a></li><%
 }
 %></ul><%
-for(SC2Planner.Faction f : SC2Planner.Faction.values()){
+for(Faction f : Faction.values()){
 	%><div id='<%=f%>'><h1><%=f%></h1><form name='<%=f%>' action=optimize.jsp>
 	<input type='hidden' name='factionName' value='<%=f%>'>
 	<input type='submit'>
 	<div class='itemContainer'><%
 	int index =0;
-	for(SC2Planner.Entity e :  f.getEnities()){
+	for(Entity e :  f.getEnities()){
 		if("hidden"==e.style)
 			continue;
 		index++;

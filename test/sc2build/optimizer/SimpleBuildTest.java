@@ -2,8 +2,8 @@ package sc2build.optimizer;
 
 import org.junit.Test;
 
-import sc2build.optimizer.SC2Planner.Entity;
-import sc2build.optimizer.SC2Planner.Faction;
+import sc2build.data.Faction;
+
 
 public class SimpleBuildTest
 {

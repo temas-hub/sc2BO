@@ -10,9 +10,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import sc2build.data.Faction;
 import sc2build.optimizer.BuildOptimizer.Node;
-import sc2build.optimizer.SC2Planner.Entity;
-import sc2build.optimizer.SC2Planner.Faction;
 
 public class BuildOptimizerTest
 {

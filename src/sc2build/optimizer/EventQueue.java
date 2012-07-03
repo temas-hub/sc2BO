@@ -3,7 +3,6 @@ package sc2build.optimizer;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import sc2build.optimizer.SC2Planner.Event;
 
 public class EventQueue implements Comparator<Event> {
 	Event[] eventsArray;

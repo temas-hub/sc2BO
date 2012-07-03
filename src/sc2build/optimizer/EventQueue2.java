@@ -3,7 +3,6 @@ package sc2build.optimizer;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
-import sc2build.optimizer.SC2Planner.Event;
 
 public class EventQueue2 extends LinkedList<Event> implements Comparator<Event> {
 

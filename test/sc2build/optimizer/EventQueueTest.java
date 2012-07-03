@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import sc2build.optimizer.SC2Planner.Event;
 
 public class EventQueueTest {
 

@@ -1,9 +1,9 @@
+<%@page import="sc2build.optimizer.Entity"%>
+<%@page import="sc2build.data.Faction"%>
 <%@page import="sc2build.optimizer.BuildOptimizer.Node"%>
 <%@page import="java.util.LinkedList"%>
-<%@page import="sc2build.optimizer.SC2Planner.Entity"%>
 <%@page import="java.util.List"%>
 <%@page import="sc2build.optimizer.BuildOptimizer"%>
-<%@page import="sc2build.optimizer.SC2Planner.Faction"%>
 <%@page import="sc2build.optimizer.SC2Planner"%>
 <%@page import="java.util.Map"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -16,7 +16,7 @@
 </head>
 <body>
 <%
-SC2Planner.initLoader(this.getServletContext().getRealPath("/js/data.js"));
+Faction.initLoader(this.getServletContext().getRealPath("/js/data.js"));
 Faction f = Faction.valueOf(request.getParameter("factionName"));
 
 SC2Planner planner = new SC2Planner();
@@ -25,7 +25,7 @@ List<Entity> req = new LinkedList<Entity>();
 
 for(Map.Entry<String,String[]> i : request.getParameterMap().entrySet()){
 	if(i.getValue().length>0 && i.getValue()[0].length()>0){
-		Entity et = planner.getEntityByName(i.getKey());
+		Entity et = f.getEntityByName(i.getKey());
 		if(et!=null){
 			for(int j=0;j<Integer.parseInt(i.getValue()[0]);j++){
 				req.add(et);
@@ -35,7 +35,7 @@ for(Map.Entry<String,String[]> i : request.getParameterMap().entrySet()){
 }
 
 BuildOptimizer bo = new BuildOptimizer(planner,-1);
-bo.buildRaceTree(planner.getRace(f.getName()), req);
+bo.buildRaceTree(f, req);
 
 if(bo.getMinNode()!=null){
 	Node n = bo.getMinNode();
