@@ -1035,7 +1035,7 @@ public class SC2Planner
 				}
 			}
 			//assertEvents();
-			for (VolatileEntity g : this.entities.values())
+			/*for (VolatileEntity g : this.entities.values())
 			{
 				String n = this.errorDoing(g, maxIndexOf(g.value), true);
 				if (n != null)
@@ -1047,7 +1047,7 @@ public class SC2Planner
 					g.eventualError = false;
 					g.currentError = "";
 				}
-			}
+			}*/
 			//assertEvents();
 		}
 		//dumpState(this);
