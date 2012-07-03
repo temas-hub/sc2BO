@@ -42,6 +42,7 @@ bo.buildRaceTree(f, req);
 if(bo.getMinNode()!=null){
 	List<Node> builds = bo.getMinNode();
 	for(Node n : builds){
+		Node start = n;
 		List<Node> e = new LinkedList<Node>();
 		while(n!=null){
 			if(n.getEntity()!=null)
@@ -50,7 +51,13 @@ if(bo.getMinNode()!=null){
 		}
 		int index =0;
 		StringBuilder bpLink = new StringBuilder(""+f.getName().charAt(0));
-		%><div class='items itemsResult'><%
+		%><div class='items itemsResult'>
+		   <ul>
+		   	<li>Left - Minerals:  <%=start.getMinerals() %></li>
+		   	<li>Left - Gas: <%=start.getGas() %></li>
+		   	<li>Food: <%=start.getFood() %>/<%=start.getFoodAmount() %> </li>
+		   </ul>
+		<%
 				for(Node ne : e){
 					index++;
 					bpLink.append(ne.getEntity().save);

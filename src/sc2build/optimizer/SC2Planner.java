@@ -1462,5 +1462,22 @@ public class SC2Planner
 		return this.entities.get(name);
 	}
 	
+	
+	public int getResultMinerals(){
+		return getResult("Minerals");
+	}
+	
+	private int getResult(String string) {
+		VolatileEntity volatileEntity = this.entities.get(string);
+		if(volatileEntity.value==null || volatileEntity.value.length!=1)
+			return 0;
+		return volatileEntity.value[0];
+	}
+	public int getResultGas(){
+		return getResult("Gas");
+	}
 
+	public int getResultFood(){
+		return getResult("Food");
+	}
 }

@@ -29,36 +29,38 @@ import sc2build.data.Section;
 
 public class BuildOptimizer
 {
-	private static final int TIME_THRESHOLD =  60 * 50 * 100; // 2 min
-	private static final int LEVEL_THRESHOLD = 7;
+	public static final int TIME_THRESHOLD =  60 * 20 * 100; // 20 min
+	public static final int LEVEL_THRESHOLD = 100;
 	
 	public static class Node
 	{
 		final Entity entity;
 		
-		private int time;
+		private int time,minerals,food,gas;
 		private Node parent;
-		private List<Node> children = new LinkedList<BuildOptimizer.Node>();
+		//private List<Node> children = new LinkedList<BuildOptimizer.Node>();
 		
 		private boolean leafNode = false; 
 		
-		public Node(Node parent, Entity entity, int time)
+		public Node(Node parent, Entity entity, int time, int minerals, int food, int gas)
 		{
+			this.minerals = minerals;
+			this.food = food;
+			this.gas = gas;
 			this.setParent(parent);
 			this.setTime(time);
 			this.entity = entity;
 		}
 		
-		public void addNode(Node node)
-		{
-			this.children.add(node);
+		public int getFood() {
+			return food;
 		}
-		
-		public List<Node> getChildren()
-		{
-			return this.children;
+		public int getGas() {
+			return gas;
 		}
-		
+		public int getMinerals() {
+			return minerals;
+		}
 		public void fillBuild(Deque<Entity> build)
 		{
 			if (this.entity == null)
@@ -157,6 +159,7 @@ public class BuildOptimizer
 				}
 			}
 			while ((node = node.parent).entity != null);
+			//TODO: add initial nexus food count
 			return count;
 		}
 
@@ -213,7 +216,7 @@ public class BuildOptimizer
 	int reqFoodAmount;
 	int workersMovements;
 	private Faction faction;
-	ForkJoinPool pool = new ForkJoinPool(4);
+	ForkJoinPool pool = new ForkJoinPool(8);
 	
 	public BuildOptimizer(Faction faction, int workersCount)
 	{
@@ -330,7 +333,7 @@ public class BuildOptimizer
 	
 	public void buildRaceTree(Faction race, List<Entity> requriedTargets) throws InterruptedException, ExecutionException
 	{
-		Node root = new Node(null, null, 0);
+		Node root = new Node(null, null, 0,0,0,0);
 		List<Entity> required = new LinkedList<Entity>(); 
 		
 		this.reqFoodAmount = 0;

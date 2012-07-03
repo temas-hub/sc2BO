@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.concurrent.RecursiveTask;
 
 import sc2build.data.Faction;
@@ -17,12 +18,14 @@ import sc2build.optimizer.BuildOptimizer.Node;
 public class SearchTask extends RecursiveTask<List<Node>> {
 
 	private static final Collection Node = null;
+	private static final Random r = new Random(); 
 	private Node root;
 	private List<Entity> requriedTargets;
 	private HashSet<Entity> usableEntities;
 	private Faction race;
 	private SC2Planner planner;
 	BuildOptimizer bo;
+	private int level;
 
 	public SearchTask(BuildOptimizer bo, Faction race, Node root, List<Entity> requriedTargets,HashSet<Entity> usableEntities) {
 		this.bo = bo;
@@ -30,6 +33,7 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 		this.root = root;
 		this.requriedTargets = requriedTargets;
 		this.usableEntities = usableEntities;
+		this.level = 1;
 	}
 
 	@Override
@@ -62,9 +66,24 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 				}
 				if(!n2.isLeafNode()){
 					SearchTask st = new SearchTask(bo, race, n2, stillRequired, usableEntities);
-					st.fork();
+					st.level = level +1;
 					next.add(st);
 				}
+			}
+		}
+		if(!next.isEmpty()){
+			int ri = r.nextInt(next.size()); 
+			int i=0;
+			for (Iterator<SearchTask> iterator = next.iterator(); iterator
+					.hasNext();) {
+				SearchTask st = iterator.next();
+				if(i==ri){
+					st.planner = this.planner;
+					st.invoke();
+				} else {
+					st.fork();
+				}
+				i++; 
 			}
 		}
 		planner = null;
@@ -114,11 +133,11 @@ public class SearchTask extends RecursiveTask<List<Node>> {
 	{
 		int time = planner.getCurrentTime();
 		
-		Node node = new Node(parent, entity, time);
-		parent.addNode(node);
+		Node node = new Node(parent, entity, time, planner.getResultMinerals(),planner.getResultFood(),planner.getResultGas() );
+		//parent.addNode(node);
 		boolean buildIsDone = requried.isEmpty();
 		Node currentMinNode = bo.currentMinSuspect;
-		if (/*node.getAccumTime() > TIME_THRESHOLD ||*/ 
+		if (node.getAccumTime() > BuildOptimizer.TIME_THRESHOLD || level+1> BuildOptimizer.LEVEL_THRESHOLD || 
 				(currentMinNode != null && node.getAccumTime() > currentMinNode.getAccumTime()+bo.getBestBuildOffset()) ||  
 				(bo.workersCount > 0 && node.getWorkersCount() > bo.workersCount) ||
 				(bo.workersMovements > 0 && node.getWorkersMovements() > bo.workersMovements) ||
