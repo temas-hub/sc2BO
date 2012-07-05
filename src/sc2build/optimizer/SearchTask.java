@@ -1,7 +1,6 @@
 package sc2build.optimizer;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ public class SearchTask {
 	Node root;
 	private List<Entity> requriedTargets;
 	private HashSet<Entity> usableEntities;
+	private List<? extends Entity> stepEntities;
 	private Faction race;
 	BuildOptimizer bo;
 	int level;
@@ -28,7 +28,8 @@ public class SearchTask {
 	}
 
 	public Node compute(SC2Planner planner) {
-		for (Entity entity : race.getEnities())
+		if(stepEntities==null) stepEntities = race.getEnities();
+		for (Entity entity : stepEntities)
 		{
 			if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
 					entity.name!=("Go out with Probe") &&
@@ -41,6 +42,7 @@ public class SearchTask {
 					entity.section == Section.special) && 
 					this.isAllowedToAdd(planner, root, entity))
 			{
+				;
 				List<Entity> stillRequired = new LinkedList<Entity>(requriedTargets);
 				stillRequired.remove(entity);
 				Node n2 = this.putEntity(planner, root, entity, stillRequired);
@@ -49,11 +51,14 @@ public class SearchTask {
 				}
 				if(!n2.isLeafNode()){
 					SearchTask st = new SearchTask(bo, race, n2, stillRequired, usableEntities);
+					st.stepEntities = planner.getPossibleSteps();
+					//System.out.println("allow after"+entity +" : "+st.stepEntities.toString().replaceAll("\\]", "]\n\t"));
 					st.level = level +1;
 					bo.notesToCaclulate.add(st);
 				}
 			}
 		}
+		
 		return null;
 	}
 	

@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -404,6 +405,47 @@ public class SC2Planner
 			}
 		}
 		return null;
+	}
+	
+	private static final HashSet<String> nonTernminalError = new HashSet<String>(
+			Arrays.asList("All armories busy.", "All baneling nests busy.",
+					"All barracks busy.", "All carriers busy.",
+					"All command centers busy.", "All cybernetics cores busy.",
+					"All engineering bays busy.",
+					"All evolution chambers busy.", "All factories busy.",
+					"All fleet beacons busy.", "All forges busy.",
+					"All fusion cores busy.", "All gateways busy",
+					"All gateways busy.", "All ghost academies busy.",
+					"All hatcheries busy.", "All hatcheries spawning larvaes",
+					"All hydralisk dens busy.", "All infestation pits busy.",
+					"All nexus busy.", "All nexuses busy.",
+					"All nydus networks busy.", "All reactors busy.",
+					"All roach warrens busy.", "All robotic bays busy.",
+					"All robotics facilities busy.",
+					"All spawning pools busy.", "All spires busy.",
+					"All stargates busy.", "All starports busy.",
+					"All tech labs busy.", "All tech labss busy.",
+					"All templar archives busy.",
+					"All twilight councils busy.",
+					"All ultralisk cavern busy.", "All warpgates busy.",
+					"Not enough energy", "Not enough energy.",
+					"Not enough food available.", "Not enough food.",
+					"Not enough high templars.", "Not enough minerals.",
+					"Not enough mules.", "Not enough psi.",
+					"Not enough supplies.", "Not enough supply depots.",
+					"Not enough vespene gas.", "Too many larvaes."));
+	public List<VolatileEntity> getPossibleSteps() {
+		LinkedList<VolatileEntity> e = new LinkedList<>();
+		for (VolatileEntity ee : this.entities.values()) {
+			if (ee.eventualError == false)
+				e.add(ee);
+			else if(nonTernminalError.contains(ee.eventualError)){
+				e.add(ee);
+			} else {
+				//System.out.println("dont allow : "+ee);
+			}
+		}
+		return e;
 	}
 	
 	void autoCheck (VolatileEntity b, int index)
@@ -1035,7 +1077,7 @@ public class SC2Planner
 				}
 			}
 			//assertEvents();
-			/*for (VolatileEntity g : this.entities.values())
+			for (VolatileEntity g : this.entities.values())
 			{
 				String n = this.errorDoing(g, maxIndexOf(g.value), true);
 				if (n != null)
@@ -1047,7 +1089,7 @@ public class SC2Planner
 					g.eventualError = false;
 					g.currentError = "";
 				}
-			}*/
+			}
 			//assertEvents();
 		}
 		//dumpState(this);
