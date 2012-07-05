@@ -1,9 +1,16 @@
 package sc2build.optimizer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.sun.java.swing.plaf.windows.WindowsTreeUI.CollapsedIcon;
 
 import sc2build.data.Faction;
 import sc2build.optimizer.BuildOptimizer.Node;
@@ -43,6 +50,7 @@ public class CaclulatorThread extends Thread {
 				System.out.println(new Date() + " found level " + poll.level
 						+ " current suspect:" + myLastSuspect+" queue:"+tasks.size());
 				lastSeenLevel = poll.level;
+				stat();
 			}
 			if(myLastSuspect!=null && myLastSuspect.getAccumTime()+bo.getBestBuildOffset()<poll.root.getAccumTime())
 				continue;
@@ -84,6 +92,32 @@ public class CaclulatorThread extends Thread {
 			}
 		}
 
+	}
+
+	private void stat() {
+		synchronized (bo) {
+		final HashMap<Entity,AtomicInteger> he = new HashMap<>();
+		int total =0;
+		for(SearchTask i: tasks){
+			AtomicInteger atomicInteger = he.get(i.root.entity);
+			if(atomicInteger==null) he.put(i.root.entity,atomicInteger = new AtomicInteger());
+			atomicInteger.incrementAndGet();
+			total++;
+		}
+		ArrayList<Entity> el = new ArrayList<>(he.keySet());
+		Collections.sort(el, new Comparator<Entity>() {
+
+			@Override
+			public int compare(Entity o1, Entity o2) {
+				return he.get(o2).get()- he.get(o1).get();
+			}
+			
+		});	
+		
+		for(Entity i : el.subList(0, Math.min(10,el.size()))){
+			System.out.println(" "+(he.get(i).get()*100/total)+"% : "+i);
+		}
+		}
 	}
 
 }

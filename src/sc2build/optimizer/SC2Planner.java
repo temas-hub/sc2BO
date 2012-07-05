@@ -434,16 +434,31 @@ public class SC2Planner
 					"Not enough mules.", "Not enough psi.",
 					"Not enough supplies.", "Not enough supply depots.",
 					"Not enough vespene gas.", "Too many larvaes."));
+
 	public List<VolatileEntity> getPossibleSteps() {
+		if (build.isEmpty())
+			throw new IllegalStateException();
+		VolatileEntity last = this.build.get(this.build.size() - 1);
 		LinkedList<VolatileEntity> e = new LinkedList<>();
 		for (VolatileEntity ee : this.entities.values()) {
-			if (ee.eventualError == false)
-				e.add(ee);
-			else if(nonTernminalError.contains(ee.eventualError)){
-				e.add(ee);
+			if (ee.eventualError == false) {
+				// OK;
+			} else if (nonTernminalError.contains(ee.eventualError)) {
+				// OK
 			} else {
-				//System.out.println("dont allow : "+ee);
+				continue;
 			}
+			if (ee.addsto == last.name)
+				continue;
+			if ((ee.name == "2 x Gas Probe" || ee.name == "3 x Gas Probe" || ee.name == "Gas Probe")
+					&& (last.name == "Mineral Probe"
+							|| last.name == "2 x Mineral Probe" || last.name == "3 x Mineral Probe"))
+				continue;
+			if ((last.name == "2 x Gas Probe" || last.name == "3 x Gas Probe" || last.name == "Gas Probe")
+					&& (ee.name == "Mineral Probe"
+							|| ee.name == "2 x Mineral Probe" || ee.name == "3 x Mineral Probe"))
+				continue;
+			e.add(ee);
 		}
 		return e;
 	}
@@ -1352,7 +1367,7 @@ public class SC2Planner
 		,sc.entities.get("Stalker")
 		,sc.entities.get("Zealot")));
 		sc.updateCenter(false, true, 0, false);
-		dumpState(sc);
+		sc.dumpState();
 	}
 	public void setBuildS(Collection<VolatileEntity>a){
 		for(VolatileEntity i:a){
@@ -1411,7 +1426,8 @@ public class SC2Planner
 		}
 		this.updateCenter(true, false, this.currentPosition, false);
 	}
-	public static void dumpState(SC2Planner sc) {
+	public void dumpState() {
+		SC2Planner sc  = this;
 		sc.assertEvents();
 		System.out.println("delays");
 		for(int i : sc.delays){

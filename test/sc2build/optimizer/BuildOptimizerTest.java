@@ -43,11 +43,17 @@ public class BuildOptimizerTest
 		node = node.getParent();
 		Assert.assertEquals("Zealot", node.getEntity().name);
 		node = node.getParent();
+		Assert.assertEquals("Probe", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Probe", node.getEntity().name);
+		node = node.getParent();
 		Assert.assertEquals("Gateway", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertEquals("Gateway", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertEquals("Pylon", node.getEntity().name);
+		node = node.getParent();
+		Assert.assertEquals("Probe", node.getEntity().name);
 		node = node.getParent();
 		Assert.assertNull(node.getEntity());
 	}

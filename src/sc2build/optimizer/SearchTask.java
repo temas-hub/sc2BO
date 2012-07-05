@@ -31,6 +31,8 @@ public class SearchTask {
 		if(stepEntities==null) stepEntities = race.getEnities();
 		for (Entity entity : stepEntities)
 		{
+			//boolean plannerOK = true;
+			//String oldError = entity instanceof VolatileEntity ? ((VolatileEntity)entity).currentError : null;
 			if (entity.section != Section.resource && entity.name!=("Chronoboost") &&
 					entity.name!=("Go out with Probe") &&
 					entity.name!=("Return Probe") &&
@@ -40,7 +42,7 @@ public class SearchTask {
 					entity.name!=("Return Drone") &&
 					(usableEntities.contains(entity) || entity.section == Section.worker || 
 					entity.section == Section.special) && 
-					this.isAllowedToAdd(planner, root, entity))
+					(this.isAllowedToAdd(planner, root, entity)))
 			{
 				;
 				List<Entity> stillRequired = new LinkedList<Entity>(requriedTargets);
@@ -57,6 +59,9 @@ public class SearchTask {
 					bo.notesToCaclulate.add(st);
 				}
 			}
+			//if (!plannerOK && root.entity != null) {
+			//	planner.dumpState();
+			//}
 		}
 		
 		return null;

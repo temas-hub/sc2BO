@@ -32,7 +32,7 @@ public class SC2PlannerTest {
 		assertEquals(0,sc2.getEntityByName("Zealot").value[0]);
 		sc2.setBuild(Arrays.asList(sc2.getEntityByName("Pylon"),sc2.getEntityByName("Gateway"),sc2.getEntityByName("Zealot"),sc2.getEntityByName("Zealot")));
 		sc2.updateCenter(false, true, 0, false);
-		sc2.dumpState(sc2);
+		sc2.dumpState();
 		assertFalse(sc2.getEntityByName("Zealot").eventualError);
 		assertEquals(0,sc2.activeEvents);
 		assertEquals(2,sc2.getEntityByName("Zealot").value[0]);
@@ -50,7 +50,7 @@ public class SC2PlannerTest {
 				sc2.getEntityByName("Zealot"),
 				sc2.getEntityByName("Zealot")));
 		sc2.updateCenter(false, true, 0, false);
-		sc2.dumpState(sc2);
+		sc2.dumpState();
 		assertFalse(sc2.getEntityByName("Zealot").eventualError);
 		assertEquals(0,sc2.activeEvents);
 		assertEquals(2,sc2.getEntityByName("Zealot").value[0]);
@@ -70,7 +70,7 @@ public class SC2PlannerTest {
 				sc2.getEntityByName("Zealot"),
 				sc2.getEntityByName("Zealot")));
 		sc2.updateCenter(false, true, 0, false);
-		sc2.dumpState(sc2);
+		sc2.dumpState();
 		assertFalse(sc2.getEntityByName("Zealot").eventualError);
 		assertEquals(0,sc2.activeEvents);
 		assertEquals(2,sc2.getEntityByName("Zealot").value[0]);
@@ -90,7 +90,7 @@ public class SC2PlannerTest {
 		VolatileEntity asm4 = sc2.getEntityByName("Marine");
 		sc2.insertIntoBuild(asm4);
 		sc2.updateCenter(false, true, 0, false);
-		sc2.dumpState(sc2);
+		sc2.dumpState();
 		assertFalse(sc2.isFailed());
 		assertEquals(0,sc2.activeEvents);
 		assertEquals(1,asm4.value[0]);
@@ -112,7 +112,7 @@ public class SC2PlannerTest {
 				sc2.getEntityByName("Zealot")));
 		//assertEquals(0, sc2.activeEvents);
 		sc2.updateCenter(false, true, 0, false);
-		sc2.dumpState(sc2);
+		sc2.dumpState();
 		assertFalse(sc2.isFailed());
 		assertEquals(0,sc2.activeEvents);
 		assertEquals(5,sc2.getEntityByName("Zealot").value[0]);
