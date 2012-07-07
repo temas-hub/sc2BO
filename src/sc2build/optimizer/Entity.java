@@ -16,13 +16,13 @@ public class Entity
 	public Integer start;
 	public String style;
 	//public int[] value;
-	public List<Entity> products = null;
-	public List<NeedEntity> need = null;
+	public Entity[] products = null;
+	public NeedEntity[] need = null;
 	
 	public String adding;
 	public String addsto;
-	public List<String> conditions = null;
-	public List<Cost> costs = null;
+	public String[] conditions = null;
+	public Cost[] costs = null;
 	
 	public String multi;
 	
@@ -103,8 +103,7 @@ public class Entity
 			Entity ent = new Entity();
 			ent.name = a.name;
 			ent.amount = 1;
-			a.products = new ArrayList<Entity>();
-			a.products.add(ent);
+			a.products = new Entity[]{ent};
 		}
 	}
 

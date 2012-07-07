@@ -40,8 +40,9 @@ public class SC2Planner
 	EventQueue events;
 	int currentTime;
 	private Faction factionName;
-	private Map<String, VolatileEntity> entities = new HashMap<String, VolatileEntity>();
-	private Map<String, VolatileEntity> entitiesByKey = new HashMap<String, VolatileEntity>();
+	private VolatileEntity[] forIteration;
+	private final Map<String, VolatileEntity> entities = new HashMap<String, VolatileEntity>();
+	private final Map<String, VolatileEntity> entitiesByKey = new HashMap<String, VolatileEntity>();
 	private List<VolatileEntity> build;
 	private List<Integer> delays;
 	private List<String> food;
@@ -50,10 +51,10 @@ public class SC2Planner
 	private int stopAtTime;
 	private int chronoboost;
 	public int activeEvents;
-	private ArrayList<String> chronoTarget;
-	private ArrayList<Integer> chronoAmount;
-	private ArrayList<Integer> chronoFinished;
-	private Map<Section, Category> category = new HashMap<Section, Category>();
+	private final ArrayList<String> chronoTarget = new ArrayList<String>(500);
+	private final ArrayList<Integer> chronoAmount = new ArrayList<Integer>(500);
+	private final ArrayList<Integer> chronoFinished = new ArrayList<Integer>(500);
+	private final Map<Section, Category> category = new HashMap<Section, Category>();
 	private boolean isDelayed;
 	private VolatileEntity entitiy_Energy;
 	private VolatileEntity entitiy_Energy_Spawner;
@@ -158,16 +159,26 @@ public class SC2Planner
 		this.food = new ArrayList<String>();
 		this.eventualError = new ArrayList<String>();
 		this.currentPosition = -1;
-		List<Entity> entities = faction.getEnities();
-		for (Entity entity : entities)
-		{
-			VolatileEntity ve = new VolatileEntity(entity);
-			this.entities.put(entity.name, ve);
-			if (entity.save != null)
+		if(this.forIteration==null){
+			List<Entity> entities = faction.getEnities();
+			this.forIteration = new VolatileEntity[entities.size()];
+			int ei = 0;
+			for (Entity entity : entities)
 			{
-				this.entitiesByKey.put(entity.save, ve);
+				VolatileEntity ve = new VolatileEntity(entity);
+				forIteration[ei++] = ve;
+				this.entities.put(entity.name, ve);
+				if (entity.save != null)
+				{
+					this.entitiesByKey.put(entity.save, ve);
+				}
 			}
-		}
+		} else {
+			for(VolatileEntity i:forIteration){
+				i.value = null;
+				i.idle = 0;
+			}
+		} 
 		entitiy_Energy = this.entities.get("Energy");
 		entitiy_Energy_Spawner = this.entities.get("Energy Spawner");
 		entitiy_Gas_SCV = this.entities.get("Gas SCV");
@@ -184,6 +195,7 @@ public class SC2Planner
 		entitiy_Slow_Mineral_Patch = this.entities.get("Slow Mineral Patch");
 		
 		this.stopAtTime = -1;
+		initEvents();
 		//this.readBuild();
 		this.updateCenter(false, false, 0, false);
 		//this.updateBuild(false);
@@ -435,12 +447,12 @@ public class SC2Planner
 					"Not enough supplies.", "Not enough supply depots.",
 					"Not enough vespene gas.", "Too many larvaes."));
 
-	public List<VolatileEntity> getPossibleSteps() {
+	public List<Entity> getPossibleSteps() {
 		if (build.isEmpty())
 			throw new IllegalStateException();
 		VolatileEntity last = this.build.get(this.build.size() - 1);
-		LinkedList<VolatileEntity> e = new LinkedList<>();
-		for (VolatileEntity ee : this.entities.values()) {
+		LinkedList<Entity> e = new LinkedList<Entity>();
+		for (VolatileEntity ee : this.forIteration) {
 			if (ee.eventualError == false) {
 				// OK;
 			} else if (nonTernminalError.contains(ee.eventualError)) {
@@ -458,7 +470,9 @@ public class SC2Planner
 					&& (ee.name == "Mineral Probe"
 							|| ee.name == "2 x Mineral Probe" || ee.name == "3 x Mineral Probe"))
 				continue;
+			//this is to save memory
 			e.add(ee);
+			//e.add(this.factionName.getEntityByName(ee.name));
 		}
 		return e;
 	}
@@ -637,6 +651,34 @@ public class SC2Planner
 			this.autoCheck(g, index);
 		}
 	}
+	
+	private Event[] fastMinerals;
+	private Event[] slowMinerals; 
+	void initEvents(){
+		slowMinerals = new Event[8];
+		fastMinerals = new Event[16];
+		for (int k = 0; k < 16; k++)
+		{
+			Event event = new Event();
+			event.event = "check";
+			event.time = (int)(10 + ((k + 1) / 2) * 100);
+			//event.name = "Fast Mineral Patch";
+			event.entityUnderName = entitiy_Fast_Mineral_Patch;
+			event.actInd = 0;
+			fastMinerals[k] = event;
+		}
+		for (int k = 0; k < 8; k++)
+		{
+			Event event = new Event();
+			event.event = "check";
+			event.time = (int)(1002 + k * 100);
+			//event.name = "Slow Mineral Patch";
+			event.entityUnderName = entitiy_Slow_Mineral_Patch;
+			event.actInd = 0;
+			slowMinerals[k] = event;
+		}
+	}
+	
 	void updateCenter (boolean initError, boolean notInit, int position, boolean j)
 	{
 		if (!notInit)
@@ -652,15 +694,14 @@ public class SC2Planner
 		}
 		this.currentTime = 100;
 		this.chronoboost = 0;
-		this.chronoTarget = new ArrayList<String>(500);
-		this.chronoAmount = new ArrayList<Integer>(500);
-		this.chronoFinished = new ArrayList<Integer>(500);
+		this.chronoTarget.clear();
+		this.chronoAmount.clear();
+		this.chronoFinished.clear();
 		this.activeEvents = 0;
 		//int r = 20000;
 		
 		if (!notInit)
 		{
-			this.category = new HashMap<Section, SC2Planner.Category>();
 			this.category.put(Section.pause, new Category());
 			this.category.put(Section.worker, new Category());
 			this.category.put(Section.special, new Category());
@@ -669,11 +710,11 @@ public class SC2Planner
 			this.category.put(Section.unit, new Category());
 		}
 		this.events = new EventQueue();
-		for (VolatileEntity action : this.entities.values())
+		for (VolatileEntity action : this.forIteration)
 		{
 			this.reset(action);
 		}
-		for (VolatileEntity action : this.entities.values())
+		for (VolatileEntity action : this.forIteration)
 		{			
 			if (action.autocheck && action.name!=("Fast Mineral Patch")
 					&& action.name!=("Slow Mineral Patch"))
@@ -684,33 +725,10 @@ public class SC2Planner
 				}
 			}
 		}
-		for (int k = 0; k < 16; k++)
-		{
-			Event event = new Event();
-			event.event = "check";
-			event.time = (int)(10 + ((k + 1) / 2) * 100);
-			//event.name = "Fast Mineral Patch";
-			event.entityUnderName = entitiy_Fast_Mineral_Patch;
-			event.actInd = 0;
-			this.events.add(event);
-		}
-		for (int k = 0; k < 8; k++)
-		{
-			Event event = new Event();
-			event.event = "check";
-			event.time = (int)(1002 + k * 100);
-			//event.name = "Slow Mineral Patch";
-			event.entityUnderName = entitiy_Slow_Mineral_Patch;
-			event.actInd = 0;
-			this.events.add(event);
-		}
-		/*Collections.sort(this.events, new Comparator<Event>()
-		{
-			public int compare(Event o1, Event o2)
-			{
-				return o1.time - o2.time;
-			}
-		});*/
+		for(Event i : fastMinerals)
+			this.events.add(i);
+		for(Event i : slowMinerals)
+			this.events.add(i);
 		//assertEvents();
 		//dumpState(this);
 		for (int k = 0; k < this.build.size(); k++)
@@ -799,7 +817,7 @@ public class SC2Planner
 						&& action.need != null)
 				{
 					this.chronoAmount.set(chronoTargetSize, this.chronoboost);
-					this.chronoTarget.add(action.need.get(0).name);
+					this.chronoTarget.add(action.need[0].name);
 					chronoTargetSize++;
 					this.chronoboost = 0;
 				}
@@ -808,7 +826,7 @@ public class SC2Planner
 					if (chronoTarget.get(m) == null) continue;
 					
 					if (action.need != null 
-							&& action.need.get(0).name==(chronoTarget.get(m)))
+							&& action.need[0].name==(chronoTarget.get(m)))
 					{
 						if (this.chronoFinished.size() > m && this.chronoFinished.get(m) != null
 								&& this.currentTime < this.chronoFinished.get(m))
@@ -1092,7 +1110,7 @@ public class SC2Planner
 				}
 			}
 			//assertEvents();
-			for (VolatileEntity g : this.entities.values())
+			for (VolatileEntity g : this.forIteration)
 			{
 				String n = this.errorDoing(g, maxIndexOf(g.value), true);
 				if (n != null)
@@ -1475,19 +1493,7 @@ public class SC2Planner
 	{
 		this.insertIntoBuild(entity,0);
 	}
-	
-	public boolean isSuccessfull()
-	{
-		for(VolatileEntity i: entities.values())
-		{
-			if(i.eventualError)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	
+		
 	public void clearBuilds()
 	{
 		//SC2Planner.loader.init();
@@ -1507,7 +1513,7 @@ public class SC2Planner
 	
 	
 	public void setBuild(LinkedList<Entity> build2) {
-		LinkedList<VolatileEntity> e = new LinkedList<>();
+		LinkedList<VolatileEntity> e = new LinkedList<VolatileEntity>();
 		for(Entity i: build2){
 			e.add(this.entities.get(i.name));
 		}

@@ -23,7 +23,7 @@ public enum Faction {
 	public List<Entity> getEnities() {
 		if (this.entities == null) {
 			this.entities = getLoader().load(this.name);
-			this.entityByName = new HashMap<>();
+			this.entityByName = new HashMap<String, Entity>();
 			for(Entity i:entities){
 				i.init();
 			}

@@ -1,9 +1,5 @@
 package sc2build.optimizer;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,18 +9,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import sc2build.data.Cost;
 import sc2build.data.Faction;
@@ -318,11 +305,11 @@ public class BuildOptimizer {
 			System.out.println("use:" + i);
 		}
 
-		List<CaclulatorThread> workers = new LinkedList<>();
+		List<CaclulatorThread> workers = new LinkedList<CaclulatorThread>();
 		synchronized (this) {
 			this.currentMinSuspect = null;
 			this.minNode = null;
-			int poolSize = 4;
+			int poolSize = 2;
 			this.notesToCaclulate = new java.util.concurrent.ConcurrentLinkedQueue<SearchTask>();
 			this.notesToCaclulate.add(new SearchTask(this, race, root,
 					requriedTargets, usableObjects));

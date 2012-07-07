@@ -25,9 +25,9 @@ public class LoadTest
 			if (entity.name.equals("Probe"))
 			{
 				found = true;
-				Assert.assertTrue(entity.need.size() > 0);
-				Assert.assertTrue(entity.products.size() > 0);
-				Assert.assertTrue(entity.costs.size() > 0);
+				Assert.assertTrue(entity.need.length > 0);
+				Assert.assertTrue(entity.products.length > 0);
+				Assert.assertTrue(entity.costs.length > 0);
 				Assert.assertTrue(entity.time > 0);
 			}
 		}

@@ -50,7 +50,7 @@ public class CaclulatorThread extends Thread {
 				System.out.println(new Date() + " found level " + poll.level
 						+ " current suspect:" + myLastSuspect+" queue:"+tasks.size());
 				lastSeenLevel = poll.level;
-				stat();
+				//stat();
 			}
 			if(myLastSuspect!=null && myLastSuspect.getAccumTime()+bo.getBestBuildOffset()<poll.root.getAccumTime())
 				continue;
@@ -96,7 +96,7 @@ public class CaclulatorThread extends Thread {
 
 	private void stat() {
 		synchronized (bo) {
-		final HashMap<Entity,AtomicInteger> he = new HashMap<>();
+		final HashMap<Entity,AtomicInteger> he = new HashMap<Entity, AtomicInteger>();
 		int total =0;
 		for(SearchTask i: tasks){
 			AtomicInteger atomicInteger = he.get(i.root.entity);
@@ -104,7 +104,7 @@ public class CaclulatorThread extends Thread {
 			atomicInteger.incrementAndGet();
 			total++;
 		}
-		ArrayList<Entity> el = new ArrayList<>(he.keySet());
+		ArrayList<Entity> el = new ArrayList<Entity>(he.keySet());
 		Collections.sort(el, new Comparator<Entity>() {
 
 			@Override

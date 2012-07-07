@@ -118,18 +118,19 @@ public class EntityLoader
 		JSONArray condArr = obj.getJSONArray("conditions");
 		if (condArr != null)
 		{
-			ent.conditions = new ArrayList<String>();
+			ArrayList<String> conditions = new ArrayList<String>();
 			for (int i=0; i < condArr.length(); i++)
 			{
-				ent.conditions.add(condArr.getString(i));
+				conditions.add(condArr.getString(i));
 			}
+			ent.conditions = conditions.toArray(new String[conditions.size()]);
 		}
 		
 			
 		JSONArray costArr = obj.getJSONArray("costs");
 		if (costArr != null)
 		{
-			ent.costs = new ArrayList<Cost>();
+			ArrayList<Cost> costs = new ArrayList<Cost>();
 			for (int i=0; i < costArr.length(); i++)
 			{
 				Cost cost = new Cost();
@@ -137,34 +138,37 @@ public class EntityLoader
 				cost.amount = costObj.getInt("amount");
 				cost.name = costObj.getString("name");
 				cost.error = costObj.getString("error");
-				ent.costs.add(cost);
+				costs.add(cost);
 			}
+			ent.costs = costs.toArray(new Cost[costs.size()]);
 		}
 		
 		JSONArray needArr = obj.getJSONArray("need");
 		if (needArr != null)
 		{
-			ent.need = new ArrayList<NeedEntity>();
+			ArrayList<NeedEntity> need = new ArrayList<NeedEntity>();
 			for (int i=0; i < needArr.length(); i++)
 			{
 				NeedEntity needEntity = new NeedEntity();
 				JSONObject needObj = needArr.getJSONObject(i);
 				needEntity.error = needObj.getString("error");
 				needEntity.name = needObj.getString("name");
-				ent.need.add(needEntity);
+				need.add(needEntity);
 			}
+			ent.need = need.toArray(new NeedEntity[need.size()]);
 		}
 		
 		JSONArray productArr = obj.getJSONArray("products");
 		if (productArr != null)
 		{
-			ent.products = new ArrayList<Entity>();
+			ArrayList<Entity> products = new ArrayList<Entity>();
 			for (int i=0; i < productArr.length(); i++)
 			{
 				Entity prodEntity = new Entity();
 				this.loadEntity(prodEntity, productArr.getJSONObject(i));
-				ent.products.add(prodEntity);
+				products.add(prodEntity);
 			}
+			ent.products = products.toArray(new Entity[products.size()]);
 		}
 		
 		//ent.value = new int[0];
