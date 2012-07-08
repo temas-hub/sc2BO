@@ -447,7 +447,7 @@ public class SC2Planner
 					"Not enough supplies.", "Not enough supply depots.",
 					"Not enough vespene gas.", "Too many larvaes."));
 
-	public List<Entity> getPossibleSteps() {
+	public Entity[] getPossibleSteps() {
 		if (build.isEmpty())
 			throw new IllegalStateException();
 		VolatileEntity last = this.build.get(this.build.size() - 1);
@@ -474,7 +474,7 @@ public class SC2Planner
 			e.add(ee);
 			//e.add(this.factionName.getEntityByName(ee.name));
 		}
-		return e;
+		return e.toArray(new Entity[e.size()]);
 	}
 	
 	void autoCheck (VolatileEntity b, int index)
@@ -702,12 +702,21 @@ public class SC2Planner
 		
 		if (!notInit)
 		{
-			this.category.put(Section.pause, new Category());
-			this.category.put(Section.worker, new Category());
-			this.category.put(Section.special, new Category());
-			this.category.put(Section.building, new Category());
-			this.category.put(Section.upgrade, new Category());
-			this.category.put(Section.unit, new Category());
+			if(this.category.isEmpty()){
+				this.category.put(Section.pause, new Category());
+				this.category.put(Section.worker, new Category());
+				this.category.put(Section.special, new Category());
+				this.category.put(Section.building, new Category());
+				this.category.put(Section.upgrade, new Category());
+				this.category.put(Section.unit, new Category());
+			} else {
+				Arrays.fill(this.category.get(Section.pause).value, 0);
+				Arrays.fill(this.category.get(Section.worker).value, 0);
+				Arrays.fill(this.category.get(Section.special).value, 0);
+				Arrays.fill(this.category.get(Section.building).value, 0);
+				Arrays.fill(this.category.get(Section.upgrade).value, 0);
+				Arrays.fill(this.category.get(Section.unit).value, 0);
+			}
 		}
 		this.events = new EventQueue();
 		for (VolatileEntity action : this.forIteration)

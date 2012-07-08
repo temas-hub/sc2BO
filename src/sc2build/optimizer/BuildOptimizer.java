@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import sc2build.data.Cost;
 import sc2build.data.Faction;
@@ -306,16 +307,17 @@ public class BuildOptimizer {
 		}
 
 		List<CaclulatorThread> workers = new LinkedList<CaclulatorThread>();
+		AtomicInteger ai = new AtomicInteger();
 		synchronized (this) {
 			this.currentMinSuspect = null;
 			this.minNode = null;
-			int poolSize = 2;
+			int poolSize = 4;
 			this.notesToCaclulate = new java.util.concurrent.ConcurrentLinkedQueue<SearchTask>();
 			this.notesToCaclulate.add(new SearchTask(this, race, root,
 					requriedTargets, usableObjects));
 			for (int i = 0; i < poolSize; i++) {
 				CaclulatorThread caclulatorThread = new CaclulatorThread(this,
-						notesToCaclulate, faction);
+						notesToCaclulate, faction, ai );
 				caclulatorThread.setPriority(Thread.MIN_PRIORITY+1);
 				caclulatorThread.start();
 				workers.add(caclulatorThread);

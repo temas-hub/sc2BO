@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sun.java.swing.plaf.windows.WindowsTreeUI.CollapsedIcon;
@@ -19,12 +20,14 @@ public class CaclulatorThread extends Thread {
 	private BuildOptimizer bo;
 	private ConcurrentLinkedQueue<SearchTask> tasks;
 	private SC2Planner planner;
+	private AtomicInteger ai;
 
 	public CaclulatorThread(BuildOptimizer bo,
-			ConcurrentLinkedQueue<SearchTask> tasks, Faction faction) {
+			ConcurrentLinkedQueue<SearchTask> tasks, Faction faction, AtomicInteger ai) {
 		super();
 		this.bo = bo;
 		this.tasks = tasks;
+		this.ai = ai;
 		this.planner = new SC2Planner();
 		this.planner.init(faction);
 	}
@@ -33,6 +36,10 @@ public class CaclulatorThread extends Thread {
 	public void run() {
 		int lastSeenLevel = 0;
 		Node myLastSuspect = null;
+		long lastTimestamp = System.currentTimeMillis();
+		long lastQueueSize = tasks.size();
+		long lastOrder = 0;
+		int order =0;
 		while (true) {
 			SearchTask poll = tasks.poll();
 			if (poll == null) {
@@ -46,11 +53,27 @@ public class CaclulatorThread extends Thread {
 				else
 					continue;
 			}
-			if (poll.level > lastSeenLevel) {
-				System.out.println(new Date() + " found level " + poll.level
-						+ " current suspect:" + myLastSuspect+" queue:"+tasks.size());
+			order++;
+			int globalStep = ai.incrementAndGet();
+			if (poll.level > lastSeenLevel || order%5000==0) {
+				long currentSize = tasks.size();
+				long currentTime = System.currentTimeMillis();
+				long TPS = (currentTime-lastTimestamp)== 0 ? 0 : ((order-lastOrder)*1000/(currentTime-lastTimestamp));
+				// (order-lastOrder) / (ct-lt ) = currentSize / timeLeft
+				long estimatedTime = (order-lastOrder) == 0 ? 0 : (currentSize * (currentTime-lastTimestamp) /(order-lastOrder)); 
+				System.out.println(new Date() +":"+this+ " found level " + poll.level
+						+ " current suspect:" + myLastSuspect+" queue:"+currentSize+" order:"+order+" TPS:"+TPS+ " time left "+TimeUnit.MILLISECONDS.toMinutes(estimatedTime));
 				lastSeenLevel = poll.level;
+				myLastSuspect = bo.currentMinSuspect;
+				lastOrder = order;
+				lastTimestamp = currentTime;
+				lastQueueSize = currentSize;
 				//stat();
+			}
+			if(globalStep%50000==0) {
+				System.out.println(new Date() +":"+this+ " processed " + globalStep+" total; optimizing");
+				optimize();
+				System.gc();
 			}
 			if(myLastSuspect!=null && myLastSuspect.getAccumTime()+bo.getBestBuildOffset()<poll.root.getAccumTime())
 				continue;
@@ -62,7 +85,7 @@ public class CaclulatorThread extends Thread {
 						bo.currentMinSuspect = rz;
 						bo.minNode = new LinkedList<Node>();
 						bo.minNode.add(rz);
-						System.out.println(new Date()+" first suspect so far  at level "+poll.level+":");
+						System.out.println(new Date()+":"+this+" first suspect so far  at level "+poll.level+":");
 						rz.dump();
 					} else {
 						boolean shouldDump = false;
@@ -82,7 +105,7 @@ public class CaclulatorThread extends Thread {
 							}
 						}
 						if(shouldDump){
-							System.out.println(new Date()+" new best suspect so far of "+bo.minNode.size()+" at level "+poll.level+":");
+							System.out.println(new Date()+":"+this+" new best suspect so far of "+bo.minNode.size()+" at level "+poll.level+":");
 							rz.dump();
 						}
 					}
@@ -92,6 +115,15 @@ public class CaclulatorThread extends Thread {
 			}
 		}
 
+	}
+
+	private void optimize() {
+		synchronized (bo) {
+			SearchTask last = null;
+			ArrayList<SearchTask> a = new ArrayList<SearchTask>(tasks);
+			SearchTask.optimze(a);
+			
+		}
 	}
 
 	private void stat() {
